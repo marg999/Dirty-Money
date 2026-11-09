@@ -244,6 +244,33 @@ select:focus{border-color:var(--cognac)}
 .show-item .credit{font-size:.58rem;padding:2px 6px;right:5px;bottom:5px}
 .show-name{padding:8px 4px 2px;display:flex;flex-direction:column;font-size:.84rem;line-height:1.25}
 .show-name .art-brand{font-size:.62rem}
+
+.co{padding:0;overflow:hidden}
+.co-head{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none;transition:background .2s}
+.co-head:hover{background:var(--surface-2)}
+.co-head:focus-visible{outline:2px solid var(--cognac);outline-offset:-2px;border-radius:var(--r-lg)}
+.co-title{min-width:0;flex:1}
+.co-title h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.co-sum{display:flex;gap:18px;text-align:right}
+.co-sum small{display:block;color:var(--muted);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.co-sum b{font-size:.9rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.co-state{font-size:.7rem;font-weight:800;padding:4px 9px;border-radius:999px;white-space:nowrap}
+.co-state:empty{display:none}
+.co-state.good{background:rgba(169,187,108,.14);color:var(--up)}
+.co-state.bad{background:rgba(210,90,100,.15);color:var(--down)}
+.chev{flex-shrink:0;color:var(--muted);transition:transform .3s}
+.co.open .chev{transform:rotate(180deg);color:var(--text)}
+.co-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s ease}
+.co.open .co-body{grid-template-rows:1fr}
+.co-inner{overflow:hidden;padding:0 16px}
+.co.open .co-inner{padding-bottom:16px}
+.co-info{border-top:1px solid var(--border);padding-top:12px;font-size:.78rem}
+.co .branches{margin:12px 0}
+@media (max-width:640px){
+  .hide-sm{display:none}
+  .co-head{gap:10px;padding:12px 14px}
+  .co-head .badge-ico{width:42px;height:42px;border-radius:13px;font-size:.82rem}
+}
 </style>
 </head>
 <body>
@@ -295,7 +322,8 @@ select:focus{border-color:var(--cognac)}
     <div id="effectsBox"></div>
     <div class="section-head">
       <h2>Mes entreprises</h2>
-      <button class="btn" id="foundBtn" style="padding:12px 20px">Créer une entreprise</button>
+      <div class="row"><button class="btn soft" id="toggleAllBtn" style="padding:12px 18px">Tout déplier</button>
+      <button class="btn" id="foundBtn" style="padding:12px 20px">Créer une entreprise</button></div>
     </div>
     <div class="stack" id="coList"></div>
     <div class="section-head"><h2>Affaires louches</h2><span class="muted">Très rentable… tant que le fisc ne regarde pas</span></div>
@@ -847,12 +875,21 @@ function buildCompanies(){
   } else {
     $('#coList').innerHTML = S.companies.map(co => {
       const sc = sec(co.sector), opts = cityOptions(co);
-      return `<div class="card co" id="co-${co.id}">
-        <div class="head">
+      return `<div class="card co${openCos.has(co.id) ? ' open' : ''}" id="co-${co.id}">
+        <div class="co-head" data-toggle="${co.id}" role="button" tabindex="0" aria-expanded="${openCos.has(co.id)}">
           <span class="badge-ico" style="background:${grad(coColor(co))}">${esc(initials(co.name))}</span>
-          <div><h3>${esc(co.name)}</h3><span class="muted">${sc.name} · marge ${Math.round(sc.marge*100)} % · ${num(sc.maxEmp,0)} employés max. par succursale</span></div>
-          <div style="margin-left:auto;text-align:right"><div class="price up" data-f="profit"></div><span class="muted" data-f="nb"></span></div>
+          <div class="co-title"><h3>${esc(co.name)}</h3><span class="muted">${sc.name}</span></div>
+          <div class="co-sum">
+            <div><small>Bénéfice</small><b class="up" data-f="profit"></b></div>
+            <div class="hide-sm"><small>Villes</small><b data-f="nb"></b></div>
+            <div class="hide-sm"><small>Employés</small><b data-f="emps"></b></div>
+            <div class="hide-sm"><small>Valeur</small><b data-f="val"></b></div>
+          </div>
+          <span class="co-state" data-f="state"></span>
+          <svg class="chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
+        <div class="co-body"><div class="co-inner">
+        <p class="muted co-info">Marge ${Math.round(sc.marge*100)} % · ${num(sc.maxEmp,0)} employés max. par succursale</p>
         <div class="branches">${co.branches.map(br => `<div class="branch" data-city="${br.city}">
           <div class="br-info"><b>${cityById(br.city).name}</b><span class="muted" data-f="meta"></span></div>
           <b class="br-profit" data-f="bp"></b>
@@ -864,7 +901,7 @@ function buildCompanies(){
           ${opts ? `<select data-co="${co.id}">${opts}</select><button class="btn" data-act="open" data-co="${co.id}">Ouvrir une succursale<small data-f="oc"></small></button>`
                  : `<span class="muted">Présente dans toutes les villes</span>`}
           <button class="btn soft" data-act="sell" data-co="${co.id}" style="margin-left:auto">Vendre<small data-f="sv"></small></button>
-        </div></div>`;
+        </div></div></div></div>`;
     }).join('');
   }
   updateCompanies();
@@ -879,6 +916,8 @@ function updateCompanies(){
   if (signature() !== coSig) return buildCompanies();
   const m = mult();
   $('#eProfit').textContent = money(ips()) + '/s';
+  const tb = $('#toggleAllBtn'), allOpen = S.companies.length && S.companies.every(c => openCos.has(c.id));
+  tb.hidden = S.companies.length < 2; const tl = allOpen ? 'Tout replier' : 'Tout déplier'; if (tb.textContent !== tl) tb.textContent = tl;
   $('#eCount').textContent = S.companies.length;
   $('#eBranches').textContent = totalBranches();
   $('#eCities').textContent = `${CITIES.filter(cityOpen).length} / ${CITIES.length}`;
@@ -886,7 +925,13 @@ function updateCompanies(){
   S.companies.forEach(co => {
     const card = document.getElementById('co-' + co.id); if (!card) return;
     setF(card, 'profit', '+' + money(coProfit(co, m)) + '/s');
-    setF(card, 'nb', co.branches.length + (co.branches.length > 1 ? ' succursales' : ' succursale'));
+    setF(card, 'nb', `${co.branches.length} / ${CITIES.length}`);
+    setF(card, 'emps', num(co.branches.reduce((a,b) => a + b.e, 0), 0));
+    setF(card, 'val', money(coValue(co)));
+    const effs = co.branches.map(b => effMult(co, b.city)), st = card.querySelector('[data-f=state]');
+    const cls = effs.some(x => x === 0) ? 'bad' : effs.some(x => x < 1) ? 'bad' : effs.some(x => x > 1) ? 'good' : '';
+    const lbl = effs.some(x => x === 0) ? 'Fermée' : effs.some(x => x < 1) ? 'En baisse' : effs.some(x => x > 1) ? 'En hausse' : '';
+    if (st.textContent !== lbl){ st.textContent = lbl; st.className = 'co-state ' + cls; }
     co.branches.forEach(br => {
       const row = card.querySelector(`.branch[data-city="${br.city}"]`); if (!row) return;
       const eff = effMult(co, br.city);
@@ -917,7 +962,18 @@ function sellCompany(co, price){
   refresh();
 }
 $('#coList').addEventListener('change', e => { if (e.target.tagName === 'SELECT') updateCompanies(); });
+const openCos = new Set();
+function toggleCo(id){
+  const card = document.getElementById('co-' + id); if (!card) return;
+  if (openCos.has(id)) openCos.delete(id); else openCos.add(id);
+  card.classList.toggle('open', openCos.has(id));
+  card.querySelector('.co-head').setAttribute('aria-expanded', openCos.has(id));
+}
+$('#coList').addEventListener('keydown', e => {
+  const h = e.target.closest('[data-toggle]'); if (h && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); toggleCo(h.dataset.toggle); }
+});
 $('#coList').addEventListener('click', e => {
+  const head = e.target.closest('[data-toggle]'); if (head){ toggleCo(head.dataset.toggle); return; }
   const btn = e.target.closest('button[data-act]'); if (!btn) return;
   const co = S.companies.find(c => c.id === btn.dataset.co); if (!co) return;
   const act = btn.dataset.act;
@@ -947,6 +1003,11 @@ $('#coList').addEventListener('click', e => {
   refresh(); flash('co-' + co.id);
 });
 
+$('#toggleAllBtn').addEventListener('click', () => {
+  const allOpen = S.companies.length && S.companies.every(c => openCos.has(c.id));
+  S.companies.forEach(c => { if (allOpen) openCos.delete(c.id); else openCos.add(c.id); });
+  coSig = ''; updateCompanies();
+});
 /* ----- Création d'une entreprise ----- */
 $('#foundBtn').addEventListener('click', () => {
   let selSector = BIZ[0].id;
@@ -982,6 +1043,7 @@ function found(sid, cid, name){
   S.cash -= cost;
   S.companies.push({id:'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,6), name, sector:sid,
     color:S.companies.length, branches:[{city:cid, l:0, e:0}], invested:cost});
+  openCos.add(S.companies[S.companies.length - 1].id);
   toast(`${name} est née ! Première succursale à ${c.name}.`);
   if (!S.nextEvent) scheduleEvent();
   refresh();
