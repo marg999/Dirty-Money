@@ -449,6 +449,10 @@ body.scrolled .hf-top{display:none}
   body.scrolled #cash{font-size:1.3rem}
   .tabs button{padding:8px 11px;font-size:.8rem}
 }
+
+.auc-wait{padding:16px 18px}
+.auc-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.auc-foot .btn{padding:11px 22px}
 </style>
 </head>
 <body>
@@ -599,6 +603,8 @@ body.scrolled .hf-top{display:none}
       <div class="kpi k-pink"><small>Collection</small><b id="artCount">0</b></div>
       <div class="kpi k-orange"><small>Bonus de revenus</small><b id="artBonus">+0 %</b></div>
     </div>
+    <div class="section-head"><h2>Ventes aux enchères</h2><span class="muted">Tableaux de maîtres et immobilier</span></div>
+    <div id="artAuction"></div>
     <p class="muted" style="margin-top:12px">Chaque article acheté augmente les revenus de toutes tes entreprises.</p>
     <div id="artList"></div>
   </section>
@@ -923,7 +929,7 @@ const IPO_HOURS = 3;        // valorisation boursière = 3 h de bénéfice + 60 
 const IPO_MAX = 0.40;       // on peut céder au plus 40 % d'une entreprise
 const PRESTIGE_BONUS = 0.05;// chaque point de prestige : +5 % sur tous les revenus
 const PRESTIGE_MIN = 1e9;   // prestige possible à partir de 1 Md € de patrimoine
-const STATS0 = {laundered:0, escaped:0, dirtyTotal:0, opened:0, renos:0, hireActs:0, founded:0, artBought:0, stockGain:0, divs:0, confiscated:0, carsSold:0, auctionsWon:0};
+const STATS0 = {laundered:0, escaped:0, dirtyTotal:0, opened:0, renos:0, hireActs:0, founded:0, artBought:0, stockGain:0, divs:0, confiscated:0, carsSold:0, auctionsWon:0, tradeIns:0, posts:0, artAuctionsWon:0};
 const HEAT_DECAY = 0.4;     // le soupçon baisse de 0,4 point par minute
 const CITIES = [
   {id:'lyon',      name:'Lyon',      cost:.7,  ca:.7,  need:0},
@@ -975,7 +981,7 @@ const catColor = name => ART_CATS.find(c => c.name === name).color;
 function freshState(){
   const prices = {};
   STK.forEach(s => { let p = s.p0; const h = []; for (let i=0;i<HIST;i++){ p = stepPrice(s,p); h.push(p); } prices[s.id] = {p, h}; });
-  return {v:5, name:'Mon Empire', dirty:0, heat:0, cops:0, lcap:0, shady:{}, ach:{}, stats:{...STATS0}, daily:{last:'', streak:0}, week:null, prestige:{pts:0, count:0}, hist:[], nextDiv:0, cash:0, earned:0, clicks:0, clickLvl:0, companies:[], effects:[], log:[], nextEvent:0,
+  return {v:5, artAuc:{cur:null, next:Date.now() + 90000}, name:'Mon Empire', dirty:0, heat:0, cops:0, lcap:0, shady:{}, ach:{}, stats:{...STATS0}, daily:{last:'', streak:0}, week:null, prestige:{pts:0, count:0}, hist:[], nextDiv:0, cash:0, earned:0, clicks:0, clickLvl:0, companies:[], effects:[], log:[], nextEvent:0,
     stk:{}, prices, lux:{}, news:[], last:Date.now(), start:Date.now()};
 }
 function normalize(o){
@@ -1007,6 +1013,7 @@ function normalize(o){
   if (!s.prestige || typeof s.prestige !== 'object') s.prestige = {pts:0, count:0};
   if (typeof s.mgrPause !== 'number') s.mgrPause = 0;
   if (typeof s.fame !== 'number') s.fame = 20;
+  if (!s.artAuc || typeof s.artAuc !== 'object') s.artAuc = {cur:null, next:Date.now() + 90000};
   ['fameNext','famePostAt','fameCampAt'].forEach(k => { if (typeof s[k] !== 'number') s[k] = 0; });
   if (!Array.isArray(s.fameLog)) s.fameLog = [];
   if (!s.goal || typeof s.goal !== 'object' || typeof s.goal.amount !== 'number') s.goal = null;
@@ -1982,6 +1989,7 @@ const DMGR_FEE = 25000, DMGR_SALARY = 0.10;
 function acceptTrade(byMgr){
   const d = S.dealer, tr = d.trade; if (!tr) return false;
   const c = tr.price + tr.repair; if (d.workshop.length >= d.atelier || S.cash < c) return false;
+  S.stats.tradeIns++;
   S.cash -= c; d.workshop.push({id:uid(), g:tr.g, m:carModel(tr).id, cost:c, until:Date.now() + tr.dur, dur:tr.dur, done:false}); d.trade = null;
   toast(`${byMgr ? AVATARS[d.mgr.av].name + ' : ' : ''}${carModel(tr).name} d'occasion reprise et envoyée à l'atelier.`);
   return true;
@@ -2244,6 +2252,79 @@ $('#clickUpBtn').addEventListener('click', () => {
 });
 
 /* ================= ARTICLES ================= */
+/* ================= VENTES AUX ENCHÈRES (ART & IMMOBILIER) ================= */
+const ART_RIVALS = ['une galerie new-yorkaise', 'un collectionneur de Hong Kong', 'un musée européen', 'un oligarque', 'une star de la pop', 'un fonds immobilier', 'une famille royale'];
+const AUC_CATS = ['Tableaux de maîtres', 'Immobilier'];
+let artAucSig = '';
+function artAucTick(){
+  const now = Date.now();
+  if (!S.artAuc || typeof S.artAuc !== 'object') S.artAuc = {cur:null, next:now + 90000};
+  const A = S.artAuc;
+  if (!A.cur){
+    if (now < A.next) return;
+    A.next = now + (240 + Math.random() * 180) * 1000;
+    const pool = ART.filter(x => AUC_CATS.includes(x.cat) && x.price * 0.6 <= Math.max(S.cash, 1) * 2);
+    const fresh = pool.filter(x => !S.lux[x.id]), list = fresh.length ? fresh : pool;
+    if (!list.length) return;
+    const x = list[Math.floor(Math.random() * list.length)];
+    A.cur = {id:uid(), art:x.id, bid:Math.round(x.price * 0.6), leader:null, rival:ART_RIVALS[Math.floor(Math.random() * ART_RIVALS.length)], max:x.price * (0.8 + Math.random() * 0.35), until:now + 45000, total:45000};
+    toast(`Vente aux enchères : ${x.name} ! Rendez-vous dans l'onglet Articles.`);
+    return;
+  }
+  const a = A.cur;
+  if (now < a.until){
+    if (a.leader !== 'rival'){ const nb = a.leader ? Math.round(a.bid * 1.05) : a.bid;
+      if (nb <= a.max && Math.random() < 0.45){ a.bid = nb; a.leader = 'rival'; if (a.until - now < 5000) a.until = now + 6000; } }
+    return;
+  }
+  const x = ART.find(i => i.id === a.art); A.cur = null;
+  if (a.leader !== 'you'){ logEvent(`Enchères : ${x.name} adjugé à ${a.rival} pour ${money(a.bid)}.`, false); return; }
+  if (S.cash < a.bid){ logEvent(`Enchères : paiement impossible, ${x.name} part à ${a.rival}.`, false); return; }
+  S.cash -= a.bid; S.stats.artAuctionsWon++;
+  const gain = x.price - a.bid, resell = () => { S.cash += x.price; S.earned += x.price; logEvent(`${x.name} revendu ${money(x.price)} (${gain >= 0 ? '+' : '−'}${money(Math.abs(gain))}).`, gain >= 0); refresh(); };
+  if (S.lux[x.id]){ resell(); return; }
+  modal('Adjugé !', `<p>Tu remportes <b>${esc(x.name)}</b> pour <b>${money(a.bid)}</b>. Sa cote est de ${money(x.price)}.</p>
+    <p style="margin-top:8px">Tu le gardes dans ta collection (+${x.pr} % de revenus), ou tu le revends tout de suite à sa cote ?</p>`, [
+    {label:`Revendre ${money(x.price)}`, cls:'soft', action:resell},
+    {label:'Garder', cls:'green', action:() => { S.lux[x.id] = true; S.stats.artBought++; logEvent(`${x.name} rejoint ta collection.`, true); refresh(); }},
+  ]);
+}
+function buildArtAuction(){
+  const a = S.artAuc && S.artAuc.cur; artAucSig = a ? a.id : 'none';
+  if (!a){ $('#artAuction').innerHTML = `<div class="card auc-wait"><p class="muted">Aucune vente en cours. Prochaine vente aux enchères dans <b data-f="anext"></b>.</p></div>`; updateArtAuction(); return; }
+  const x = ART.find(i => i.id === a.art), cat = ART_CATS.find(c => c.name === x.cat);
+  $('#artAuction').innerHTML = `<div class="card d-auction" id="aa-${a.id}">
+    <div class="art-visual${x.type === 'painting' ? ' painting' : ''}" style="background:radial-gradient(120% 90% at 50% 30%, ${cat.color}aa, #141714 80%)"><svg viewBox="0 0 160 100" aria-hidden="true">${illu(x)}</svg><img alt="${esc(x.name)}"><a class="credit" target="_blank" rel="noopener" hidden>Photo · Wikipédia</a></div>
+    <div class="d-auc-body"><span class="art-brand">${esc(x.brand)}</span><h3>${esc(x.model)}</h3><p class="muted">Cote : ${money(x.price)} · +${x.pr} % de revenus si tu le gardes${S.lux[x.id] ? ' · déjà dans ta collection, tu le revendras' : ''}</p>
+      <div class="d-bid"><div><small>Enchère actuelle</small><b data-f="abid"></b></div><div><small>En tête</small><b data-f="alead"></b></div></div>
+      <div class="heat d-timer"><span data-f="atimer"></span></div>
+      <div class="auc-foot"><span class="muted" data-f="aleft"></span><button class="btn" id="artBidBtn">Enchérir<small data-f="anb"></small></button></div></div></div>`;
+  loadPhoto(x, document.getElementById('aa-' + a.id));
+  updateArtAuction();
+}
+function updateArtAuction(){
+  const a = S.artAuc && S.artAuc.cur;
+  if ((a ? a.id : 'none') !== artAucSig) return buildArtAuction();
+  const now = Date.now();
+  if (!a){ const el = document.querySelector('#artAuction [data-f=anext]'); if (el) el.textContent = fmtSec((S.artAuc ? S.artAuc.next : now) - now); return; }
+  const card = document.getElementById('aa-' + a.id); if (!card) return;
+  const nb = a.leader ? Math.round(a.bid * 1.05) : a.bid;
+  setF(card, 'abid', money(a.bid));
+  setF(card, 'alead', a.leader === 'you' ? 'Toi' : a.leader === 'rival' ? a.rival.replace(/^(un|une) /, '').replace(/^./, c => c.toUpperCase()) : 'Personne');
+  card.querySelector('[data-f=alead]').className = a.leader === 'you' ? 'up' : a.leader === 'rival' ? 'down' : '';
+  card.querySelector('[data-f=atimer]').style.width = Math.max(0, Math.min(100, (a.until - now) / a.total * 100)) + '%';
+  setF(card, 'aleft', 'fin dans ' + fmtSec(a.until - now));
+  setF(card, 'anb', a.leader === 'you' ? 'tu mènes' : money(nb));
+  $('#artBidBtn').disabled = a.leader === 'you' || S.cash < nb;
+}
+$('#artAuction').addEventListener('click', e => {
+  if (!e.target.closest('#artBidBtn')) return;
+  const a = S.artAuc && S.artAuc.cur; if (!a) return;
+  const nb = a.leader ? Math.round(a.bid * 1.05) : a.bid;
+  if (a.leader === 'you' || S.cash < nb) return;
+  a.bid = nb; a.leader = 'you'; if (a.until - Date.now() < 5000) a.until = Date.now() + 6000; refresh();
+});
+
 function buildArticles(){
   $('#artList').innerHTML = ART_CATS.map(cat => `<div class="section-head"><h2 style="display:flex;align-items:center;gap:10px"><span class="cat-dot" style="background:${cat.color}"></span>${cat.name}</h2></div><div class="grid">` +
     ART.filter(x => x.cat === cat.name).map(x => `<div class="card art" id="art-${x.id}">
@@ -2327,8 +2408,30 @@ const ownsCat = cat => ART.some(x => x.cat === cat && S.lux[x.id]);
 const maxBranchLvl = () => Math.max(0, ...S.companies.flatMap(c => c.branches.map(b => b.l)));
 const ACH = [
   {id:'click1',   name:'Premier euro',          desc:'Clique pour la première fois.',                  reward:10,    prog:() => [S.clicks, 1]},
+  {id:'reno1',    name:'Coup de peinture',      desc:'Rénove une succursale pour la première fois.',   reward:300,   prog:() => [S.stats.renos, 1]},
+  {id:'p10',      name:'Ça tourne',             desc:'Atteins 10 € de bénéfice par seconde.',          reward:300,   prog:() => [ips(), 10]},
+  {id:'pet',      name:'Compagnon fidèle',      desc:'Adopte un animal.',                              reward:500,   check:() => ownsCat('Animaux')},
+  {id:'post1',    name:'En ligne',              desc:'Poste pour la première fois sur les réseaux.',   reward:500,   prog:() => [S.stats.posts, 1]},
+  {id:'div1',     name:'Premier dividende',     desc:'Touche tes premiers dividendes.',                reward:500,   check:() => S.stats.divs > 0},
+  {id:'nw10k',    name:'Premiers pas',          desc:'Atteins 10 000 € de patrimoine.',                reward:500,   prog:() => [wealth(), 1e4]},
   {id:'click100', name:'Bosseur',               desc:'Clique 100 fois.',                               reward:100,   prog:() => [S.clicks, 100]},
   {id:'found1',   name:'Entrepreneur',          desc:'Fonde ta première entreprise.',                  reward:100,   prog:() => [S.companies.length, 1]},
+  {id:'car1',     name:'Première vente',        desc:'Vends ta première voiture à la concession.',     reward:2000,  prog:() => [S.stats.carsSold, 1]},
+  {id:'br5',      name:'Petite chaîne',         desc:'Possède 5 succursales.',                         reward:3000,  prog:() => [totalBranches(), 5]},
+  {id:'streak3',  name:'Régulier',              desc:'Connecte-toi 3 jours d\'affilée.',               reward:5000,  prog:() => [S.daily.streak, 3]},
+  {id:'nw100k',   name:'Petit patron',          desc:'Atteins 100 000 € de patrimoine.',               reward:5000,  prog:() => [wealth(), 1e5]},
+  {id:'trade1',   name:'Seconde main',          desc:'Reprends une voiture d\'occasion.',              reward:5000,  prog:() => [S.stats.tradeIns, 1]},
+  {id:'car10',    name:'Bon vendeur',           desc:'Vends 10 voitures.',                             reward:2e4,   prog:() => [S.stats.carsSold, 10]},
+  {id:'emp100',   name:'Gros employeur',        desc:'Emploie 100 personnes au total.',                reward:2e4,   prog:() => [S.companies.reduce((a,c) => a + c.branches.reduce((b,br) => b + br.e, 0), 0), 100]},
+  {id:'p1k',      name:'Belle affaire',         desc:'Atteins 1 000 € de bénéfice par seconde.',       reward:3e4,   prog:() => [ips(), 1000]},
+  {id:'fame40',   name:'Célèbre',               desc:'Atteins 40 de notoriété.',                       reward:5e4,   prog:() => [S.fame, 40]},
+  {id:'rep4',     name:'Concession étoilée',    desc:'Atteins 4 étoiles de réputation à la concession.', reward:5e4, prog:() => [S.dealer ? S.dealer.rep : 0, 4]},
+  {id:'art5',     name:'Collection naissante',  desc:'Possède 5 articles.',                            reward:5e4,   prog:() => [ART.filter(x => S.lux[x.id]).length, 5]},
+  {id:'artauc1',  name:'Coup de marteau',       desc:'Remporte une vente aux enchères d\'art ou d\'immobilier.', reward:2e5, prog:() => [S.stats.artAuctionsWon, 1]},
+  {id:'nw10m',    name:'Multimillionnaire',     desc:'Atteins 10 M € de patrimoine.',                  reward:5e5,   prog:() => [wealth(), 1e7]},
+  {id:'br20',     name:'Grande chaîne',         desc:'Possède 20 succursales.',                        reward:1e6,   prog:() => [totalBranches(), 20]},
+  {id:'p100k',    name:'Empire',                desc:'Atteins 100 000 € de bénéfice par seconde.',     reward:5e6,   prog:() => [ips(), 1e5]},
+  {id:'nw100m',   name:'Grosse fortune',        desc:'Atteins 100 M € de patrimoine.',                 reward:5e6,   prog:() => [wealth(), 1e8]},
   {id:'br3',      name:'Réseau',                desc:'Possède 3 succursales.',                         reward:1000,  prog:() => [totalBranches(), 3]},
   {id:'stock1',   name:'Boursicoteur',          desc:'Achète ta première action.',                     reward:100,   check:() => STK.some(s => (S.stk[s.id]?.q || 0) > 0)},
   {id:'watch',    name:"L'heure du luxe",       desc:'Achète ta première montre.',                     reward:500,   check:() => ownsCat('Montres')},
@@ -2382,7 +2485,8 @@ let achSig = '';
 function buildAch(){
   achSig = ACH.map(a => S.ach[a.id] || '-').join('');
   const order = a => S.ach[a.id] === 'done' ? 0 : !S.ach[a.id] ? 1 : 2;
-  const list = [...ACH].sort((a,b) => order(a) - order(b) || ACH.indexOf(a) - ACH.indexOf(b));
+  const pct = a => { if (S.ach[a.id] || !a.prog) return 0; const [c, t] = a.prog(); return Math.max(0, Math.min(1, c / t)); };
+  const list = [...ACH].sort((a,b) => order(a) - order(b) || pct(b) - pct(a) || ACH.indexOf(a) - ACH.indexOf(b));
   const n = ACH.filter(a => S.ach[a.id]).length;
   $('#achCount').textContent = `${n} / ${ACH.length} débloqués`;
   const pa = ACH.filter(a => S.ach[a.id] === 'done').length; $('#achPend').textContent = pa ? `${pa} à récupérer` : '';
@@ -2695,7 +2799,7 @@ function updateBuzzPill(){
 }
 $('#postBtn').addEventListener('click', () => {
   if (S.famePostAt > Date.now()) return;
-  S.famePostAt = Date.now() + 5 * 60000;
+  S.famePostAt = Date.now() + 5 * 60000; S.stats.posts++;
   if (Math.random() < 0.7) media('Post : ton message plaît beaucoup, +10 % pendant 5 min', 1.1, 5, 3, true);
   else media('Post raté : ton message est mal compris, −30 % pendant 2 min', 0.7, 2, -2, false);
   refresh();
@@ -2785,7 +2889,7 @@ function refresh(){
   if (currentTab === 'bourse') updateStocks();
   else if (currentTab === 'biz'){ updateCompanies(); updateShady(); }
   else if (currentTab === 'gains') updateGains();
-  else if (currentTab === 'articles') updateArticles();
+  else if (currentTab === 'articles'){ updateArticles(); updateArtAuction(); }
   else if (currentTab === 'concession') updateDealer();
   else if (currentTab === 'objectifs'){ updateWeek(); updateAch(); }
   else updateProfil();
@@ -2804,6 +2908,7 @@ setInterval(() => { shadyTick(); weekTick(); achTick(); divTick(); recordHist();
 setInterval(mgrTick, 3000);
 setInterval(goalTick, 1000);
 setInterval(fameTick, 1000);
+setInterval(artAucTick, 1000);
 setInterval(dealerTick, 1000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
 window.addEventListener('beforeunload', save);
