@@ -1797,10 +1797,25 @@ function mgrDecide(o){
   return 'no';
 }
 const DMGR_FEE = 25000, DMGR_SALARY = 0.10;
+function acceptTrade(byMgr){
+  const d = S.dealer, tr = d.trade; if (!tr) return false;
+  const c = tr.price + tr.repair; if (d.workshop.length >= d.atelier || S.cash < c) return false;
+  S.cash -= c; d.workshop.push({id:uid(), g:tr.g, m:carModel(tr).id, cost:c, until:Date.now() + tr.dur, dur:tr.dur, done:false}); d.trade = null;
+  toast(`${byMgr ? AVATARS[d.mgr.av].name + ' : ' : ''}${carModel(tr).name} d'occasion reprise et envoyée à l'atelier.`);
+  return true;
+}
+// Le chef des ventes reprend l'occasion si l'atelier a de la place, si c'est rentable et sans dépenser plus de 30 % du solde
+function mgrTrade(){
+  const d = S.dealer, tr = d.trade, c = tr.price + tr.repair, gain = listPrice(carModel(tr), true) - c;
+  if (d.workshop.length < d.atelier && gain > 0 && c <= Math.max(0, S.cash) * 0.3 && acceptTrade(true)){ d.mgr.tr = (d.mgr.tr || 0) + 1; return; }
+  d.mgr.trno = (d.mgr.trno || 0) + 1;
+  const why = d.workshop.length >= d.atelier ? 'atelier plein' : gain <= 0 ? 'pas rentable' : 'trop cher pour ton solde';
+  toast(`${AVATARS[d.mgr.av].name} : reprise de la ${carModel(tr).name} refusée (${why}).`); d.trade = null;
+}
 function pickDealerMgr(isNew){
   const d = S.dealer; let sel = d.mgr ? d.mgr.av : 0;
   modal(isNew ? 'Un chef des ventes' : 'Changer d\'apparence',
-    `${isNew ? `<p>Il répond aux offres des clients à ta place : il accepte les bonnes affaires, négocie les offres moyennes et refuse de vendre à perte. Il veille aussi à ta réputation. Salaire : <b>10 % de la marge</b> de chaque vente.</p>` : '<p>Choisis le nouveau look de ton chef des ventes.</p>'}
+    `${isNew ? `<p>Il répond aux offres des clients à ta place : il accepte les bonnes affaires, négocie les offres moyennes et refuse de vendre à perte. Il gère aussi les reprises d'occasion, sans jamais dépenser plus de 30 % de ton solde. Il veille à ta réputation. Salaire : <b>10 % de la marge</b> de chaque vente.</p>` : '<p>Choisis le nouveau look de ton chef des ventes.</p>'}
      <div class="av-grid" id="dmGrid">${AVATARS.map((a, i) => `<button type="button" data-av="${i}" class="${i === sel ? 'on' : ''}"><span class="avatar">${avatarSVG(i)}</span><small>${a.name}</small></button>`).join('')}</div>
      ${isNew ? `<p>Frais d'embauche : <b>${money(DMGR_FEE)}</b></p>` : ''}`, [
     {label:'Annuler', cls:'soft'},
@@ -1838,6 +1853,7 @@ function dealerTick(){
     else { repAdd(0.02); sellCar(car, lp, true); }
   });
   // offres expirées
+  if (d.mgr && d.trade){ if (!d.trade.mgrAt) d.trade.mgrAt = now + 3000 + Math.random() * 5000; else if (now >= d.trade.mgrAt) mgrTrade(); }
   if (d.mgr) d.offers.slice().forEach(o => {
     if (!o.mgrAt) o.mgrAt = now + 3000 + Math.random() * 5000;
     else if (now >= o.mgrAt && d.offers.includes(o)) respondOffer(o, mgrDecide(o), true);
@@ -1914,9 +1930,9 @@ function buildDealer(){
   const d = S.dealer, now = Date.now();
   $('#dLogo').innerHTML = dealerLogoSVG(d.logo, d.name); $('#dName').textContent = d.name;
   $('#dMgr').innerHTML = d.mgr ? `<div class="mgr-row"><span class="avatar mgr-av">${avatarSVG(d.mgr.av)}</span>
-      <div class="mgr-info"><b>${AVATARS[d.mgr.av].name}</b><span class="muted">Chef des ventes · salaire 10 % des marges · <span data-f="dms"></span></span></div>
+      <div class="mgr-info"><b>${AVATARS[d.mgr.av].name}</b><span class="muted">Chef des ventes · offres et reprises · salaire 10 % des marges · <span data-f="dms"></span></span></div>
       <button class="btn soft" data-dm="look">Apparence</button><button class="btn soft" data-dm="fire">Renvoyer</button></div>`
-    : `<div class="mgr-row empty-mgr"><span class="muted">Aucun chef des ventes : tu réponds toi-même aux offres des clients.</span>
+    : `<div class="mgr-row empty-mgr"><span class="muted">Aucun chef des ventes : tu réponds toi-même aux offres et aux reprises.</span>
       <button class="btn soft" data-dm="hire">Embaucher un chef des ventes<small>${money(DMGR_FEE)}</small></button></div>`;
   $('#dEvent').innerHTML = d.ev && d.ev.until > now ? `<div class="chips" style="margin-top:14px"><span class="chip-ev ${Object.values(d.ev.mods).some(v => v < 1) ? 'bad' : 'good'}">${d.ev.label} · <span data-ev>${fmtLeft(d.ev.until - now)}</span></span></div>` : '';
   // clients
@@ -1930,7 +1946,7 @@ function buildDealer(){
           <button class="btn soft" data-of="no" data-id="${o.id}">Refuser</button></div></div></div>`; }).join('');
   if (d.trade){ const t = d.trade, md = carModel(t);
     cl += `<div class="card d-client trade" id="tr-${t.id}">${carVisual(md, 'sm')}
-      <div class="d-cl-body"><span class="art-brand">${md.brand}</span><h3>Reprise : ${md.model} d'occasion</h3>
+      <div class="d-cl-body"><span class="art-brand">${md.brand}</span><h3>Reprise : ${md.model} d'occasion</h3>${d.mgr ? `<span class="d-thinking"><span class="avatar">${avatarSVG(d.mgr.av)}</span>${AVATARS[d.mgr.av].name} étudie la reprise…</span>` : ''}
         <p class="muted">Rachat ${money(t.price)} + remise en état ${money(t.repair)} (${fmtSec(t.dur)}) · revente ~${money(listPrice(md, true))}</p>
         <div class="heat d-timer"><span data-until="${t.until}" data-total="${t.total}"></span></div>
         <div class="d-acts"><button class="btn green" data-tr="ok">Reprendre<small data-f="trs"></small></button><button class="btn soft" data-tr="no">Refuser</button></div></div></div>`; }
@@ -1975,7 +1991,7 @@ function updateDealer(){
   if (!S.dealer){ $('#openDealerTxt').textContent = money(DEALER_COST); $('#openDealer').disabled = S.cash < DEALER_COST; return; }
   const d = S.dealer, now = Date.now();
   $('#dRep').innerHTML = stars(d.rep);
-  if (d.mgr){ const el = document.querySelector('#dMgr [data-f=dms]'); if (el) el.textContent = `${d.mgr.ok} acceptées · ${d.mgr.ctr} négociées · ${d.mgr.no} refusées`; }
+  if (d.mgr){ const el = document.querySelector('#dMgr [data-f=dms]'); if (el) el.textContent = `Offres : ${d.mgr.ok} acceptées · ${d.mgr.ctr} négociées · ${d.mgr.no} refusées · Reprises : ${d.mgr.tr || 0} faites, ${d.mgr.trno || 0} refusées`; }
   else { const hb = document.querySelector('[data-dm=hire]'); if (hb) hb.disabled = S.cash < DMGR_FEE; }
   $('#dProfit').textContent = (d.profit >= 0 ? '+' : '−') + money(Math.abs(d.profit));
   $('#dSales').textContent = num(d.sales, 0);
@@ -2005,10 +2021,7 @@ $('#tab-concession').addEventListener('click', e => {
   const ob = t.closest('[data-of]');
   if (ob){ const o = d.offers.find(x => x.id === ob.dataset.id); if (o) respondOffer(o, ob.dataset.of, false); refresh(); return; }
   const tb = t.closest('[data-tr]');
-  if (tb && d.trade){ if (tb.dataset.tr === 'no'){ d.trade = null; refresh(); return; }
-    const tr = d.trade, c = tr.price + tr.repair; if (d.workshop.length >= d.atelier || S.cash < c) return;
-    S.cash -= c; d.workshop.push({id:uid(), g:tr.g, m:carModel(tr).id, cost:c, until:Date.now() + tr.dur, dur:tr.dur, done:false}); d.trade = null;
-    toast(`${carModel(tr).name} d'occasion envoyée à l'atelier.`); refresh(); return; }
+  if (tb && d.trade){ if (tb.dataset.tr === 'no') d.trade = null; else acceptTrade(false); refresh(); return; }
   const gt = t.closest('[data-gt]'); if (gt){ orderTab = gt.dataset.gt; dealerSig = ''; refresh(); return; }
   const or = t.closest('[data-order]'); if (or){ orderModel(mdl(or.dataset.order)); refresh(); return; }
   if (t.closest('#bidBtn') && d.auction){ const a = d.auction, nb = a.leader ? Math.round(a.bid * 1.05) : a.bid;
@@ -2016,8 +2029,8 @@ $('#tab-concession').addEventListener('click', e => {
   if (t.closest('#dCustom')) return customizeDealer(false);
   const dm = t.closest('[data-dm]');
   if (dm){ if (dm.dataset.dm === 'hire') return pickDealerMgr(true); if (dm.dataset.dm === 'look') return pickDealerMgr(false);
-    return modal(`Renvoyer ${AVATARS[d.mgr.av].name} ?`, '<p>Tu devras de nouveau répondre toi-même aux clients. Les frais d\'embauche ne sont pas remboursés.</p>', [
-      {label:'Annuler', cls:'soft'}, {label:'Renvoyer', cls:'red', action: () => { delete d.mgr; d.offers.forEach(o => delete o.mgrAt); dealerSig = ''; refresh(); }}]); }
+    return modal(`Renvoyer ${AVATARS[d.mgr.av].name} ?`, '<p>Tu devras de nouveau répondre toi-même aux offres et aux reprises. Les frais d\'embauche ne sont pas remboursés.</p>', [
+      {label:'Annuler', cls:'soft'}, {label:'Renvoyer', cls:'red', action: () => { delete d.mgr; d.offers.forEach(o => delete o.mgrAt); if (d.trade) delete d.trade.mgrAt; dealerSig = ''; refresh(); }}]); }
   if (t.closest('#dUpShow')){ const c = showUpCost(); if (d.lvl >= SHOW_MAX || S.cash < c) return; S.cash -= c; d.lvl++; toast('Showroom agrandi : +2 places.'); refresh(); return; }
   if (t.closest('#dUpAtelier')){ const c = atelierUpCost(); if (d.atelier >= ATELIER_MAX || S.cash < c) return; S.cash -= c; d.atelier++; toast('Atelier agrandi : +1 poste.'); refresh(); return; }
 });
