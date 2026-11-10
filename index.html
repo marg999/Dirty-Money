@@ -17,6 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Fraunces:ital,opsz,wght@1,9..144,800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 :root{
   --bg:#111411;--surface:rgba(239,230,216,.045);--surface-solid:#1b1f1b;--surface-2:rgba(239,230,216,.06);
@@ -323,6 +324,75 @@ select:focus{border-color:var(--cognac)}
 .chart-tip b{font-size:.88rem;font-variant-numeric:tabular-nums}
 .chart-empty{padding:40px 10px;text-align:center}
 .prestige-card{border-color:rgba(201,162,74,.3);background:linear-gradient(160deg,rgba(201,162,74,.12),var(--surface))}
+
+.dealer-intro{display:flex;flex-direction:column;gap:12px}
+.dealer-hero{height:200px;border-radius:calc(var(--r-lg) - 6px);display:grid;place-items:center;background:radial-gradient(120% 90% at 50% 30%, rgba(160,98,60,.55), #141714 80%);border:1px solid var(--border)}
+.dealer-hero svg{width:70%;height:80%;filter:drop-shadow(0 8px 14px rgba(0,0,0,.4))}
+.star{color:rgba(239,230,216,.2);font-size:1.15rem;letter-spacing:1px}
+.star.on{color:#e2c27a}
+.star.half{background:linear-gradient(90deg,#e2c27a 50%,rgba(239,230,216,.2) 50%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rep-num{margin-left:8px;font-size:1rem}
+.d-vis{border-radius:calc(var(--r-lg) - 8px);display:grid;place-items:center;height:110px;border:1px solid var(--border);overflow:hidden}
+.d-vis svg{width:84%;height:84%;filter:drop-shadow(0 5px 8px rgba(0,0,0,.35))}
+.d-vis.sm{width:120px;height:84px;flex-shrink:0}
+.d-vis.xs{width:96px;height:64px;flex-shrink:0;border-radius:var(--r-sm)}
+.d-client{display:flex;gap:14px;align-items:flex-start;border-color:rgba(160,98,60,.35)}
+.d-client.trade{border-color:rgba(138,154,91,.35)}
+.d-cl-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.d-cl-body p{font-size:.84rem}
+.d-acts{display:flex;gap:8px;flex-wrap:wrap}
+.d-acts .btn{padding:10px 16px}
+.d-timer{height:6px}
+.d-timer span{background:linear-gradient(90deg,#a0623c,#e2c27a);transition:width .25s linear}
+.d-show{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.d-car{padding:8px;display:flex;flex-direction:column;gap:8px}
+.d-car-body{display:flex;flex-direction:column;gap:3px;padding:2px 6px 6px}
+.d-car-body .muted{font-size:.76rem}
+.d-car-body .tag{align-self:flex-start;margin-top:2px}
+.d-used{background:rgba(138,154,91,.2);color:var(--up)}
+.d-offer{background:rgba(160,98,60,.25);color:#e2b98f}
+.d-empty{display:grid;place-items:center;min-height:120px;border-style:dashed;opacity:.6}
+.d-order,.d-ws{display:flex;align-items:center;gap:14px;padding:12px 14px;flex-wrap:wrap}
+.d-order.locked{opacity:.55}
+.d-ord-info{flex:1;min-width:150px;display:flex;flex-direction:column;gap:4px}
+.d-ord-info .muted{font-size:.78rem}
+.d-auto{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer}
+.d-auto input{accent-color:#a0623c;width:16px;height:16px}
+.d-order .btn{padding:10px 16px}
+.d-ws.d-empty{min-height:88px}
+.d-auction{display:grid;grid-template-columns:1fr;gap:14px;border-color:rgba(226,194,122,.35);background:linear-gradient(160deg,rgba(226,194,122,.1),var(--surface))}
+@media (min-width:720px){.d-auction{grid-template-columns:1fr 1fr;align-items:center}}
+.d-auction .art-visual{height:200px}
+.d-auc-body{display:flex;flex-direction:column;gap:10px}
+.d-bid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.d-bid div{background:var(--surface-2);border-radius:var(--r-sm);padding:10px 12px}
+.d-bid small{display:block;color:var(--muted);font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.d-bid b{font-size:1rem;font-variant-numeric:tabular-nums}
+@media (max-width:520px){.d-client{flex-direction:column}.d-vis.sm{width:100%;height:110px}}
+
+.d-vis img{object-fit:cover}
+.d-vis.xs .credit,.d-vis.sm .credit{display:none}
+.d-tabs{display:flex;overflow-x:auto;scrollbar-width:none;max-width:100%}
+.d-tabs::-webkit-scrollbar{display:none}
+.d-tabs button{white-space:nowrap}
+.d-tabs button.lk{opacity:.45}
+.d-gamme-info{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 2px}
+.d-models{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.d-model{padding:8px;display:flex;flex-direction:column;gap:8px}
+.d-model .btn{margin:0 4px 4px}
+.d-model.locked{opacity:.5}
+.d-car-body .art-brand{font-size:.62rem;margin:0}
+.d-cl-body .art-brand,.d-ord-info .art-brand{font-size:.64rem;margin:0}
+
+.d-brand{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.d-logo{width:72px;height:72px;flex-shrink:0;filter:drop-shadow(0 6px 12px rgba(0,0,0,.4))}
+.d-logo svg,.lg-prev svg{display:block;width:100%;height:100%}
+.d-brand-txt{flex:1;min-width:0}
+.d-brand-txt h2{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kick-sm{font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--cog2,#c48a5a)}
+.lg-grid{grid-template-columns:repeat(5,1fr)}
+.lg-prev{width:100%;max-width:64px;aspect-ratio:1;display:block}
+@media (max-width:460px){.lg-grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
@@ -340,6 +410,7 @@ select:focus{border-color:var(--cognac)}
     <nav class="tabs" id="tabs">
       <button data-tab="bourse">Bourse</button>
       <button data-tab="biz">Entreprises</button>
+      <button data-tab="concession">Concession</button>
       <button data-tab="gains" class="on">Gains</button>
       <button data-tab="articles">Articles</button>
       <button data-tab="objectifs">Objectifs</button>
@@ -412,6 +483,38 @@ select:focus{border-color:var(--cognac)}
     <div class="grid" id="shadyList" style="margin-top:14px"></div>
     <div class="section-head"><h2>Journal</h2></div>
     <div class="card"><ul class="news" id="eventLog"></ul></div>
+  </section>
+
+  <!-- CONCESSION -->
+  <section class="tab" id="tab-concession">
+    <div id="dealerClosed" class="card dealer-intro" style="margin-top:8px">
+      <div class="dealer-hero"><svg viewBox="0 0 160 100" aria-hidden="true" id="dealerHeroSvg"></svg></div>
+      <h2>Ta concession automobile</h2>
+      <p class="muted">Achète des voitures au prix constructeur, expose-les dans ton showroom et revends-les avec ta marge. Négocie avec les clients, remets en état des occasions et rafle des voitures de collection aux enchères.</p>
+      <button class="btn" id="openDealer" style="align-self:flex-start;padding:13px 24px">Ouvrir la concession<small id="openDealerTxt"></small></button>
+    </div>
+    <div id="dealerOpen" hidden>
+      <div class="card d-brand" style="margin-top:8px"><span class="d-logo" id="dLogo"></span>
+        <div class="d-brand-txt"><span class="kick-sm">Concession</span><h2 id="dName"></h2></div>
+        <button class="btn soft" id="dCustom">Personnaliser</button></div>
+      <div class="kpis" style="margin-top:8px">
+        <div class="kpi k-orange"><small>Réputation</small><b id="dRep"></b></div>
+        <div class="kpi k-green"><small>Bénéfice des ventes</small><b id="dProfit">0 €</b></div>
+        <div class="kpi k-pink"><small>Voitures vendues</small><b id="dSales">0</b></div>
+        <div class="kpi k-blue"><small>Showroom</small><b id="dSlots">0 / 4</b></div>
+      </div>
+      <div id="dEvent"></div>
+      <div class="section-head"><h2>Clients</h2><span class="muted">Ils attendent ta réponse</span></div>
+      <div class="stack" id="dClients"></div>
+      <div id="dAuctionWrap"></div>
+      <div class="section-head"><h2>Showroom</h2><button class="btn soft" id="dUpShow">Agrandir<small id="dUpShowTxt"></small></button></div>
+      <div class="grid d-show" id="dShowroom"></div>
+      <div class="section-head"><h2>Commander</h2><span class="muted">Prix constructeur → prix de vente</span></div>
+      <div class="stack" id="dOrder"></div>
+      <div class="section-head"><h2>Atelier</h2><button class="btn soft" id="dUpAtelier">Agrandir<small id="dUpAtTxt"></small></button></div>
+      <p class="muted" style="margin:-4px 0 12px">Les occasions reprises y sont remises en état, puis exposées dès qu'une place se libère au showroom.</p>
+      <div class="grid" id="dAtelier"></div>
+    </div>
   </section>
 
   <!-- GAINS -->
@@ -713,7 +816,7 @@ const IPO_HOURS = 3;        // valorisation boursière = 3 h de bénéfice + 60 
 const IPO_MAX = 0.40;       // on peut céder au plus 40 % d'une entreprise
 const PRESTIGE_BONUS = 0.05;// chaque point de prestige : +5 % sur tous les revenus
 const PRESTIGE_MIN = 1e9;   // prestige possible à partir de 1 Md € de patrimoine
-const STATS0 = {laundered:0, escaped:0, dirtyTotal:0, opened:0, renos:0, hireActs:0, founded:0, artBought:0, stockGain:0, divs:0, confiscated:0};
+const STATS0 = {laundered:0, escaped:0, dirtyTotal:0, opened:0, renos:0, hireActs:0, founded:0, artBought:0, stockGain:0, divs:0, confiscated:0, carsSold:0, auctionsWon:0};
 const HEAT_DECAY = 0.4;     // le soupçon baisse de 0,4 point par minute
 const CITIES = [
   {id:'lyon',      name:'Lyon',      cost:.7,  ca:.7,  need:0},
@@ -796,6 +899,9 @@ function normalize(o){
   if (!s.daily || typeof s.daily !== 'object') s.daily = {last:'', streak:0};
   if (!s.prestige || typeof s.prestige !== 'object') s.prestige = {pts:0, count:0};
   if (!Array.isArray(s.hist)) s.hist = [];
+  if (s.dealer && typeof s.dealer === 'object'){
+    s.dealer = Object.assign({name:'Ma Concession', logo:0, lvl:0, atelier:1, rep:3, sales:0, profit:0, stock:[], offers:[], workshop:[], trade:null, auction:null, ev:null, auto:{}, nextClient:0, nextTrade:0, nextAuction:0, nextEv:0}, s.dealer);
+  } else s.dealer = null;
   return s;
 }
 function load(){
@@ -852,7 +958,8 @@ let stkMode = 1;
 const stocksValue = () => STK.reduce((a,s) => a + (S.stk[s.id]?.q || 0) * S.prices[s.id].p, 0);
 const artValue = () => ART.reduce((a,x) => a + (S.lux[x.id] ? x.price : 0), 0);
 const coValue = co => co.invested * 0.6 * (1 - (co.float || 0));
-const bizValue = () => S.companies.reduce((a,c) => a + coValue(c), 0);
+const bizValue = () => S.companies.reduce((a,c) => a + coValue(c), 0) + dealerValue();
+const dealerValue = () => !S.dealer ? 0 : DEALER_COST * 0.5 + S.dealer.stock.reduce((a,c) => a + c.cost, 0) + S.dealer.workshop.reduce((a,w) => a + w.cost, 0);
 
 /* ================= INTERFACE : GÉNÉRAL ================= */
 function toast(msg){
@@ -1548,6 +1655,324 @@ function shadyTick(){
   if (S.cops > 25 && hasCopsOps && Math.random() < Math.pow(S.cops/100, 2) / 180 * dt) policeRaid(false);
 }
 
+/* ================= CONCESSION ================= */
+const DEALER_COST = 50000;
+const DEALER_LOGOS = [
+  {name:'Écusson',   shape:'shield',  bg:'#a0623c', bg2:'#6b3a22', fg:'#efe6d8'},
+  {name:'Médaillon', shape:'circle',  bg:'#2f4a3a', bg2:'#18261d', fg:'#e2c27a'},
+  {name:'Hexagone',  shape:'hex',     bg:'#8c2a33', bg2:'#4a1418', fg:'#efe6d8'},
+  {name:'Ailes',     shape:'wing',    bg:'#262a26', bg2:'#121412', fg:'#c48a5a'},
+  {name:'Losange',   shape:'diamond', bg:'#e2c27a', bg2:'#a8801f', fg:'#1d1a12'},
+];
+function dealerLogoSVG(i, name){
+  const L = DEALER_LOGOS[i] || DEALER_LOGOS[0], ini = esc(initials(name || 'MC')), gid = 'lg' + i + Math.random().toString(36).slice(2,6);
+  const fill = `url(#${gid})`, ring = `fill="none" stroke="${L.fg}" stroke-opacity=".55"`;
+  const shape = {
+    shield:  `<path d="M50 5 L89 17 V47 C89 72 71 88 50 96 C29 88 11 72 11 47 V17 Z" fill="${fill}"/><path d="M50 12 L82 22 V47 C82 67 67 81 50 88 C33 81 18 67 18 47 V22 Z" ${ring} stroke-width="2"/>`,
+    circle:  `<circle cx="50" cy="50" r="45" fill="${fill}"/><circle cx="50" cy="50" r="38" ${ring} stroke-width="2" stroke-dasharray="2 5"/><circle cx="50" cy="50" r="33" ${ring} stroke-width="1.5"/>`,
+    hex:     `<polygon points="50,4 90,27 90,73 50,96 10,73 10,27" fill="${fill}"/><polygon points="50,13 82,31.5 82,68.5 50,87 18,68.5 18,31.5" ${ring} stroke-width="2"/>`,
+    wing:    `<rect x="4" y="22" width="92" height="56" rx="28" fill="${fill}"/><path d="M30 50 L6 34 L14 50 L6 66 Z M70 50 L94 34 L86 50 L94 66 Z" fill="${L.fg}" opacity=".8"/><circle cx="50" cy="50" r="22" fill="${L.bg2}" stroke="${L.fg}" stroke-width="2"/>`,
+    diamond: `<polygon points="50,3 97,50 50,97 3,50" fill="${fill}"/><polygon points="50,13 87,50 50,87 13,50" ${ring} stroke-width="2"/>`,
+  }[L.shape];
+  const fs = L.shape === 'wing' ? 22 : 34;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${L.bg}"/><stop offset="1" stop-color="${L.bg2}"/></linearGradient></defs>${shape}
+    <text x="50" y="${50 + fs*0.36}" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="800" font-size="${fs}" fill="${L.fg}">${ini}</text></svg>`;
+}
+function customizeDealer(isNew){
+  const d = S.dealer; let sel = d.logo || 0;
+  const grid = () => DEALER_LOGOS.map((L, i) => `<button type="button" data-lg="${i}" class="${i === sel ? 'on' : ''}"><span class="lg-prev">${dealerLogoSVG(i, $('#dnInput') ? $('#dnInput').value : d.name)}</span><small>${L.name}</small></button>`).join('');
+  modal(isNew ? 'Ta concession ouvre ses portes !' : 'Personnaliser la concession',
+    `<p>${isNew ? 'Donne-lui un nom et choisis son logo. Tu pourras les changer quand tu veux.' : 'Change le nom ou le logo de ta concession.'}</p>
+     <div class="stack" style="margin-top:14px"><div><label class="muted" for="dnInput">Nom de la concession</label><input type="text" id="dnInput" maxlength="28" value="${esc(d.name)}"></div>
+     <div><span class="muted">Logo</span><div class="av-grid lg-grid" id="lgGrid"></div></div></div>`, [
+    ...(isNew ? [] : [{label:'Annuler', cls:'soft'}]),
+    {label:'Valider', action: () => { d.name = ($('#dnInput').value || '').trim() || 'Ma Concession'; d.logo = sel; dealerSig = ''; refresh(); if (isNew) toast(`${d.name} ouvre ses portes ! Commande tes premières voitures.`); }},
+  ], true);
+  const paint = () => { $('#lgGrid').innerHTML = grid(); };
+  paint();
+  $('#dnInput').addEventListener('input', paint);
+  $('#lgGrid').addEventListener('click', e => { const b = e.target.closest('[data-lg]'); if (!b) return; sel = +b.dataset.lg; paint(); });
+}
+// rate = probabilité qu'un client se présente pour une voiture, par seconde · need = ventes nécessaires pour débloquer la gamme
+const GAMMES = [
+  {id:'citadine', art:'ta citadine', pl:'citadines', name:'Citadine', type:'hatch', paint:'#b23a3a', cost:15000, margin:.12, rate:1/40,  need:0},
+  {id:'berline', art:'ta berline', pl:'berlines',  name:'Berline',  type:'sedan', paint:'#c7c3bb', cost:40000, margin:.15, rate:1/60,  need:5},
+  {id:'suv', art:'ton SUV', pl:'SUV',      name:'SUV',      type:'suv',   paint:'#4f6b48', cost:70000, margin:.16, rate:1/75,  need:15},
+  {id:'sportive', art:'ta sportive', pl:'sportives', name:'Sportive', type:'coupe', paint:'#e2b04a', cost:1.5e5, margin:.20, rate:1/120, need:30},
+  {id:'luxe', art:'ta voiture de luxe', pl:'voitures de luxe',     name:'Luxe',     type:'sedan', paint:'#2f4a3a', cost:4e5,   margin:.24, rate:1/200, need:60},
+  {id:'hyper', art:'ta hypercar', pl:'hypercars',    name:'Hypercar', type:'hyper', paint:'#c0262f', cost:2.5e6, margin:.30, rate:1/400, need:120},
+];
+const DEALER_EVENTS = [
+  {id:'salon',  label:'Salon de l\'auto : deux fois plus de clients',      mods:{all:2}},
+  {id:'carbu',  label:'Hausse du carburant : SUV, sportives et hypercars boudés', mods:{suv:.5, sportive:.5, hyper:.5}},
+  {id:'prime',  label:'Prime à la conversion : citadines et berlines s\'arrachent', mods:{citadine:1.8, berline:1.8}},
+  {id:'presse', label:'Mauvaise presse : moins de clients',               mods:{all:.6}},
+  {id:'modele', label:'',                                                  mods:{}},
+];
+const RIVALS = ['un collectionneur de Genève', 'un émir du Golfe', 'un fonds d\'investissement', 'un pilote à la retraite', 'un magnat de la tech', 'un musée de l\'automobile'];
+// Vrais modèles vendus par la concession (prix neufs indicatifs) · wiki = page Wikipédia pour la photo
+const MODELS = [
+  {id:'p208',    g:'citadine', brand:'Peugeot',       model:'208',               cost:20000,  paint:'#d9b23a', wiki:'Peugeot_208'},
+  {id:'clio',    g:'citadine', brand:'Renault',       model:'Clio',              cost:19000,  paint:'#c0262f', wiki:'Renault_Clio'},
+  {id:'polo',    g:'citadine', brand:'Volkswagen',    model:'Polo',              cost:21000,  paint:'#3d5a8a', wiki:'Volkswagen_Polo'},
+  {id:'f500',    g:'citadine', brand:'Fiat',          model:'500',               cost:17000,  paint:'#e8e2d4', wiki:'Fiat_500_(2007)'},
+  {id:'yaris',   g:'citadine', brand:'Toyota',        model:'Yaris',             cost:21000,  paint:'#c7c3bb', wiki:'Toyota_Yaris'},
+  {id:'p508',    g:'berline',  brand:'Peugeot',       model:'508',               cost:45000,  paint:'#3a3f45', wiki:'Peugeot_508'},
+  {id:'serie3',  g:'berline',  brand:'BMW',           model:'Série 3',           cost:48000,  paint:'#3d5a8a', wiki:'BMW_3_Series'},
+  {id:'a4',      g:'berline',  brand:'Audi',          model:'A4',                cost:46000,  paint:'#c7c3bb', wiki:'Audi_A4'},
+  {id:'classec', g:'berline',  brand:'Mercedes-Benz', model:'Classe C',          cost:52000,  paint:'#efe6d8', wiki:'Mercedes-Benz_C-Class'},
+  {id:'model3',  g:'berline',  brand:'Tesla',         model:'Model 3',           cost:42000,  paint:'#b02028', wiki:'Tesla_Model_3'},
+  {id:'glc',     g:'suv',      brand:'Mercedes-Benz', model:'GLC',               cost:62000,  paint:'#c7c3bb', wiki:'Mercedes-Benz_GLC'},
+  {id:'tiguan',  g:'suv',      brand:'Volkswagen',    model:'Tiguan',            cost:42000,  paint:'#c7c3bb', wiki:'Volkswagen_Tiguan'},
+  {id:'x5',      g:'suv',      brand:'BMW',           model:'X5',                cost:90000,  paint:'#2a2f35', wiki:'BMW_X5'},
+  {id:'cayenne', g:'suv',      brand:'Porsche',       model:'Cayenne',           cost:105000, paint:'#2f4a3a', wiki:'Porsche_Cayenne'},
+  {id:'rrsport', g:'suv',      brand:'Range Rover',   model:'Sport',             cost:110000, paint:'#efe6d8', wiki:'Range_Rover_Sport'},
+  {id:'a110',    g:'sportive', brand:'Alpine',        model:'A110',              cost:65000,  paint:'#3d6a9a', wiki:'Alpine_A110_(2017)'},
+  {id:'vette',   g:'sportive', brand:'Chevrolet',     model:'Corvette',          cost:95000,  paint:'#d9822b', wiki:'Chevrolet_Corvette_(C8)'},
+  {id:'m4',      g:'sportive', brand:'BMW',           model:'M4',                cost:100000, paint:'#77864a', wiki:'BMW_M4'},
+  {id:'gt3rs',   g:'sportive', brand:'Porsche',       model:'911 GT3 RS',        cost:250000, paint:'#d9d4c8', wiki:'Porsche_911_GT3'},
+  {id:'amggt',   g:'sportive', brand:'Mercedes-AMG',  model:'GT',                cost:140000, paint:'#8a8f96', wiki:'Mercedes-AMG_GT'},
+  {id:'classes', g:'luxe',     brand:'Mercedes-Benz', model:'Classe S',          cost:130000, paint:'#1d2b25', wiki:'Mercedes-Benz_S-Class'},
+  {id:'db12',    g:'luxe',     brand:'Aston Martin',  model:'DB12',              cost:240000, paint:'#2f4a3a', wiki:'Aston_Martin_DB12'},
+  {id:'mc20',    g:'luxe',     brand:'Maserati',      model:'MC20',              cost:240000, paint:'#efe6d8', wiki:'Maserati_MC20'},
+  {id:'contigt', g:'luxe',     brand:'Bentley',       model:'Continental GT',    cost:250000, paint:'#6e1e26', wiki:'Bentley_Continental_GT'},
+  {id:'ghost',   g:'luxe',     brand:'Rolls-Royce',   model:'Ghost',             cost:330000, paint:'#c7c3bb', wiki:'Rolls-Royce_Ghost'},
+  {id:'sf90',    g:'hyper',    brand:'Ferrari',       model:'SF90 Stradale',     cost:450000, paint:'#c0262f', wiki:'Ferrari_SF90_Stradale'},
+  {id:'revuelto',g:'hyper',    brand:'Lamborghini',   model:'Revuelto',          cost:550000, paint:'#8a9a5b', wiki:'Lamborghini_Revuelto'},
+  {id:'missions',g:'hyper',    brand:'Porsche',       model:'Mission S',         cost:1.8e6,  paint:'#efe6d8', wiki:'Porsche_Mission_S'},
+  {id:'huayra',  g:'hyper',    brand:'Pagani',        model:'Huayra',            cost:2.8e6,  paint:'#a0623c', wiki:'Pagani_Huayra'},
+  {id:'chiron',  g:'hyper',    brand:'Bugatti',       model:'Chiron',            cost:3e6,    paint:'#2a3f7a', wiki:'Bugatti_Chiron'},
+];
+const gam = id => GAMMES.find(g => g.id === id);
+MODELS.forEach(m => { const g = gam(m.g); m.type = g.type; m.name = m.brand + ' ' + m.model; m.img = slug(m.name) + '.jpg'; });
+const MODEL_RENAMED = {p3008:'glc', p911:'gt3rs', nevera:'missions'};  // anciens modèles remplacés
+const mdl = id => MODELS.find(m => m.id === (MODEL_RENAMED[id] || id)) || MODELS[0];
+const modelsOf = gid => MODELS.filter(m => m.g === gid);
+const carModel = car => car.m ? mdl(car.m) : modelsOf(car.g)[0];
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const showSlots = () => 4 + 2 * S.dealer.lvl;
+const SHOW_MAX = 6, ATELIER_MAX = 3;
+const showUpCost = () => 30000 * Math.pow(2.4, S.dealer.lvl);
+const atelierUpCost = () => 80000 * Math.pow(3, S.dealer.atelier - 1);
+const gUnlocked = g => S.dealer.sales >= g.need;
+const listPrice = (m, used) => used ? m.cost * 0.92 : m.cost * (1 + gam(m.g).margin);
+const speedLabel = r => r >= 1/50 ? 'Vente rapide' : r >= 1/100 ? 'Vente moyenne' : 'Vente lente';
+const repF = () => 0.4 + 0.24 * S.dealer.rep;
+function evMod(gid){ const e = S.dealer.ev; if (!e || e.until < Date.now()) return 1; return (e.mods.all || 1) * (e.mods[gid] || 1); }
+const stars = r => { const full = Math.round(r * 2) / 2; let h = ''; for (let i = 1; i <= 5; i++) h += `<span class="star ${full >= i ? 'on' : full >= i - .5 ? 'half' : ''}">★</span>`; return h + `<span class="rep-num">${num(r,1)}</span>`; };
+const fmtSec = ms => { const t = Math.max(0, Math.ceil(ms/1000)); return t >= 60 ? `${Math.floor(t/60)} min ${String(t%60).padStart(2,'0')}` : `${t} s`; };
+const repAdd = d => { S.dealer.rep = Math.max(1, Math.min(5, S.dealer.rep + d)); };
+
+$('#openDealer').addEventListener('click', () => {
+  if (S.dealer || S.cash < DEALER_COST) return;
+  S.cash -= DEALER_COST;
+  S.dealer = normalize({dealer:{}}).dealer;
+  const n = Date.now(); Object.assign(S.dealer, {nextTrade:n + 60000, nextAuction:n + 150000, nextEv:n + 200000});
+  customizeDealer(true);
+  dealerSig = ''; refresh();
+});
+function sellCar(car, price, how){
+  const d = S.dealer, g = gam(car.g), m = carModel(car);
+  d.stock = d.stock.filter(c => c !== car); d.offers = d.offers.filter(o => o.car !== car.id);
+  S.cash += price; S.earned += price; d.profit += price - car.cost; d.sales++; S.stats.carsSold++;
+  if (how) toast(`${m.name}${car.used ? ' d\'occasion' : ''} vendue ${money(price)} (${price >= car.cost ? '+' : '−'}${money(Math.abs(price - car.cost))})`);
+  if (!car.used && d.auto[g.id] && S.cash >= m.cost && d.stock.length < showSlots()){ S.cash -= m.cost; d.stock.push({id:uid(), g:g.id, m:m.id, cost:m.cost, used:false, t:Date.now()}); }
+}
+function orderModel(m){
+  const d = S.dealer; if (!gUnlocked(gam(m.g)) || d.stock.length >= showSlots() || S.cash < m.cost) return;
+  S.cash -= m.cost; d.stock.push({id:uid(), g:m.g, m:m.id, cost:m.cost, used:false, t:Date.now()});
+  toast(`${m.name} commandée et exposée au showroom.`);
+}
+function dealerTick(){
+  const d = S.dealer; if (!d) return;
+  const now = Date.now();
+  // clients pour les voitures exposées
+  d.stock.forEach(car => {
+    if (d.offers.some(o => o.car === car.id)) return;
+    const g = gam(car.g), chance = g.rate * (car.used ? 1.2 : 1) * repF() * evMod(g.id);
+    if (Math.random() >= chance) return;
+    const lp = listPrice(carModel(car), car.used);
+    if (Math.random() < 0.35 && d.offers.length < 3) d.offers.push({id:uid(), car:car.id, offer:Math.round(lp * (0.88 + Math.random()*0.08)), until:now + 40000, total:40000});
+    else { repAdd(0.02); sellCar(car, lp, true); }
+  });
+  // offres expirées
+  d.offers = d.offers.filter(o => { if (o.until > now) return true; repAdd(-0.1); toast('Un client s\'est lassé d\'attendre ta réponse (réputation en baisse).'); return false; });
+  // atelier → showroom
+  d.workshop.forEach(w => { if (!w.done && w.until <= now){ w.done = true; toast(`Atelier : ${carModel(w).name} d'occasion remise en état.`); } });
+  d.workshop = d.workshop.filter(w => {
+    if (!w.done || d.stock.length >= showSlots()) return true;
+    d.stock.push({id:uid(), g:w.g, m:carModel(w).id, cost:w.cost, used:true, t:now}); return false;
+  });
+  // reprises
+  if (d.trade && d.trade.until <= now) d.trade = null;
+  if (!d.trade && now >= d.nextTrade){
+    const pool = GAMMES.filter(gUnlocked), g = pool[Math.floor(Math.random() * pool.length)], rank = GAMMES.indexOf(g), ms = modelsOf(g.id), m = ms[Math.floor(Math.random() * ms.length)];
+    d.trade = {id:uid(), g:g.id, m:m.id, price:Math.round(m.cost * (0.45 + Math.random()*0.12)), repair:Math.round(m.cost * 0.08), dur:(60 + rank*30) * 1000, until:now + 45000, total:45000};
+    d.nextTrade = now + (70 + Math.random()*70) * 1000;
+  }
+  // événements
+  if (d.ev && d.ev.until <= now) d.ev = null;
+  if (!d.ev && now >= d.nextEv){
+    const e = DEALER_EVENTS[Math.floor(Math.random() * DEALER_EVENTS.length)];
+    if (e.id === 'modele'){ const pool = GAMMES.filter(gUnlocked), g = pool[Math.floor(Math.random() * pool.length)];
+      d.ev = {id:'modele', label:`Nouveau modèle : forte demande sur les ${g.pl}`, mods:{[g.id]:2.5}, until:now + 120000}; }
+    else d.ev = {id:e.id, label:e.label, mods:e.mods, until:now + 120000};
+    d.nextEv = now + (180 + Math.random()*120) * 1000 + 120000;
+    toast('Concession : ' + d.ev.label);
+  }
+  auctionTick(now);
+}
+/* ----- Enchères ----- */
+function auctionTick(now){
+  const d = S.dealer;
+  if (!d.auction && now >= d.nextAuction){
+    const cars = ART.filter(x => x.cat === 'Voitures de collection');
+    const ok = cars.filter(x => x.price * 0.6 <= Math.max(S.cash, 1) * 2);
+    d.nextAuction = now + (240 + Math.random()*180) * 1000;
+    if (ok.length){ const x = ok[Math.floor(Math.random() * ok.length)];
+      d.auction = {id:uid(), art:x.id, bid:Math.round(x.price * 0.6), leader:null, rival:RIVALS[Math.floor(Math.random() * RIVALS.length)], max:x.price * (0.8 + Math.random()*0.35), until:now + 40000, total:40000};
+      toast(`Enchère ouverte : ${x.name} !`); dealerSig = ''; }
+    return;
+  }
+  const a = d.auction; if (!a) return;
+  if (now < a.until){
+    if (a.leader !== 'rival'){ const nb = a.leader ? Math.round(a.bid * 1.05) : a.bid;
+      if (nb <= a.max && Math.random() < 0.45){ a.bid = nb; a.leader = 'rival'; if (a.until - now < 5000) a.until = now + 6000; } }
+    return;
+  }
+  const x = ART.find(i => i.id === a.art); d.auction = null; dealerSig = '';
+  if (a.leader !== 'you'){ logEvent(`Enchère : ${x.name} adjugée à ${a.rival} pour ${money(a.bid)}.`, false); return; }
+  if (S.cash < a.bid){ logEvent(`Enchère : paiement impossible, ${x.name} part à ${a.rival}.`, false); return; }
+  S.cash -= a.bid; S.stats.auctionsWon++;
+  const gain = x.price - a.bid, resell = () => { S.cash += x.price; S.earned += x.price; logEvent(`${x.name} revendue ${money(x.price)} (${gain >= 0 ? '+' : '−'}${money(Math.abs(gain))}).`, gain >= 0); refresh(); };
+  if (S.lux[x.id]){ resell(); return; }
+  modal('Adjugé !', `<p>Tu remportes la <b>${x.name}</b> pour <b>${money(a.bid)}</b>. Sa cote est de ${money(x.price)}.</p>
+    <p style="margin-top:8px">Tu la gardes dans ta collection (+${x.pr} % de revenus), ou tu la revends tout de suite à sa cote ?</p>`, [
+    {label:`Revendre ${money(x.price)}`, cls:'soft', action:resell},
+    {label:'Garder', cls:'green', action:() => { S.lux[x.id] = true; S.stats.artBought++; logEvent(`${x.name} rejoint ta collection.`, true); refresh(); }},
+  ]);
+}
+/* ----- Affichage ----- */
+let dealerSig = '';
+const dSig = () => { const d = S.dealer; if (!d) return 'closed';
+  return [d.name, d.logo, orderTab, d.lvl, d.atelier, GAMMES.filter(gUnlocked).length, d.stock.map(c => c.id).join(','), d.offers.map(o => o.id).join(','), d.trade ? d.trade.id : '-',
+    d.workshop.map(w => w.id + (w.done ? 'd' : '')).join(','), d.auction ? d.auction.id : '-', d.ev ? d.ev.until : '-'].join('|'); };
+const carVisual = (m, cls = '') => `<div class="art-visual d-vis ${cls}" data-photo="${m.id}" style="background:radial-gradient(120% 90% at 50% 30%, ${m.paint}55, #141714 80%)"><svg viewBox="0 0 160 100" aria-hidden="true">${illu({type:m.type, paint:m.paint})}</svg><img alt="${m.name}"><a class="credit" target="_blank" rel="noopener" hidden>Photo · Wikipédia</a></div>`;
+function wrapOne(v){ return {querySelector: sel => sel === '.art-visual' ? v : v.querySelector(sel)}; }
+let orderTab = 'citadine';
+function buildDealer(){
+  dealerSig = dSig();
+  const open = !!S.dealer;
+  $('#dealerClosed').hidden = open; $('#dealerOpen').hidden = !open;
+  if (!open){ $('#dealerHeroSvg').innerHTML = illu({type:'coupe', paint:'#a0623c'}); updateDealer(); return; }
+  const d = S.dealer, now = Date.now();
+  $('#dLogo').innerHTML = dealerLogoSVG(d.logo, d.name); $('#dName').textContent = d.name;
+  $('#dEvent').innerHTML = d.ev && d.ev.until > now ? `<div class="chips" style="margin-top:14px"><span class="chip-ev ${Object.values(d.ev.mods).some(v => v < 1) ? 'bad' : 'good'}">${d.ev.label} · <span data-ev>${fmtLeft(d.ev.until - now)}</span></span></div>` : '';
+  // clients
+  let cl = d.offers.map(o => { const car = d.stock.find(c => c.id === o.car); if (!car) return ''; const md = carModel(car), lp = listPrice(md, car.used), m = o.offer - car.cost, ctr = Math.round((o.offer + lp) / 2);
+    return `<div class="card d-client" id="of-${o.id}">${carVisual(md, 'sm')}
+      <div class="d-cl-body"><h3>Un client veut ta ${md.name}${car.used ? ' d\'occasion' : ''}</h3>
+        <p class="muted">Il propose <b class="${m >= 0 ? 'up' : 'down'}">${money(o.offer)}</b> au lieu de ${money(lp)} · ${m >= 0 ? 'marge' : 'perte'} ${money(Math.abs(m))}</p>
+        <div class="heat d-timer"><span data-until="${o.until}" data-total="${o.total}"></span></div>
+        <div class="d-acts"><button class="btn green" data-of="ok" data-id="${o.id}">Accepter</button>
+          <button class="btn" data-of="ctr" data-id="${o.id}">Contre-offre<small>${money(ctr)} · 60 %</small></button>
+          <button class="btn soft" data-of="no" data-id="${o.id}">Refuser</button></div></div></div>`; }).join('');
+  if (d.trade){ const t = d.trade, md = carModel(t);
+    cl += `<div class="card d-client trade" id="tr-${t.id}">${carVisual(md, 'sm')}
+      <div class="d-cl-body"><span class="art-brand">${md.brand}</span><h3>Reprise : ${md.model} d'occasion</h3>
+        <p class="muted">Rachat ${money(t.price)} + remise en état ${money(t.repair)} (${fmtSec(t.dur)}) · revente ~${money(listPrice(md, true))}</p>
+        <div class="heat d-timer"><span data-until="${t.until}" data-total="${t.total}"></span></div>
+        <div class="d-acts"><button class="btn green" data-tr="ok">Reprendre<small data-f="trs"></small></button><button class="btn soft" data-tr="no">Refuser</button></div></div></div>`; }
+  $('#dClients').innerHTML = cl || `<div class="card empty"><p class="muted">Aucun client en attente. Garnis ton showroom : plus il y a de voitures, plus les clients défilent.</p></div>`;
+  // enchère
+  if (d.auction){ const a = d.auction, x = ART.find(i => i.id === a.art);
+    $('#dAuctionWrap').innerHTML = `<div class="section-head"><h2>Enchère en cours</h2><span class="muted" data-f="aleft"></span></div>
+      <div class="card d-auction" id="auc-${a.id}">
+        <div class="art-visual" style="background:radial-gradient(120% 90% at 50% 30%, #7a4a30aa, #141714 80%)"><svg viewBox="0 0 160 100" aria-hidden="true">${illu(x)}</svg><img alt="${x.name}"><a class="credit" target="_blank" rel="noopener" hidden>Photo · Wikipédia</a></div>
+        <div class="d-auc-body"><span class="art-brand">${x.brand}</span><h3>${x.model}</h3><p class="muted">Cote : ${money(x.price)} · +${x.pr} % de revenus si tu la gardes</p>
+          <div class="d-bid"><div><small>Enchère actuelle</small><b data-f="abid"></b></div><div><small>En tête</small><b data-f="alead"></b></div></div>
+          <div class="heat d-timer"><span data-until="${a.until}" data-total="${a.total}" data-f="atimer"></span></div>
+          <button class="btn" id="bidBtn" style="width:100%">Enchérir<small data-f="anext"></small></button></div></div>`;
+    loadPhoto(x, document.getElementById('auc-' + a.id));
+  } else $('#dAuctionWrap').innerHTML = '';
+  // showroom
+  const slots = [];
+  d.stock.forEach(car => { const md = carModel(car), off = d.offers.some(o => o.car === car.id);
+    slots.push(`<div class="card d-car">${carVisual(md)}<div class="d-car-body"><span class="art-brand">${md.brand}</span><b>${md.model}</b>${car.used ? '<span class="tag d-used">Occasion</span>' : ''}${off ? '<span class="tag d-offer">Offre en cours</span>' : ''}
+      <span class="muted">Prix affiché ${money(listPrice(md, car.used))}</span></div></div>`); });
+  for (let i = d.stock.length; i < showSlots(); i++) slots.push(`<div class="card d-car d-empty"><span class="muted">Place libre</span></div>`);
+  $('#dShowroom').innerHTML = slots.join('');
+  // commandes
+  const og = gam(orderTab), ook = gUnlocked(og);
+  $('#dOrder').innerHTML = `<div class="seg d-tabs" id="dOrderTabs">${GAMMES.map(g => `<button data-gt="${g.id}" class="${g.id === orderTab ? 'on' : ''} ${gUnlocked(g) ? '' : 'lk'}">${g.pl === 'SUV' ? 'SUV' : g.pl.replace(/^./, c => c.toUpperCase())}</button>`).join('')}</div>
+    <div class="d-gamme-info"><span class="muted">${ook ? `Marge ${Math.round(og.margin*100)} % · ${speedLabel(og.rate)}` : `Gamme débloquée après ${og.need} ventes (tu en es à ${d.sales})`}</span>
+      ${ook ? `<label class="d-auto"><input type="checkbox" id="auto-${og.id}" data-auto="${og.id}" ${d.auto[og.id] ? 'checked' : ''}><span>Réassort auto</span></label>` : ''}</div>
+    <div class="grid d-models">${modelsOf(og.id).map(m => `<div class="card d-model ${ook ? '' : 'locked'}">${carVisual(m)}
+      <div class="d-car-body"><span class="art-brand">${m.brand}</span><b>${m.model}</b><span class="muted">${money(m.cost)} → ${money(listPrice(m))}</span></div>
+      ${ook ? `<button class="btn" data-order="${m.id}">Commander<small>${money(m.cost)}</small></button>` : ''}</div>`).join('')}</div>`;
+  // atelier
+  const ws = d.workshop.map(w => { const md = carModel(w);
+    return `<div class="card d-ws">${carVisual(md, 'xs')}<div class="d-ord-info"><span class="art-brand">${md.brand}</span><b>${md.model} d'occasion</b><span class="muted" data-wsid="${w.id}">${w.done ? 'Prête · en attente d\'une place au showroom' : ''}</span>
+      ${w.done ? '' : `<div class="heat d-timer"><span data-until="${w.until}" data-total="${w.dur}"></span></div>`}</div></div>`; });
+  for (let i = d.workshop.length; i < d.atelier; i++) ws.push(`<div class="card d-ws d-empty"><span class="muted">Poste libre</span></div>`);
+  $('#dAtelier').innerHTML = ws.join('');
+  document.querySelectorAll('#tab-concession [data-photo]').forEach(v => loadPhoto(mdl(v.dataset.photo), wrapOne(v)));
+  updateDealer();
+}
+function updateDealer(){
+  if (dSig() !== dealerSig) return buildDealer();
+  if (!S.dealer){ $('#openDealerTxt').textContent = money(DEALER_COST); $('#openDealer').disabled = S.cash < DEALER_COST; return; }
+  const d = S.dealer, now = Date.now();
+  $('#dRep').innerHTML = stars(d.rep);
+  $('#dProfit').textContent = (d.profit >= 0 ? '+' : '−') + money(Math.abs(d.profit));
+  $('#dSales').textContent = num(d.sales, 0);
+  $('#dSlots').textContent = `${d.stock.length} / ${showSlots()}`;
+  document.querySelectorAll('#tab-concession [data-until]').forEach(el => {
+    const left = +el.dataset.until - now; el.style.width = Math.max(0, Math.min(100, left / +el.dataset.total * 100)) + '%';
+    const lbl = el.closest('.d-ord-info')?.querySelector('[data-wsid]'); if (lbl && left > 0) lbl.textContent = 'Remise en état · ' + fmtSec(left);
+  });
+  const evEl = document.querySelector('#dEvent [data-ev]'); if (evEl && d.ev) evEl.textContent = fmtLeft(Math.max(0, d.ev.until - now));
+  document.querySelectorAll('[data-order]').forEach(b => { const m = mdl(b.dataset.order); b.disabled = S.cash < m.cost || d.stock.length >= showSlots(); });
+  const sm = d.lvl >= SHOW_MAX, am = d.atelier >= ATELIER_MAX;
+  $('#dUpShowTxt').textContent = sm ? 'Maximum' : `+2 places · ${money(showUpCost())}`; $('#dUpShow').disabled = sm || S.cash < showUpCost();
+  $('#dUpAtTxt').textContent = am ? 'Maximum' : `+1 poste · ${money(atelierUpCost())}`; $('#dUpAtelier').disabled = am || S.cash < atelierUpCost();
+  if (d.trade){ const b = document.querySelector('[data-tr=ok]'); if (b){ const full = d.workshop.length >= d.atelier, c = d.trade.price + d.trade.repair;
+    b.disabled = full || S.cash < c; b.querySelector('[data-f=trs]').textContent = full ? 'atelier plein' : money(c); } }
+  if (d.auction){ const a = d.auction, card = document.getElementById('auc-' + a.id); if (card){
+    const nb = a.leader ? Math.round(a.bid * 1.05) : a.bid;
+    setF(card, 'abid', money(a.bid)); setF(card, 'alead', a.leader === 'you' ? 'Toi' : a.leader === 'rival' ? a.rival.replace(/^un /, '').replace(/^./, c => c.toUpperCase()) : 'Personne');
+    card.querySelector('[data-f=alead]').className = a.leader === 'you' ? 'up' : a.leader === 'rival' ? 'down' : '';
+    setF(card, 'anext', a.leader === 'you' ? 'tu mènes' : money(nb)); $('#bidBtn').disabled = a.leader === 'you' || S.cash < nb;
+    const al = document.querySelector('#dAuctionWrap [data-f=aleft]'); if (al) al.textContent = 'fin dans ' + fmtSec(a.until - now);
+    const tm = card.querySelector('[data-f=atimer]'); tm.dataset.until = a.until; } }
+}
+$('#tab-concession').addEventListener('click', e => {
+  const d = S.dealer; if (!d) return;
+  const t = e.target;
+  const ob = t.closest('[data-of]');
+  if (ob){ const o = d.offers.find(x => x.id === ob.dataset.id); if (!o) return; const car = d.stock.find(c => c.id === o.car); if (!car) return;
+    const act = ob.dataset.of, lp = listPrice(carModel(car), car.used);
+    if (act === 'ok'){ repAdd(0.05); sellCar(car, o.offer, true); }
+    else if (act === 'no'){ repAdd(-0.05); d.offers = d.offers.filter(x => x !== o); toast('Offre refusée.'); }
+    else { const ctr = Math.round((o.offer + lp) / 2);
+      if (Math.random() < 0.6){ repAdd(0.02); sellCar(car, ctr, true); }
+      else { repAdd(-0.08); d.offers = d.offers.filter(x => x !== o); toast('Le client a refusé ta contre-offre et il est parti.'); } }
+    refresh(); return; }
+  const tb = t.closest('[data-tr]');
+  if (tb && d.trade){ if (tb.dataset.tr === 'no'){ d.trade = null; refresh(); return; }
+    const tr = d.trade, c = tr.price + tr.repair; if (d.workshop.length >= d.atelier || S.cash < c) return;
+    S.cash -= c; d.workshop.push({id:uid(), g:tr.g, m:carModel(tr).id, cost:c, until:Date.now() + tr.dur, dur:tr.dur, done:false}); d.trade = null;
+    toast(`${carModel(tr).name} d'occasion envoyée à l'atelier.`); refresh(); return; }
+  const gt = t.closest('[data-gt]'); if (gt){ orderTab = gt.dataset.gt; dealerSig = ''; refresh(); return; }
+  const or = t.closest('[data-order]'); if (or){ orderModel(mdl(or.dataset.order)); refresh(); return; }
+  if (t.closest('#bidBtn') && d.auction){ const a = d.auction, nb = a.leader ? Math.round(a.bid * 1.05) : a.bid;
+    if (a.leader === 'you' || S.cash < nb) return; a.bid = nb; a.leader = 'you'; if (a.until - Date.now() < 5000) a.until = Date.now() + 6000; refresh(); return; }
+  if (t.closest('#dCustom')) return customizeDealer(false);
+  if (t.closest('#dUpShow')){ const c = showUpCost(); if (d.lvl >= SHOW_MAX || S.cash < c) return; S.cash -= c; d.lvl++; toast('Showroom agrandi : +2 places.'); refresh(); return; }
+  if (t.closest('#dUpAtelier')){ const c = atelierUpCost(); if (d.atelier >= ATELIER_MAX || S.cash < c) return; S.cash -= c; d.atelier++; toast('Atelier agrandi : +1 poste.'); refresh(); return; }
+});
+$('#tab-concession').addEventListener('change', e => { const cb = e.target.closest('[data-auto]'); if (cb && S.dealer){ S.dealer.auto[cb.dataset.auto] = cb.checked; } });
+
 /* ================= GAINS ================= */
 function updateGains(){
   const v = money(clickVal());
@@ -1683,6 +2108,9 @@ const ACH = [
   {id:'p1m',      name:'Planche à billets',     desc:'Atteins 1 M € de bénéfice par seconde.',         reward:5e7,   prog:() => [ips(), 1e6]},
   {id:'nw1md',    name:'Milliardaire',          desc:'Atteins 1 Md € de patrimoine.',                  reward:5e7,   prog:() => [wealth(), 1e9]},
   {id:'joconde',  name:'Le casse du siècle',    desc:'Possède La Joconde.',                            reward:2e8,   check:() => !!S.lux.a13},
+  {id:'dealer1',  name:'Concessionnaire',       desc:'Ouvre ta concession automobile.',                reward:2e4,   check:() => !!S.dealer},
+  {id:'cars50',   name:'Vendeur du mois',       desc:'Vends 50 voitures.',                             reward:2e5,   prog:() => [S.stats.carsSold, 50]},
+  {id:'auction1', name:'Adjugé, vendu !',       desc:'Remporte une enchère de voiture de collection.', reward:5e5,   prog:() => [S.stats.auctionsWon, 1]},
   {id:'mgr1',     name:'Délégation',            desc:'Embauche ton premier gérant.',                   reward:2e4,   check:() => S.companies.some(c => c.mgr)},
   {id:'ipo1',     name:'Cloche de Wall Street', desc:'Introduis une entreprise en bourse.',            reward:1e6,   check:() => S.companies.some(c => c.float > 0)},
   {id:'divs',     name:'Rentier',               desc:'Touche 10 000 € de dividendes au total.',        reward:1e5,   prog:() => [S.stats.divs, 1e4]},
@@ -1796,6 +2224,7 @@ const WEEKLY = [
   {id:'launder', stat:'laundered', name:'Grande lessive',      desc:t => `Blanchis ${money(t)}.`,                       target:p => Math.max(5e4, p*1800),    reward:p => Math.max(5000, p*3600)},
   {id:'trader',  stat:'stockGain', name:'Trader',              desc:t => `Encaisse ${money(t)} de plus-value en bourse.`, target:p => Math.max(2000, p*600),  reward:p => Math.max(4000, p*3000)},
   {id:'divs',    stat:'divs',      name:'Rentier',             desc:t => `Touche ${money(t)} de dividendes.`,           target:p => Math.max(500, p*300),     reward:p => Math.max(3000, p*2400)},
+  {id:'cars',    stat:'carsSold',  name:'Objectif ventes',     desc:t => `Vends ${t} voitures à la concession.`,       target:() => 15,                      reward:p => Math.max(4000, p*3000)},
   {id:'days',    stat:'_days',     name:'Fidèle au poste',     desc:t => `Joue ${t} jours différents.`,                 target:() => 4,                       reward:p => Math.max(5000, p*5400)},
 ];
 const statVal = k => k === 'clicks' ? S.clicks : k === 'earned' ? S.earned : k === '_days' ? (S.week ? S.week.days.length : 0) : (S.stats[k] || 0);
@@ -1882,7 +2311,7 @@ $('#prestigeBtn').addEventListener('click', () => {
     <p style="margin-top:8px">Tu repars sans argent, sans entreprises, sans actions, sans articles et sans affaires louches. Tes succès, statistiques, défis et ton bonus quotidien sont conservés.</p>`, [
     {label:'Annuler', cls:'soft'},
     {label:'Recommencer', cls:'red', action: () => {
-      Object.assign(S, {cash:0, clickLvl:0, companies:[], effects:[], stk:{}, lux:{}, shady:{}, dirty:0, heat:0, cops:0, lcap:0, nextEvent:0, hist:[]});
+      Object.assign(S, {dealer:null, cash:0, clickLvl:0, companies:[], effects:[], stk:{}, lux:{}, shady:{}, dirty:0, heat:0, cops:0, lcap:0, nextEvent:0, hist:[]});
       S.prestige.pts += g; S.prestige.count++;
       save(); noSave = true; location.reload();
     }},
@@ -2006,6 +2435,7 @@ $('#tabs').addEventListener('click', e => {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.id === 'tab-' + currentTab));
   if (currentTab === 'profil') $('#nameInput').value = S.name;
   if (currentTab === 'objectifs'){ buildWeek(); buildAch(); }
+  if (currentTab === 'concession') buildDealer();
   window.scrollTo({top:0}); refresh();
 });
 function refresh(){
@@ -2015,6 +2445,7 @@ function refresh(){
   else if (currentTab === 'biz'){ updateCompanies(); updateShady(); }
   else if (currentTab === 'gains') updateGains();
   else if (currentTab === 'articles') updateArticles();
+  else if (currentTab === 'concession') updateDealer();
   else if (currentTab === 'objectifs'){ updateWeek(); updateAch(); }
   else updateProfil();
 }
@@ -2030,6 +2461,7 @@ setInterval(save, 5000);
 setInterval(eventTick, 1000);
 setInterval(() => { shadyTick(); weekTick(); achTick(); divTick(); recordHist(); dailyTick(); }, 1000);
 setInterval(mgrTick, 3000);
+setInterval(dealerTick, 1000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
 window.addEventListener('beforeunload', save);
 
