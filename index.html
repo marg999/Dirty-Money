@@ -398,6 +398,12 @@ select:focus{border-color:var(--cognac)}
 .d-thinking{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:700;color:var(--muted);animation:pulse 1.6s ease-in-out infinite}
 .d-thinking .avatar{width:24px;height:24px}
 @keyframes pulse{50%{opacity:.55}}
+
+.pill-light.ctrl{font:inherit;font-weight:800;font-size:.8rem;cursor:pointer;color:var(--cream);border:1px solid rgba(239,230,216,.22)}
+.pill-light.ctrl:hover{background:rgba(17,20,17,.55)}
+.pill-light.ctrl.paused{color:#e2c27a;border-color:rgba(226,194,122,.45)}
+.ctrl-sec{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.ctrl-sec .btn{padding:10px 16px}
 </style>
 </head>
 <body>
@@ -410,7 +416,7 @@ select:focus{border-color:var(--cognac)}
         <small>Solde</small>
         <div id="cash">0 €</div>
       </div>
-      <div class="hero-pills"><span class="pill-light" id="ips">+0 €/s</span><span class="pill-light dirty" id="dirtyPill" hidden></span></div>
+      <div class="hero-pills"><span class="pill-light" id="ips">+0 €/s</span><span class="pill-light dirty" id="dirtyPill" hidden></span><button class="pill-light ctrl" id="ctrlPill" hidden></button></div>
     </div>
     <nav class="tabs" id="tabs">
       <button data-tab="bourse">Bourse</button>
@@ -904,6 +910,8 @@ function normalize(o){
   ['dirty','heat','cops','lcap','nextDiv'].forEach(k => { if (typeof s[k] !== 'number') s[k] = 0; });
   if (!s.daily || typeof s.daily !== 'object') s.daily = {last:'', streak:0};
   if (!s.prestige || typeof s.prestige !== 'object') s.prestige = {pts:0, count:0};
+  if (typeof s.mgrPause !== 'number') s.mgrPause = 0;
+  if (!s.goal || typeof s.goal !== 'object' || typeof s.goal.amount !== 'number') s.goal = null;
   if (!Array.isArray(s.hist)) s.hist = [];
   if (s.dealer && typeof s.dealer === 'object'){
     s.dealer = Object.assign({name:'Ma Concession', logo:0, lvl:0, atelier:1, rep:3, sales:0, profit:0, stock:[], offers:[], workshop:[], trade:null, auction:null, ev:null, auto:{}, nextClient:0, nextTrade:0, nextAuction:0, nextEv:0}, s.dealer);
@@ -993,6 +1001,7 @@ function updateHeader(){
   const dp = $('#dirtyPill'), anyShady = Object.keys(S.shady).length > 0;
   dp.hidden = !anyShady && S.dirty <= 0;
   if (!dp.hidden) dp.textContent = 'Sale : ' + money(S.dirty);
+  updateCtrlPill();
   $('#empireName').textContent = S.name;
 }
 function bindSeg(sel, cb){
@@ -1160,6 +1169,77 @@ function marketTick(){
   if (currentTab === 'bourse') updateStocks();
 }
 
+/* ================= CONTRÔLE DES DÉPENSES DES GÉRANTS ================= */
+const GOAL_MAX = 3600e3;   // un objectif d'épargne bloque les gérants 1 h au maximum
+const pauseLeft = () => Math.max(0, S.mgrPause - Date.now());
+const goalActive = () => !!S.goal && Date.now() - S.goal.set < GOAL_MAX;
+const managersFrozen = () => pauseLeft() > 0 || goalActive();
+const hasManagers = () => S.companies.some(c => c.mgr) || !!(S.dealer && (S.dealer.mgr || Object.values(S.dealer.auto).some(Boolean)));
+function goalTick(){
+  const g = S.goal; if (!g) return;
+  if (Date.now() - g.set >= GOAL_MAX){ S.goal = null; toast('Objectif d\'épargne expiré (1 h) : tes gérants reprennent.'); return; }
+  if (!g.reached && S.cash >= g.amount){ g.reached = true; toast(`Objectif atteint : tu as de quoi acheter ${g.label} !`); }
+  else if (g.reached && S.cash < g.amount * 0.98){ S.goal = null; toast('Achat effectué : tes gérants reprennent leurs dépenses.'); }
+}
+function updateCtrlPill(){
+  const b = $('#ctrlPill'), show = hasManagers() || managersFrozen();
+  b.hidden = !show; if (!show) return;
+  let t, cls = '';
+  if (pauseLeft() > 0){ t = 'Gérants en pause · ' + fmtLeft(pauseLeft()); cls = 'paused'; }
+  else if (goalActive()){ const pct = Math.min(100, Math.max(0, S.cash) / S.goal.amount * 100); t = S.goal.reached ? 'Épargne prête · achète !' : `Épargne · ${num(pct, 0)} %`; cls = 'paused'; }
+  else t = 'Gérants actifs';
+  if (b.textContent !== t) b.textContent = t;
+  b.className = 'pill-light ctrl ' + cls;
+}
+function goalOptions(){
+  const opts = [];
+  const art = ART.filter(x => !S.lux[x.id]).sort((a,b) => a.price - b.price);
+  if (art.length) opts.push(`<optgroup label="Articles">${art.map(x => `<option value="art:${x.id}">${esc(x.name)} · ${money(x.price)}</option>`).join('')}</optgroup>`);
+  opts.push(`<optgroup label="Fonder une entreprise (à ${CITIES[0].name})">${BIZ.map(b => `<option value="biz:${b.id}">${b.name} · ${money(foundFee(b) + b.cost * CITIES[0].cost)}</option>`).join('')}</optgroup>`);
+  if (S.dealer) opts.push(`<optgroup label="Concession">${MODELS.map(m => `<option value="car:${m.id}">${esc(m.name)} · ${money(m.cost)}</option>`).join('')}</optgroup>`);
+  opts.push(`<optgroup label="Autre"><option value="free">Montant libre</option></optgroup>`);
+  return opts.join('');
+}
+function goalFrom(v, free){
+  const [k, id] = v.split(':');
+  if (k === 'art'){ const x = ART.find(i => i.id === id); return {label:x.name, amount:x.price}; }
+  if (k === 'biz'){ const b = BIZ.find(i => i.id === id); return {label:'une ' + b.name.toLowerCase(), amount:foundFee(b) + b.cost * CITIES[0].cost}; }
+  if (k === 'car'){ const m = mdl(id); return {label:'une ' + m.name, amount:m.cost}; }
+  const a = Math.round(+String(free).replace(/[^\d]/g, '')); return a > 0 ? {label:money(a), amount:a} : null;
+}
+function openSpendCtrl(){
+  const body = () => {
+    const pz = pauseLeft(), g = goalActive() ? S.goal : null, pct = g ? Math.min(100, Math.max(0, S.cash) / g.amount * 100) : 0;
+    return `<p>Tes gérants continuent de travailler, mais ils ne dépensent plus ton argent : pas de rénovation, d'embauche, de reprise ni de réassort automatique.</p>
+      <div class="ctrl-sec"><h3>Pause</h3>
+        <p class="muted">${pz ? `En pause encore <b data-pz-left>${fmtLeft(pz)}</b>.` : 'Bloque leurs dépenses pendant un moment.'}</p>
+        <div class="row">${[10, 30, 60].map(m => `<button class="btn soft" data-pz="${m}">${m === 60 ? '1 h' : m + ' min'}</button>`).join('')}${pz ? '<button class="btn green" data-pz="0">Relancer maintenant</button>' : ''}</div></div>
+      <div class="ctrl-sec"><h3>Objectif d'épargne</h3>
+        ${g ? `<p class="muted">Tu épargnes pour <b>${esc(g.label)}</b> (${money(g.amount)}). Tes gérants reprennent dès que tu as acheté, ou dans ${fmtLeft(GOAL_MAX - (Date.now() - g.set))} au plus tard.</p>
+          <div class="heat"><span style="width:${pct.toFixed(1)}%;background:linear-gradient(90deg,#4f6b48,#a9bb6c)"></span></div>
+          <p class="muted" style="margin-top:6px">${money(Math.max(0, S.cash))} / ${money(g.amount)} · ${num(pct, 0)} %</p>
+          <div class="row" style="margin-top:8px"><button class="btn soft" data-goal="cancel">Annuler l'objectif</button></div>`
+        : `<p class="muted">Choisis ce que tu veux acheter : tes gérants arrêtent de dépenser jusqu'à ce que tu aies la somme, 1 h au maximum.</p>
+          <select id="goalSel" style="width:100%">${goalOptions()}</select>
+          <input type="text" id="goalFree" placeholder="Montant en euros, ex. 5000000" inputmode="numeric" hidden style="margin-top:8px">
+          <div class="row" style="margin-top:10px"><button class="btn" data-goal="set">Épargner pour ça</button></div>`}</div>`;
+  };
+  modal('Dépenses des gérants', `<div id="ctrlBody">${body()}</div>`, [{label:'Fermer', cls:'soft'}], true);
+  const box = $('#ctrlBody'), paint = () => { box.innerHTML = body(); };
+  box.addEventListener('change', e => { if (e.target.id === 'goalSel') $('#goalFree').hidden = e.target.value !== 'free'; });
+  box.addEventListener('click', e => {
+    const p = e.target.closest('[data-pz]');
+    if (p){ const m = +p.dataset.pz; S.mgrPause = m ? Date.now() + m * 60000 : 0; toast(m ? `Gérants en pause pendant ${m === 60 ? '1 h' : m + ' min'}.` : 'Tes gérants reprennent leurs dépenses.'); paint(); refresh(); return; }
+    const gb = e.target.closest('[data-goal]'); if (!gb) return;
+    if (gb.dataset.goal === 'cancel'){ S.goal = null; toast('Objectif annulé : tes gérants reprennent.'); paint(); refresh(); return; }
+    const g = goalFrom($('#goalSel').value, $('#goalFree').value);
+    if (!g) return toast('Indique un montant valide.');
+    S.goal = Object.assign(g, {set:Date.now(), reached:false});
+    toast(`Épargne lancée pour ${g.label} : tes gérants arrêtent de dépenser.`); goalTick(); paint(); refresh();
+  });
+}
+$('#ctrlPill').addEventListener('click', openSpendCtrl);
+
 /* ================= GÉRANTS ================= */
 const AVATARS = [
   {name:'Victor',  skin:'#f1c7a5', hair:'#2a1a12', style:'slick', suit:'#2f4a3a', acc:''},
@@ -1236,6 +1316,7 @@ function pickAvatar(co, isNew){
   });
 }
 function mgrTick(){
+  if (managersFrozen()) return;
   S.companies.forEach(co => {
     if (!co.mgr) return;
     let best = null;
@@ -1807,6 +1888,7 @@ function acceptTrade(byMgr){
 // Le chef des ventes reprend l'occasion si l'atelier a de la place, si c'est rentable et sans dépenser plus de 30 % du solde
 function mgrTrade(){
   const d = S.dealer, tr = d.trade, c = tr.price + tr.repair, gain = listPrice(carModel(tr), true) - c;
+  if (managersFrozen()){ d.mgr.trno = (d.mgr.trno || 0) + 1; toast(`${AVATARS[d.mgr.av].name} : reprise de la ${carModel(tr).name} refusée (dépenses en pause).`); d.trade = null; return; }
   if (d.workshop.length < d.atelier && gain > 0 && c <= Math.max(0, S.cash) * 0.3 && acceptTrade(true)){ d.mgr.tr = (d.mgr.tr || 0) + 1; return; }
   d.mgr.trno = (d.mgr.trno || 0) + 1;
   const why = d.workshop.length >= d.atelier ? 'atelier plein' : gain <= 0 ? 'pas rentable' : 'trop cher pour ton solde';
@@ -1833,7 +1915,7 @@ function sellCar(car, price, how){
   const fee = d.mgr && price > car.cost ? (price - car.cost) * DMGR_SALARY : 0;
   S.cash += price - fee; S.earned += price - fee; d.profit += price - car.cost - fee; d.sales++; S.stats.carsSold++;
   if (how) toast(`${m.name}${car.used ? ' d\'occasion' : ''} vendue ${money(price)} (${price >= car.cost ? '+' : '−'}${money(Math.abs(price - car.cost))})`);
-  if (!car.used && d.auto[g.id] && S.cash >= m.cost && d.stock.length < showSlots()){ S.cash -= m.cost; d.stock.push({id:uid(), g:g.id, m:m.id, cost:m.cost, used:false, t:Date.now()}); }
+  if (!car.used && d.auto[g.id] && !managersFrozen() && S.cash >= m.cost && d.stock.length < showSlots()){ S.cash -= m.cost; d.stock.push({id:uid(), g:g.id, m:m.id, cost:m.cost, used:false, t:Date.now()}); }
 }
 function orderModel(m){
   const d = S.dealer; if (!gUnlocked(gam(m.g)) || d.stock.length >= showSlots() || S.cash < m.cost) return;
@@ -2524,6 +2606,7 @@ setInterval(save, 5000);
 setInterval(eventTick, 1000);
 setInterval(() => { shadyTick(); weekTick(); achTick(); divTick(); recordHist(); dailyTick(); }, 1000);
 setInterval(mgrTick, 3000);
+setInterval(goalTick, 1000);
 setInterval(dealerTick, 1000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
 window.addEventListener('beforeunload', save);
