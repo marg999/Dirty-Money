@@ -404,6 +404,18 @@ select:focus{border-color:var(--cognac)}
 .pill-light.ctrl.paused{color:#e2c27a;border-color:rgba(226,194,122,.45)}
 .ctrl-sec{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
 .ctrl-sec .btn{padding:10px 16px}
+
+.pill-light.buzz{cursor:pointer;font-size:.8rem}
+.pill-light.buzz.good{color:#cfe08a;border-color:rgba(169,187,108,.45);background:rgba(79,107,72,.35)}
+.pill-light.buzz.bad{color:#f0a3aa;border-color:rgba(210,90,100,.5);background:rgba(110,30,38,.45);animation:pulse 1.6s ease-in-out infinite}
+.fame-card{border-color:rgba(226,194,122,.25)}
+.fame-card .btn{padding:11px 16px}
+
+.hero-fame{position:relative;z-index:1;flex-basis:100%;display:flex;flex-direction:column;gap:6px;background:none;border:0;padding:4px 0 0;color:var(--cream);font:inherit;cursor:pointer;text-align:left}
+.hf-top{display:flex;justify-content:space-between;gap:10px;font-size:.74rem;font-weight:700;color:rgba(239,230,216,.75)}
+.hf-top b{color:#e2c27a}
+.hf-bar{display:block;height:6px;border-radius:999px;background:rgba(17,20,17,.4);overflow:hidden}
+.hf-bar span{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#8a5232,#e2c27a);transition:width .5s}
 </style>
 </head>
 <body>
@@ -416,7 +428,11 @@ select:focus{border-color:var(--cognac)}
         <small>Solde</small>
         <div id="cash">0 €</div>
       </div>
-      <div class="hero-pills"><span class="pill-light" id="ips">+0 €/s</span><span class="pill-light dirty" id="dirtyPill" hidden></span><button class="pill-light ctrl" id="ctrlPill" hidden></button></div>
+      <div class="hero-pills"><span class="pill-light" id="ips">+0 €/s</span><span class="pill-light dirty" id="dirtyPill" hidden></span><button class="pill-light ctrl" id="ctrlPill" hidden></button><span class="pill-light buzz" id="buzzPill" hidden></span></div>
+      <button class="hero-fame" id="heroFame" aria-label="Notoriété">
+        <span class="hf-top"><span>Notoriété · <b id="hfLabel"></b></span><span id="hfVal"></span></span>
+        <span class="hf-bar"><span id="hfBar"></span></span>
+      </button>
     </div>
     <nav class="tabs" id="tabs">
       <button data-tab="bourse">Bourse</button>
@@ -567,6 +583,18 @@ select:focus{border-color:var(--cognac)}
     <div class="card stack" style="margin-top:8px">
       <label class="muted" for="nameInput">Nom de ton empire</label>
       <input type="text" id="nameInput" maxlength="30">
+    </div>
+    <div class="section-head"><h2>Notoriété</h2><span class="muted" id="fameBonusTxt"></span></div>
+    <div class="card stack fame-card">
+      <div class="heat-top"><b id="fameLabel"></b><span id="fameTxt"></span></div>
+      <div class="heat"><span id="fameBar" style="background:linear-gradient(90deg,#8a5232,#e2c27a)"></span></div>
+      <p class="muted" style="font-size:.8rem">Plus tu es connu, plus tes entreprises rapportent, mais plus les médias parlent de toi, en bien comme en mal. Les affaires louches attirent les scandales.</p>
+      <div class="row">
+        <button class="btn" id="postBtn">Poster sur les réseaux<small id="postTxt"></small></button>
+        <button class="btn soft" id="campBtn">Campagne de communication<small id="campTxt"></small></button>
+      </div>
+      <div class="chips" id="fameEffects"></div>
+      <ul class="news" id="fameLog"></ul>
     </div>
     <div class="section-head"><h2>Patrimoine</h2></div>
     <div class="kpis">
@@ -945,6 +973,9 @@ function normalize(o){
   if (!s.daily || typeof s.daily !== 'object') s.daily = {last:'', streak:0};
   if (!s.prestige || typeof s.prestige !== 'object') s.prestige = {pts:0, count:0};
   if (typeof s.mgrPause !== 'number') s.mgrPause = 0;
+  if (typeof s.fame !== 'number') s.fame = 20;
+  ['fameNext','famePostAt','fameCampAt'].forEach(k => { if (typeof s[k] !== 'number') s[k] = 0; });
+  if (!Array.isArray(s.fameLog)) s.fameLog = [];
   if (!s.goal || typeof s.goal !== 'object' || typeof s.goal.amount !== 'number') s.goal = null;
   if (!Array.isArray(s.hist)) s.hist = [];
   if (s.dealer && typeof s.dealer === 'object'){
@@ -972,7 +1003,8 @@ const sec = id => BIZ.find(b => b.id === id);
 const cityById = id => CITIES.find(c => c.id === id);
 const bonus = () => ART.reduce((a,x) => a + (S.lux[x.id] ? x.pr : 0), 0);
 const prestigeMult = () => 1 + PRESTIGE_BONUS * S.prestige.pts;
-const mult = () => (1 + bonus()/100) * prestigeMult();
+const fameMult = () => 1 + Math.max(0, S.fame) / 400;   // notoriété : jusqu'à +25 % de revenus
+const mult = () => (1 + bonus()/100) * prestigeMult() * fameMult();
 const totalBranches = () => S.companies.reduce((a,c) => a + c.branches.length, 0);
 const cityOpen = c => totalBranches() >= c.need;
 const foundFee = sc => sc.cost * 0.5;
@@ -1035,7 +1067,9 @@ function updateHeader(){
   const dp = $('#dirtyPill'), anyShady = Object.keys(S.shady).length > 0;
   dp.hidden = !anyShady && S.dirty <= 0;
   if (!dp.hidden) dp.textContent = 'Sale : ' + money(S.dirty);
-  updateCtrlPill();
+  updateCtrlPill(); updateBuzzPill();
+  $('#hfLabel').textContent = fameLabel(S.fame); $('#hfVal').textContent = `${num(S.fame, 0)} / 100 · +${num((fameMult() - 1) * 100, 1)} %`;
+  $('#hfBar').style.width = S.fame + '%';
   $('#empireName').textContent = S.name;
 }
 function bindSeg(sel, cb){
@@ -2294,6 +2328,8 @@ const ACH = [
   {id:'ipo1',     name:'Cloche de Wall Street', desc:'Introduis une entreprise en bourse.',            reward:1e6,   check:() => S.companies.some(c => c.float > 0)},
   {id:'divs',     name:'Rentier',               desc:'Touche 10 000 € de dividendes au total.',        reward:1e5,   prog:() => [S.stats.divs, 1e4]},
   {id:'streak7',  name:'Habitué',               desc:'Atteins une série de 7 jours de connexion.',     reward:5e5,   prog:() => [S.daily.streak, 7]},
+  {id:'fame60',   name:'Star',                  desc:'Atteins 60 de notoriété.',                       reward:5e5,   prog:() => [S.fame, 60]},
+  {id:'fame80',   name:'Icône',                 desc:'Atteins 80 de notoriété.',                       reward:5e6,   prog:() => [S.fame, 80]},
   {id:'prestige1',name:'Renaissance',           desc:'Effectue ton premier prestige.',                 reward:1e6,   prog:() => [S.prestige.count, 1]},
   {id:'nw1bn',    name:'Légende',               desc:'Atteins 1 Bn € de patrimoine.',                  reward:5e10,  prog:() => [wealth(), 1e12]},
   {id:'allart',   name:'Musée privé',           desc:'Possède tous les articles.',                     reward:1e12,  prog:() => [ART.filter(x => S.lux[x.id]).length, ART.length]},
@@ -2550,6 +2586,96 @@ $('#histChart').addEventListener('pointermove', histHover);
 $('#histChart').addEventListener('pointerdown', histHover);
 $('#histChart').addEventListener('pointerleave', histLeave);
 
+/* ================= NOTORIÉTÉ ================= */
+const FAME_LEVELS = [[0,'Inconnu'],[20,'Connu'],[40,'Célèbre'],[60,'Star'],[80,'Icône']];
+const fameLabel = f => FAME_LEVELS.filter(l => f >= l[0]).pop()[1];
+const fameAdd = d => { S.fame = Math.max(0, Math.min(100, S.fame + d)); };
+const mediaEffects = () => S.effects.filter(e => e.media && e.until > Date.now());
+function fameLogAdd(txt, good){ S.fameLog.unshift({t:Date.now(), txt, good}); S.fameLog = S.fameLog.slice(0, 6); }
+// mult : multiplicateur des bénéfices · mins : durée · fame : variation de notoriété
+function media(txt, m, mins, fame, good){
+  S.effects.push({scope:'global', target:'', mult:m, until:Date.now() + mins*60000, label:txt.split(' : ')[0] + ` ${m >= 1 ? '+' : '−'}${Math.round(Math.abs(m - 1) * 100)} %`, media:true});
+  fameAdd(fame); fameLogAdd(txt, good); toast(txt);
+}
+const owns = cat => ART.some(x => x.cat === cat && S.lux[x.id]);
+const MEDIA_GOOD = [
+  {w:3, run:() => media('Buzz : ton interview à la télé a fait le buzz, bénéfices +20 % pendant 1 h', 1.2, 60, 5, true)},
+  {w:2, run:() => media('Classement : tu entres dans le top 30 des entrepreneurs à suivre, +15 % pendant 30 min', 1.15, 30, 8, true)},
+  {w:3, run:() => media('Influenceur : une star des réseaux parle de tes entreprises, +30 % pendant 10 min', 1.3, 10, 3, true)},
+  {w:1, ok:() => owns('Voitures') || owns('Voitures de collection'), run:() => media('Photo virale : ta voiture fait le tour des réseaux, +25 % pendant 15 min', 1.25, 15, 4, true)},
+  {w:2, run:() => { const cost = Math.max(1000, ips() * 600);
+    modal('Partenariat caritatif', `<p>Une association te propose de financer son gala pour <b>${money(cost)}</b>. La presse en parlerait : bénéfices +25 % pendant 45 min et notoriété +10.</p>`, [
+      {label:'Refuser', cls:'soft'},
+      {label:`Donner ${money(cost)}`, cls:'green', action:() => { if (S.cash < cost) return toast("Pas assez d'argent."); S.cash -= cost; media('Générosité : la presse salue ton don, +25 % pendant 45 min', 1.25, 45, 10, true); refresh(); }},
+    ]); }},
+];
+const MEDIA_BAD = [
+  {w:3, run:() => {
+    modal('Tu es dans la sauce sur Twitter', `<p>Une vieille phrase de toi refait surface et tout le monde s'en mêle. Bénéfices <b>−80 % pendant 3 min</b> si tu laisses couler.</p>`, [
+      {label:'Laisser couler', cls:'soft', action:() => { media('Bad buzz : tu es dans la sauce sur Twitter, −80 % pendant 3 min', 0.2, 3, -6, false); refresh(); }},
+      {label:'S\'excuser', action:() => { media('Excuses : la polémique retombe vite, −80 % pendant 1 min 30', 0.2, 1.5, -2, false); refresh(); }},
+      {label:'Contre-attaquer', cls:'red', action:() => {
+        if (Math.random() < 0.5) media('Retournement : ta réponse cartonne, +20 % pendant 10 min', 1.2, 10, 4, true);
+        else media('Bad buzz : ta réponse jette de l\'huile sur le feu, −80 % pendant 6 min', 0.2, 6, -10, false);
+        refresh(); }},
+    ]); }},
+  {w:2, run:() => media('Polémique : la vidéo d\'un employé mécontent tourne en boucle, −50 % pendant 5 min', 0.5, 5, -4, false)},
+  {w:2, run:() => media('Rumeur : des journalistes parlent d\'une faillite imminente, −40 % pendant 6 min', 0.6, 6, -3, false)},
+  {w:1, ok:() => owns('Bateaux') || owns('Avions'), run:() => media('Polémique : ton yacht et ton jet font scandale, −30 % pendant 8 min', 0.7, 8, -3, false)},
+  {w:3, ok:() => Object.keys(S.shady).length > 0, run:() => { media('Enquête : un journal révèle tes affaires louches, −60 % pendant 5 min', 0.4, 5, -8, false); S.heat = Math.min(100, S.heat + 10); }},
+];
+function pick(list){ const l = list.filter(e => !e.ok || e.ok()); let r = Math.random() * l.reduce((a,e) => a + e.w, 0); for (const e of l){ r -= e.w; if (r <= 0) return e; } return l[0]; }
+let lastFameTick = Date.now();
+function fameTick(){
+  const now = Date.now(), dt = Math.min(5, (now - lastFameTick) / 1000); lastFameTick = now;
+  if (S.fame > 15) fameAdd(-0.25 / 60 * dt);   // la notoriété retombe doucement si on ne fait pas parler de soi
+  if (!S.companies.length) return;
+  if (!S.fameNext){ S.fameNext = now + (150 + Math.random() * 120) * 1000; return; }
+  if (now < S.fameNext || $('#modal').classList.contains('open')) return;
+  S.fameNext = now + (150 + Math.random() * 120) * 1000 * (1.3 - S.fame / 200);   // plus tu es connu, plus on parle de toi
+  const pGood = Math.max(.25, Math.min(.75, .5 + (S.fame - 30) / 300 - (S.heat + S.cops) / 400));
+  pick(Math.random() < pGood ? MEDIA_GOOD : MEDIA_BAD).run();
+  refresh();
+}
+const campCost = () => Math.max(5000, ips() * 1200);
+function updateFame(){
+  $('#fameLabel').textContent = fameLabel(S.fame);
+  $('#fameTxt').textContent = `${num(S.fame, 0)} / 100`;
+  $('#fameBar').style.width = S.fame + '%';
+  $('#fameBonusTxt').textContent = `+${num((fameMult() - 1) * 100, 1)} % de revenus`;
+  const now = Date.now(), pl = S.famePostAt - now, cl = S.fameCampAt - now;
+  $('#postTxt').textContent = pl > 0 ? 'dispo dans ' + fmtLeft(pl) : 'gratuit · risqué';
+  $('#postBtn').disabled = pl > 0;
+  $('#campTxt').textContent = cl > 0 ? 'dispo dans ' + fmtLeft(cl) : `+12 notoriété · ${money(campCost())}`;
+  $('#campBtn').disabled = cl > 0 || S.cash < campCost();
+  const fx = mediaEffects();
+  $('#fameEffects').innerHTML = fx.map(e => `<span class="chip-ev ${e.mult >= 1 ? 'good' : 'bad'}">${esc(e.label)} · ${fmtLeft(e.until - now)}</span>`).join('');
+  $('#fameLog').innerHTML = S.fameLog.length ? S.fameLog.map(l => `<li><span>${esc(l.txt)}</span><span class="chg ${l.good ? 'up' : 'down'}">${new Date(l.t).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</span></li>`).join('')
+    : '<li class="muted">Personne ne parle encore de toi.</li>';
+}
+function updateBuzzPill(){
+  const b = $('#buzzPill'), fx = mediaEffects();
+  if (!fx.length){ b.hidden = true; return; }
+  const m = fx.reduce((a,e) => a * e.mult, 1), main = fx.reduce((a,e) => Math.abs(e.mult - 1) > Math.abs(a.mult - 1) ? e : a);
+  b.hidden = false; b.className = 'pill-light buzz ' + (m >= 1 ? 'good' : 'bad');
+  b.textContent = `${m >= 1 ? 'Buzz +' : 'Bad buzz −'}${Math.round(Math.abs(m - 1) * 100)} % · ${fmtLeft(main.until - Date.now())}`;
+}
+$('#postBtn').addEventListener('click', () => {
+  if (S.famePostAt > Date.now()) return;
+  S.famePostAt = Date.now() + 5 * 60000;
+  if (Math.random() < 0.7) media('Post : ton message plaît beaucoup, +10 % pendant 5 min', 1.1, 5, 3, true);
+  else media('Post raté : ton message est mal compris, −30 % pendant 2 min', 0.7, 2, -2, false);
+  refresh();
+});
+$('#campBtn').addEventListener('click', () => {
+  const c = campCost(); if (S.fameCampAt > Date.now() || S.cash < c) return;
+  S.cash -= c; S.fameCampAt = Date.now() + 10 * 60000;
+  media('Campagne : ta pub est partout, +15 % pendant 15 min', 1.15, 15, 12, true);
+  refresh();
+});
+$('#buzzPill').addEventListener('click', () => document.querySelector('#tabs [data-tab=profil]').click());
+$('#heroFame').addEventListener('click', () => document.querySelector('#tabs [data-tab=profil]').click());
+
 /* ================= PROFIL ================= */
 function updateProfil(){
   const cash = Math.max(S.cash,0), bz = bizValue(), st = stocksValue(), ar = artValue();
@@ -2567,6 +2693,7 @@ function updateProfil(){
     ['Bénéfice par seconde', money(ips()), 'k-green'],
     ['Argent sale', money(S.dirty), 'k-violet'],
     ['Argent blanchi', money(S.stats.laundered), 'k-dark'],
+    ['Notoriété', `${num(S.fame,0)} / 100 · ${fameLabel(S.fame)}`, 'k-orange'],
     ['Soupçon du fisc', num(S.heat,1) + ' %', 'k-pink'],
     ['Attention police', num(S.cops,1) + ' %', 'k-blue'],
     ['Série de connexion', S.daily.streak + (S.daily.streak > 1 ? ' jours' : ' jour'), 'k-green'],
@@ -2581,7 +2708,7 @@ function updateProfil(){
     ['Temps de jeu', duration(Date.now() - S.start), 'k-dark'],
   ];
   $('#statsBox').innerHTML = items.map(([k,v,c]) => `<div class="kpi ${c}"><small>${k}</small><b>${v}</b></div>`).join('');
-  buildShowcase(); updatePrestige(); drawHist();
+  updateFame(); buildShowcase(); updatePrestige(); drawHist();
 }
 $('#nameInput').addEventListener('input', e => { S.name = e.target.value.trim() || 'Mon Empire'; updateHeader(); save(); });
 $('#exportBtn').addEventListener('click', () => {
@@ -2643,6 +2770,7 @@ setInterval(eventTick, 1000);
 setInterval(() => { shadyTick(); weekTick(); achTick(); divTick(); recordHist(); dailyTick(); }, 1000);
 setInterval(mgrTick, 3000);
 setInterval(goalTick, 1000);
+setInterval(fameTick, 1000);
 setInterval(dealerTick, 1000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
 window.addEventListener('beforeunload', save);
