@@ -416,6 +416,39 @@ select:focus{border-color:var(--cognac)}
 .hf-top b{color:#e2c27a}
 .hf-bar{display:block;height:6px;border-radius:999px;background:rgba(17,20,17,.4);overflow:hidden}
 .hf-bar span{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#8a5232,#e2c27a);transition:width .5s}
+
+/* ===== EN-TÊTE COMPACT ===== */
+.top{padding:calc(10px + env(safe-area-inset-top)) 16px 8px;transition:padding .25s}
+.brand-row{margin-bottom:8px;transition:max-height .25s,opacity .2s,margin .25s;max-height:60px;overflow:hidden}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 12px;padding:12px 16px;border-radius:22px}
+.hero > div:first-child{min-width:0}
+.hero small{font-size:.66rem}
+#cash{font-size:1.9rem;transition:font-size .25s}
+.hero-pills{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:6px}
+.hero-pills .pill-light{padding:5px 11px;font-size:.76rem}
+.hero-pills #ips{order:-1}
+.hero-fame{grid-column:1/-1;padding:0;gap:4px}
+.hf-top{font-size:.7rem}
+.hf-bar{height:5px}
+.tabs{margin-top:8px}
+.tabs button{padding:8px 12px}
+@media (min-width:720px){
+  /* sur grand écran : solde à gauche, pastilles à droite sur la même ligne */
+  .hero{grid-template-columns:auto minmax(0,1fr)}
+  .hero-pills{grid-column:auto;justify-content:flex-end}
+}
+/* quand on fait défiler : l'en-tête se resserre */
+body.scrolled .brand-row{max-height:0;opacity:0;margin-bottom:0}
+body.scrolled .top{padding-top:calc(6px + env(safe-area-inset-top))}
+body.scrolled .hero{padding:8px 14px;gap:6px 10px}
+body.scrolled .hero small{display:none}
+body.scrolled #cash{font-size:1.4rem}
+body.scrolled .hf-top{display:none}
+@media (max-width:520px){
+  #cash{font-size:1.65rem}
+  body.scrolled #cash{font-size:1.3rem}
+  .tabs button{padding:8px 11px;font-size:.8rem}
+}
 </style>
 </head>
 <body>
@@ -2775,6 +2808,10 @@ setInterval(dealerTick, 1000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
 window.addEventListener('beforeunload', save);
 
+
+/* en-tête compact quand on fait défiler */
+(function(){ let on = false; const f = () => { const y = window.scrollY; if (!on && y > 70){ on = true; document.body.classList.add('scrolled'); } else if (on && y < 20){ on = false; document.body.classList.remove('scrolled'); } };
+  window.addEventListener('scroll', f, {passive:true}); f(); })();
 /* ================= DÉMARRAGE ================= */
 ensureWeek(); recordHist();
 buildStocks(); buildCompanies(); buildShady(); buildAch(); buildWeek(); buildArticles(); renderNews(); renderLog(); refresh();
