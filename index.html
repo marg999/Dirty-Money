@@ -453,13 +453,57 @@ body.scrolled .hf-top{display:none}
 .auc-wait{padding:16px 18px}
 .auc-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .auc-foot .btn{padding:11px 22px}
+
+.brand-right{display:flex;align-items:center;gap:8px;min-width:0}
+.cloud-btn{font:inherit;font-size:.74rem;font-weight:800;padding:6px 12px;border-radius:999px;border:1px solid rgba(196,138,90,.5);background:rgba(160,98,60,.18);color:#e2b98f;cursor:pointer;white-space:nowrap}
+.cloud-btn.on{border-color:rgba(169,187,108,.4);background:rgba(79,107,72,.25);color:var(--up)}
+.account-card{border-color:rgba(196,138,90,.3)}
+.acc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.acc-head h3{word-break:break-all}
+.acc-dot{width:12px;height:12px;border-radius:50%;background:#e2b04a;flex-shrink:0;margin-top:6px;box-shadow:0 0 0 4px rgba(226,176,74,.15)}
+.acc-dot.ok{background:var(--up);box-shadow:0 0 0 4px rgba(169,187,108,.15)}
+.acc-err{color:var(--down);font-size:.82rem;font-weight:700}
+.link-btn{background:none;border:0;color:var(--muted);font:inherit;font-size:.8rem;font-weight:700;text-decoration:underline;cursor:pointer;align-self:flex-start;padding:2px 0}
+.save-choice{display:flex;flex-direction:column;gap:2px;background:var(--surface-2);border-radius:var(--r-sm);padding:10px 12px;margin-top:10px}
+.save-choice .muted{font-size:.8rem}
+@media (max-width:400px){ .brand-row #empireName{display:none} }
+
+input[type=password]{width:100%;font:inherit;font-weight:700;font-size:.95rem;padding:12px 16px;border:1px solid var(--border);border-radius:var(--r-md);background:rgba(0,0,0,.25);color:var(--text);outline:none}
+input[type=password]:focus{border-color:var(--cognac)}
+input::placeholder{color:var(--muted);font-weight:600}
+
+.mgr-row.mgr-paused{opacity:.75;border:1px dashed rgba(226,194,122,.4)}
+.mini-av.paused{filter:grayscale(1);opacity:.6}
+.d-brand-acts{display:flex;gap:8px;flex-wrap:wrap}
+.d-brand-acts .btn{padding:9px 14px}
+.d-closed-banner{margin-top:12px;display:flex;flex-direction:column;gap:4px;border-color:rgba(226,194,122,.4);background:linear-gradient(160deg,rgba(226,194,122,.1),var(--surface))}
+.d-closed-banner .muted{font-size:.8rem}
+.sell-detail{list-style:none;display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.sell-detail li{display:flex;justify-content:space-between;gap:10px;background:var(--surface-2);border-radius:var(--r-sm);padding:8px 12px;font-size:.86rem}
+.me-mini{width:30px;height:30px;padding:0;border:2px solid rgba(196,138,90,.6);cursor:pointer;flex-shrink:0}
+.me-card{display:flex;flex-direction:column;gap:14px}
+.me-head{display:flex;gap:16px;align-items:center}
+.me-av{width:96px;height:96px;flex-shrink:0;border:3px solid rgba(196,138,90,.6);box-shadow:0 8px 20px rgba(0,0,0,.35)}
+#meEditor{display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--border);padding-top:14px}
+.me-row{display:flex;flex-direction:column;gap:8px}
+.me-row > .muted{font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.me-seg{flex-wrap:wrap;align-self:flex-start}
+.me-styles{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+.me-styles button{background:var(--surface-2);border:2px solid transparent;border-radius:var(--r-md);padding:6px 4px;cursor:pointer;color:var(--text);font:inherit;display:flex;flex-direction:column;align-items:center;gap:4px}
+.me-styles button .avatar{width:48px;height:48px}
+.me-styles button small{font-size:.66rem;font-weight:800;text-align:center;line-height:1.15}
+.me-styles button.on{border-color:var(--cognac);background:rgba(160,98,60,.18)}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.sw{width:34px;height:34px;border-radius:50%;border:2px solid rgba(239,230,216,.15);cursor:pointer;padding:0}
+.sw.on{border-color:var(--cream);box-shadow:0 0 0 3px rgba(196,138,90,.6)}
+@media (max-width:420px){ .me-av{width:76px;height:76px} }
 </style>
 </head>
 <body>
 
 <header class="top">
   <div class="top-inner">
-    <div class="brand-row"><div class="logo">Dirty <span>Money</span></div><div id="empireName">Mon Empire</div></div>
+    <div class="brand-row"><div class="logo">Dirty <span>Money</span></div><div class="brand-right"><button class="cloud-btn" id="cloudBtn" hidden></button><button class="avatar me-mini" id="meMini" aria-label="Mon profil"></button><div id="empireName">Mon Empire</div></div></div>
     <div class="hero">
       <div>
         <small>Solde</small>
@@ -560,7 +604,8 @@ body.scrolled .hf-top{display:none}
     <div id="dealerOpen" hidden>
       <div class="card d-brand" style="margin-top:8px"><span class="d-logo" id="dLogo"></span>
         <div class="d-brand-txt"><span class="kick-sm">Concession</span><h2 id="dName"></h2></div>
-        <button class="btn soft" id="dCustom">Personnaliser</button></div>
+        <div class="d-brand-acts"><button class="btn soft" id="dCustom">Personnaliser</button><button class="btn soft" id="dClose"></button><button class="btn soft" id="dSell">Vendre</button></div></div>
+      <div id="dClosedBanner"></div>
       <div id="dMgr"></div>
       <div class="kpis" style="margin-top:8px">
         <div class="kpi k-orange"><small>Réputation</small><b id="dRep"></b></div>
@@ -619,9 +664,17 @@ body.scrolled .hf-top{display:none}
 
   <!-- PROFIL -->
   <section class="tab" id="tab-profil">
-    <div class="card stack" style="margin-top:8px">
-      <label class="muted" for="nameInput">Nom de ton empire</label>
-      <input type="text" id="nameInput" maxlength="30">
+    <div class="card stack account-card" id="accountCard" style="margin-top:8px"></div>
+    <div class="card me-card" style="margin-top:14px">
+      <div class="me-head">
+        <span class="avatar me-av" id="meBig"></span>
+        <div class="stack" style="flex:1;min-width:0;gap:6px">
+          <label class="muted" for="nameInput">Nom de ton empire</label>
+          <input type="text" id="nameInput" maxlength="30">
+          <button class="btn soft" id="meEditBtn" style="align-self:flex-start;padding:10px 16px">Personnaliser mon avatar</button>
+        </div>
+      </div>
+      <div id="meEditor" hidden></div>
     </div>
     <div class="section-head"><h2>Notoriété</h2><span class="muted" id="fameBonusTxt"></span></div>
     <div class="card stack fame-card">
@@ -684,6 +737,9 @@ body.scrolled .hf-top{display:none}
 <div class="modal" id="modal"><div class="modal-box"><h2 id="modalTitle"></h2><div id="modalBody"></div><div class="modal-actions" id="modalActions"></div></div></div>
 <div class="toasts" id="toasts"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 'use strict';
 /* ================= DONNÉES DU JEU ================= */
@@ -1013,6 +1069,7 @@ function normalize(o){
   if (!s.prestige || typeof s.prestige !== 'object') s.prestige = {pts:0, count:0};
   if (typeof s.mgrPause !== 'number') s.mgrPause = 0;
   if (typeof s.fame !== 'number') s.fame = 20;
+  s.me = Object.assign({g:'m', skin:'#e8b896', hair:'#2a1a12', style:'short', eyes:'#5a3a22', glasses:'none', facial:'none', earring:false, suit:'#2f4a3a'}, s.me || {});
   if (!s.artAuc || typeof s.artAuc !== 'object') s.artAuc = {cur:null, next:Date.now() + 90000};
   ['fameNext','famePostAt','fameCampAt'].forEach(k => { if (typeof s[k] !== 'number') s[k] = 0; });
   if (!Array.isArray(s.fameLog)) s.fameLog = [];
@@ -1025,7 +1082,7 @@ function normalize(o){
 }
 function load(){
   try { const raw = localStorage.getItem(SAVE_KEY); if (raw) return normalize(JSON.parse(raw)); } catch(e) {}
-  return freshState();
+  return normalize({});   // nouvelle partie : mêmes valeurs par défaut que les anciennes sauvegardes
 }
 let S = load();
 let noSave = false;
@@ -1079,6 +1136,13 @@ const stocksValue = () => STK.reduce((a,s) => a + (S.stk[s.id]?.q || 0) * S.pric
 const artValue = () => ART.reduce((a,x) => a + (S.lux[x.id] ? x.price : 0), 0);
 const coValue = co => co.invested * 0.6 * (1 - (co.float || 0));
 const bizValue = () => S.companies.reduce((a,c) => a + coValue(c), 0) + dealerValue();
+function dealerSaleValue(){
+  const d = S.dealer; let spent = DEALER_COST;
+  for (let l = 0; l < d.lvl; l++) spent += 30000 * Math.pow(2.4, l);
+  for (let a = 1; a < d.atelier; a++) spent += 80000 * Math.pow(3, a - 1);
+  const base = spent * 0.6, stock = (d.stock.reduce((x,c) => x + c.cost, 0) + d.workshop.reduce((x,w) => x + w.cost, 0)) * 0.9;
+  return {base, stock, total:base + stock};
+}
 const dealerValue = () => !S.dealer ? 0 : DEALER_COST * 0.5 + S.dealer.stock.reduce((a,c) => a + c.cost, 0) + S.dealer.workshop.reduce((a,w) => a + w.cost, 0);
 
 /* ================= INTERFACE : GÉNÉRAL ================= */
@@ -1361,14 +1425,23 @@ const AVATARS = [
   {name:'Bruno',   skin:'#c48a64', hair:'#2a2a2a', style:'short', suit:'#6b4430', acc:'shades'},
   {name:'Mei',     skin:'#f0d2b0', hair:'#0d0d12', style:'bangs', suit:'#4f6b48', acc:'earring'},
 ];
-function avatarSVG(i){
-  const a = AVATARS[i] || AVATARS[0], h = a.hair, k = a.skin;
+// Apparence d'un personnage : g (m/f), skin, hair, style, eyes, glasses (none/vue/soleil), facial (none/barbe/moustache), earring, suit
+function toLook(a){
+  if (a.glasses !== undefined) return a;
+  return {g:a.g || 'm', skin:a.skin, hair:a.hair, style:a.style, eyes:'#1b1410', suit:a.suit,
+    glasses:a.acc === 'glasses' ? 'vue' : a.acc === 'shades' ? 'soleil' : 'none',
+    facial:a.acc === 'beard' ? 'barbe' : a.acc === 'mustache' ? 'moustache' : 'none', earring:a.acc === 'earring'};
+}
+function drawAvatar(raw){
+  const a = toLook(raw), h = a.hair, k = a.skin, f = a.g === 'f';
   const back = {
     long:  `<path d="M14 30 Q13 10 32 10 Q51 10 50 30 L53 58 L11 58 Z" fill="${h}"/>`,
     bob:   `<path d="M15 33 Q14 11 32 11 Q50 11 49 33 L50 42 L14 42 Z" fill="${h}"/>`,
     bangs: `<path d="M15 33 Q14 11 32 11 Q50 11 49 33 L50 44 L14 44 Z" fill="${h}"/>`,
     curly: [[19,22],[24,15],[32,12],[40,15],[45,22],[17,31],[47,31],[18,39],[46,39]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="6.5" fill="${h}"/>`).join(''),
     bun:   `<circle cx="32" cy="11" r="6" fill="${h}"/>`,
+    pony:  `<path d="M42 18 Q55 22 53 40 Q52 50 47 54 Q49 44 46 36 Q44 28 40 24 Z" fill="${h}"/>`,
+    afro:  `<circle cx="32" cy="24" r="20" fill="${h}"/>`,
   }[a.style] || '';
   const front = {
     slick: `<path d="M20 26 Q19 13 32 13 Q46 13 44 26 Q40 18 30 19 Q24 20 20 26 Z" fill="${h}"/>`,
@@ -1380,25 +1453,31 @@ function avatarSVG(i){
     bangs: `<path d="M19.5 27 Q19 13.5 32 13.5 Q45 13.5 44.5 27 Q44 22.5 41 22.5 L23 22.5 Q20 22.5 19.5 27 Z" fill="${h}"/>`,
     curly: [[22,19],[27,16],[32,15],[37,16],[42,19]].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="4.6" fill="${h}"/>`).join(''),
     bun:   `<path d="M20 26 Q20 14 32 14 Q44 14 44 26 Q38 19 32 19 Q26 19 20 26 Z" fill="${h}"/>`,
+    pony:  `<path d="M20 26 Q20 14 32 14 Q44 14 44 26 Q39 18.5 32 18.5 Q25 18.5 20 26 Z" fill="${h}"/><circle cx="43" cy="20" r="2.4" fill="#8c2a33"/>`,
+    afro:  `<path d="M19 27 Q17 12 32 12 Q47 12 45 27 Q41 19 32 19 Q23 19 19 27 Z" fill="${h}"/>`,
+    mohawk:`<path d="M21 24 Q22 16 27 15 L27 22 Z M43 24 Q42 16 37 15 L37 22 Z" fill="${h}" opacity=".55"/><path d="M28.5 23 L28 9 Q32 3 36 9 L35.5 23 Q32 21 28.5 23 Z" fill="${h}"/>`,
   }[a.style] || '';
-  const acc = {
-    glasses: `<g fill="none" stroke="#1b1410" stroke-width="1.3"><rect x="23.2" y="25" width="8" height="6" rx="2"/><rect x="32.8" y="25" width="8" height="6" rx="2"/><path d="M31.2 27.5 L32.8 27.5"/></g>`,
-    shades:  `<g fill="#14100d"><rect x="22.8" y="24.8" width="8.6" height="5.6" rx="2.2"/><rect x="32.6" y="24.8" width="8.6" height="5.6" rx="2.2"/><rect x="31" y="26.2" width="2" height="1.2"/></g>`,
-    beard:   `<path d="M20.6 30 Q21.5 42.5 32 43.5 Q42.5 42.5 43.4 30 Q41.5 38 32 38.6 Q22.5 38 20.6 30 Z" fill="${h}"/>`,
-    mustache:`<path d="M27 33.4 Q32 30.8 37 33.4 Q32 35 27 33.4 Z" fill="${h}"/>`,
-    earring: `<circle cx="20" cy="33" r="1.4" fill="#e2c27a"/><circle cx="44" cy="33" r="1.4" fill="#e2c27a"/>`,
-  }[a.acc] || '';
-  const eyes = a.acc === 'shades' ? '' : `<circle cx="27.4" cy="28" r="1.5" fill="#1b1410"/><circle cx="36.6" cy="28" r="1.5" fill="#1b1410"/>`;
+  const neck = f
+    ? `<path d="M5 66 Q7 48 32 46 Q57 48 59 66 Z" fill="${a.suit}"/><path d="M25 46.8 Q32 55 39 46.8 Z" fill="${k}"/><circle cx="32" cy="52.5" r="1.3" fill="#e2c27a"/>`
+    : `<path d="M5 66 Q7 48 32 46 Q57 48 59 66 Z" fill="${a.suit}"/><path d="M26.5 46.6 L32 55 L37.5 46.6 Z" fill="#efe6d8"/><path d="M31 49 L33 49 L33.6 56 L32 58 L30.4 56 Z" fill="#8c2a33"/>`;
+  const beard = a.facial === 'barbe' ? `<path d="M20.6 30 Q21.5 42.5 32 43.5 Q42.5 42.5 43.4 30 Q41.5 38 32 38.6 Q22.5 38 20.6 30 Z" fill="${h}"/>` : '';
+  const stache = a.facial === 'moustache' ? `<path d="M27 33.4 Q32 30.8 37 33.4 Q32 35 27 33.4 Z" fill="${h}"/>` : '';
+  const eyes = a.glasses === 'soleil' ? '' : `<circle cx="27.4" cy="28" r="1.6" fill="${a.eyes || '#1b1410'}"/><circle cx="36.6" cy="28" r="1.6" fill="${a.eyes || '#1b1410'}"/><circle cx="27.9" cy="27.5" r=".5" fill="#fff" opacity=".8"/><circle cx="37.1" cy="27.5" r=".5" fill="#fff" opacity=".8"/>`
+    + (f ? `<path d="M25.4 26.6 L24.6 25.6 M26.4 26 L26 24.9 M38.6 26.6 L39.4 25.6 M37.6 26 L38 24.9" stroke="#1b1410" stroke-width=".8" stroke-linecap="round"/>` : '');
+  const glasses = a.glasses === 'vue' ? `<g fill="none" stroke="#1b1410" stroke-width="1.3"><rect x="23.2" y="25" width="8" height="6" rx="2"/><rect x="32.8" y="25" width="8" height="6" rx="2"/><path d="M31.2 27.5 L32.8 27.5"/></g>`
+    : a.glasses === 'soleil' ? `<g fill="#14100d"><rect x="22.8" y="24.8" width="8.6" height="5.6" rx="2.2"/><rect x="32.6" y="24.8" width="8.6" height="5.6" rx="2.2"/><rect x="31" y="26.2" width="2" height="1.2"/></g>` : '';
+  const ear = a.earring ? `<circle cx="20" cy="33" r="1.4" fill="#e2c27a"/><circle cx="44" cy="33" r="1.4" fill="#e2c27a"/>` : '';
+  const mouth = f ? `<path d="M28.8 35 Q32 37.6 35.2 35 Q32 36 28.8 35 Z" fill="#b0505a" stroke="#9a3a46" stroke-width=".8"/>` : `<path d="M28.6 35 Q32 37.4 35.4 35" stroke="#7a3a2a" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
+  const cheeks = f ? `<circle cx="24.5" cy="33" r="2.2" fill="#d9536a" opacity=".18"/><circle cx="39.5" cy="33" r="2.2" fill="#d9536a" opacity=".18"/>` : '';
   return `<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#262c26"/>${back}
-    <rect x="27" y="37" width="10" height="11" rx="3" fill="${k}"/>
-    <path d="M5 66 Q7 48 32 46 Q57 48 59 66 Z" fill="${a.suit}"/><path d="M26.5 46.6 L32 55 L37.5 46.6 Z" fill="#efe6d8"/><path d="M31 49 L33 49 L33.6 56 L32 58 L30.4 56 Z" fill="#8c2a33"/>
+    <rect x="27" y="37" width="10" height="11" rx="3" fill="${k}"/>${neck}
     <circle cx="20" cy="29.5" r="2.6" fill="${k}"/><circle cx="44" cy="29.5" r="2.6" fill="${k}"/>
-    <ellipse cx="32" cy="28" rx="12" ry="13.5" fill="${k}"/>
-    ${a.acc === 'beard' ? acc : ''}${eyes}
-    <path d="M25 24.3 L29.5 23.6 M34.5 23.6 L39 24.3" stroke="${h}" stroke-width="1.3" stroke-linecap="round"/>
-    <path d="M28.6 35 Q32 37.4 35.4 35" stroke="#7a3a2a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-    ${front}${a.acc && a.acc !== 'beard' ? acc : ''}</svg>`;
+    <ellipse cx="32" cy="28" rx="${f ? 11.5 : 12}" ry="13.5" fill="${k}"/>${cheeks}
+    ${beard}${eyes}
+    <path d="M25 24.3 L29.5 23.6 M34.5 23.6 L39 24.3" stroke="${h}" stroke-width="${f ? 1 : 1.3}" stroke-linecap="round"/>
+    ${mouth}${stache}${front}${glasses}${ear}</svg>`;
 }
+const avatarSVG = i => drawAvatar(AVATARS[i] || AVATARS[0]);
 const mgrFee = co => Math.max(500, coGross(co) * 900);
 function pickAvatar(co, isNew){
   const used = new Set(S.companies.filter(c => c.mgr && c !== co).map(c => c.mgr.av));
@@ -1426,7 +1505,7 @@ function pickAvatar(co, isNew){
 function mgrTick(){
   if (managersFrozen()) return;
   S.companies.forEach(co => {
-    if (!co.mgr) return;
+    if (!co.mgr || co.mgr.paused) return;
     let best = null;
     co.branches.forEach(br => {
       if (br.l < MAX_LVL){ const c = brUpCost(co, br); if (!best || c < best.c) best = {c, br, t:'up'}; }
@@ -1444,7 +1523,7 @@ const initials = name => name.trim().split(/\s+/).map(w => w[0]).join('').slice(
 const coColor = co => COLORS[co.color % COLORS.length];
 const fmtLeft = ms => { const t = Math.ceil(ms/1000); return `${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`; };
 let coSig = '';
-const signature = () => S.companies.map(c => c.id + ':' + (c.mgr ? c.mgr.av : '-') + ':' + c.branches.map(b => b.city).join(',')).join('|') + '#' + CITIES.filter(cityOpen).length;
+const signature = () => S.companies.map(c => c.id + ':' + c.name + ':' + (c.mgr ? c.mgr.av + (c.mgr.paused ? 'p' : '') : '-') + ':' + c.branches.map(b => b.city).join(',')).join('|') + '#' + CITIES.filter(cityOpen).length;
 function cityOptions(co){
   const have = new Set(co.branches.map(b => b.city));
   return CITIES.filter(c => !have.has(c.id)).map(c => cityOpen(c)
@@ -1462,7 +1541,7 @@ function buildCompanies(){
       const sc = sec(co.sector), opts = cityOptions(co);
       return `<div class="card co${openCos.has(co.id) ? ' open' : ''}" id="co-${co.id}">
         <div class="co-head" data-toggle="${co.id}" role="button" tabindex="0" aria-expanded="${openCos.has(co.id)}">
-          <span class="badge-wrap"><span class="badge-ico" style="background:${grad(coColor(co))}">${esc(initials(co.name))}</span>${co.mgr ? `<span class="mini-av avatar">${avatarSVG(co.mgr.av)}</span>` : ''}</span>
+          <span class="badge-wrap"><span class="badge-ico" style="background:${grad(coColor(co))}">${esc(initials(co.name))}</span>${co.mgr ? `<span class="mini-av avatar ${co.mgr.paused ? 'paused' : ''}">${avatarSVG(co.mgr.av)}</span>` : ''}</span>
           <div class="co-title"><h3>${esc(co.name)}</h3><span class="muted">${sc.name}</span></div>
           <div class="co-sum">
             <div><small>Bénéfice</small><b class="up" data-f="profit"></b></div>
@@ -1475,8 +1554,9 @@ function buildCompanies(){
         </div>
         <div class="co-body"><div class="co-inner">
         <p class="muted co-info">Marge ${Math.round(sc.marge*100)} % · ${num(sc.maxEmp,0)} employés max. par succursale${co.float ? ` · ${Math.round(co.float*100)} % en bourse` : ''}</p>
-        ${co.mgr ? `<div class="mgr-row"><span class="avatar mgr-av">${avatarSVG(co.mgr.av)}</span>
-            <div class="mgr-info"><b>${AVATARS[co.mgr.av].name}</b><span class="muted">Gérant · salaire 10 % · <span data-f="ma"></span></span></div>
+        ${co.mgr ? `<div class="mgr-row ${co.mgr.paused ? 'mgr-paused' : ''}"><span class="avatar mgr-av">${avatarSVG(co.mgr.av)}</span>
+            <div class="mgr-info"><b>${AVATARS[co.mgr.av].name}${co.mgr.paused ? ' · en pause' : ''}</b><span class="muted">Gérant · salaire 10 % · <span data-f="ma"></span></span></div>
+            <button class="btn ${co.mgr.paused ? 'green' : 'soft'}" data-act="mgrpause" data-co="${co.id}">${co.mgr.paused ? 'Reprendre' : 'Pause'}</button>
             <button class="btn soft" data-act="mgrlook" data-co="${co.id}">Apparence</button><button class="btn soft" data-act="fire" data-co="${co.id}">Renvoyer</button></div>`
           : `<div class="mgr-row empty-mgr"><span class="muted">Aucun gérant : tu gères tout à la main.</span>
             <button class="btn soft" data-act="mgr" data-co="${co.id}">Embaucher un gérant<small data-f="mf"></small></button></div>`}
@@ -1490,7 +1570,8 @@ function buildCompanies(){
         <div class="expand">
           ${opts ? `<select data-co="${co.id}">${opts}</select><button class="btn" data-act="open" data-co="${co.id}">Ouvrir une succursale<small data-f="oc"></small></button>`
                  : `<span class="muted">Présente dans toutes les villes</span>`}
-          <button class="btn soft" data-act="sell" data-co="${co.id}" style="margin-left:auto">Vendre<small data-f="sv"></small></button>
+          <button class="btn soft" data-act="rename" data-co="${co.id}" style="margin-left:auto">Renommer</button>
+          <button class="btn soft" data-act="sell" data-co="${co.id}">Vendre<small data-f="sv"></small></button>
         </div></div></div></div>`;
     }).join('');
   }
@@ -1569,6 +1650,15 @@ $('#coList').addEventListener('click', e => {
   const btn = e.target.closest('button[data-act]'); if (!btn) return;
   const co = S.companies.find(c => c.id === btn.dataset.co); if (!co) return;
   const act = btn.dataset.act;
+  if (act === 'rename'){
+    modal('Renommer l\'entreprise', `<div class="stack" style="margin-top:8px"><label class="muted" for="rnInput">Nouveau nom</label><input type="text" id="rnInput" maxlength="28" value="${esc(co.name)}"></div>`, [
+      {label:'Annuler', cls:'soft'},
+      {label:'Renommer', action: () => { const n = ($('#rnInput').value || '').trim(); if (!n) return; co.name = n; coSig = ''; ipoSig = null; refresh(); toast(`Ton entreprise s'appelle maintenant ${n}.`); }},
+    ]);
+    setTimeout(() => { const i = $('#rnInput'); if (i){ i.focus(); i.select(); } }, 50);
+    return;
+  }
+  if (act === 'mgrpause'){ co.mgr.paused = !co.mgr.paused; coSig = ''; refresh(); toast(`${AVATARS[co.mgr.av].name} ${co.mgr.paused ? 'est en pause : il ne dépense plus rien.' : 'reprend le travail.'}`); return; }
   if (act === 'mgr') return pickAvatar(co, true);
   if (act === 'mgrlook') return pickAvatar(co, false);
   if (act === 'fire'){
@@ -2031,9 +2121,16 @@ function orderModel(m){
   S.cash -= m.cost; d.stock.push({id:uid(), g:m.g, m:m.id, cost:m.cost, used:false, t:Date.now()});
   toast(`${m.name} commandée et exposée au showroom.`);
 }
+const REP_DECAY_DAY = 0.5;   // concession fermée : −0,5 étoile par jour
+let lastDealerTick = Date.now();
 function dealerTick(){
   const d = S.dealer; if (!d) return;
-  const now = Date.now();
+  const now = Date.now(), dt = Math.min(5, (now - lastDealerTick) / 1000); lastDealerTick = now;
+  if (d.closed){
+    d.rep = Math.max(1, d.rep - REP_DECAY_DAY / 86400 * dt);
+    d.workshop.forEach(w => { if (!w.done && w.until <= now) w.done = true; });   // l'atelier finit ses voitures en cours
+    return;
+  }
   // clients pour les voitures exposées
   d.stock.forEach(car => {
     if (d.offers.some(o => o.car === car.id)) return;
@@ -2044,8 +2141,9 @@ function dealerTick(){
     else { repAdd(0.02); sellCar(car, lp, true); }
   });
   // offres expirées
-  if (d.mgr && d.trade){ if (!d.trade.mgrAt) d.trade.mgrAt = now + 3000 + Math.random() * 5000; else if (now >= d.trade.mgrAt) mgrTrade(); }
-  if (d.mgr) d.offers.slice().forEach(o => {
+  const mgrOn = d.mgr && !d.mgr.paused;
+  if (mgrOn && d.trade){ if (!d.trade.mgrAt) d.trade.mgrAt = now + 3000 + Math.random() * 5000; else if (now >= d.trade.mgrAt) mgrTrade(); }
+  if (mgrOn) d.offers.slice().forEach(o => {
     if (!o.mgrAt) o.mgrAt = now + 3000 + Math.random() * 5000;
     else if (now >= o.mgrAt && d.offers.includes(o)) respondOffer(o, mgrDecide(o), true);
   });
@@ -2108,7 +2206,7 @@ function auctionTick(now){
 /* ----- Affichage ----- */
 let dealerSig = '';
 const dSig = () => { const d = S.dealer; if (!d) return 'closed';
-  return [d.name, d.logo, d.mgr ? d.mgr.av : '-', orderTab, d.lvl, d.atelier, GAMMES.filter(gUnlocked).length, d.stock.map(c => c.id).join(','), d.offers.map(o => o.id).join(','), d.trade ? d.trade.id : '-',
+  return [d.name, d.logo, d.closed ? 'c' : 'o', d.mgr ? d.mgr.av + (d.mgr.paused ? 'p' : '') : '-', orderTab, d.lvl, d.atelier, GAMMES.filter(gUnlocked).length, d.stock.map(c => c.id).join(','), d.offers.map(o => o.id).join(','), d.trade ? d.trade.id : '-',
     d.workshop.map(w => w.id + (w.done ? 'd' : '')).join(','), d.auction ? d.auction.id : '-', d.ev ? d.ev.until : '-'].join('|'); };
 const carVisual = (m, cls = '') => `<div class="art-visual d-vis ${cls}" data-photo="${m.id}" style="background:radial-gradient(120% 90% at 50% 30%, ${m.paint}55, #141714 80%)"><svg viewBox="0 0 160 100" aria-hidden="true">${illu({type:m.type, paint:m.paint})}</svg><img alt="${m.name}"><a class="credit" target="_blank" rel="noopener" hidden>Photo · Wikipédia</a></div>`;
 function wrapOne(v){ return {querySelector: sel => sel === '.art-visual' ? v : v.querySelector(sel)}; }
@@ -2120,16 +2218,18 @@ function buildDealer(){
   if (!open){ $('#dealerHeroSvg').innerHTML = illu({type:'coupe', paint:'#a0623c'}); updateDealer(); return; }
   const d = S.dealer, now = Date.now();
   $('#dLogo').innerHTML = dealerLogoSVG(d.logo, d.name); $('#dName').textContent = d.name;
-  $('#dMgr').innerHTML = d.mgr ? `<div class="mgr-row"><span class="avatar mgr-av">${avatarSVG(d.mgr.av)}</span>
-      <div class="mgr-info"><b>${AVATARS[d.mgr.av].name}</b><span class="muted">Chef des ventes · offres et reprises · salaire 10 % des marges · <span data-f="dms"></span></span></div>
-      <button class="btn soft" data-dm="look">Apparence</button><button class="btn soft" data-dm="fire">Renvoyer</button></div>`
+  $('#dClose').textContent = d.closed ? 'Rouvrir' : 'Fermer temporairement'; $('#dClose').className = 'btn ' + (d.closed ? 'green' : 'soft');
+  $('#dClosedBanner').innerHTML = d.closed ? `<div class="card d-closed-banner"><b>Concession fermée</b><span class="muted">Plus de clients, de reprises, d'enchères ni d'événements. Le stock reste en vitrine et l'atelier termine ses voitures. La réputation baisse de 0,5 étoile par jour tant que c'est fermé.</span></div>` : '';
+  $('#dMgr').innerHTML = d.mgr ? `<div class="mgr-row ${d.mgr.paused ? 'mgr-paused' : ''}"><span class="avatar mgr-av">${avatarSVG(d.mgr.av)}</span>
+      <div class="mgr-info"><b>${AVATARS[d.mgr.av].name}${d.mgr.paused ? ' · en pause' : ''}</b><span class="muted">Chef des ventes · offres et reprises · salaire 10 % des marges · <span data-f="dms"></span></span></div>
+      <button class="btn ${d.mgr.paused ? 'green' : 'soft'}" data-dm="pause">${d.mgr.paused ? 'Reprendre' : 'Pause'}</button><button class="btn soft" data-dm="look">Apparence</button><button class="btn soft" data-dm="fire">Renvoyer</button></div>`
     : `<div class="mgr-row empty-mgr"><span class="muted">Aucun chef des ventes : tu réponds toi-même aux offres et aux reprises.</span>
       <button class="btn soft" data-dm="hire">Embaucher un chef des ventes<small>${money(DMGR_FEE)}</small></button></div>`;
   $('#dEvent').innerHTML = d.ev && d.ev.until > now ? `<div class="chips" style="margin-top:14px"><span class="chip-ev ${Object.values(d.ev.mods).some(v => v < 1) ? 'bad' : 'good'}">${d.ev.label} · <span data-ev>${fmtLeft(d.ev.until - now)}</span></span></div>` : '';
   // clients
   let cl = d.offers.map(o => { const car = d.stock.find(c => c.id === o.car); if (!car) return ''; const md = carModel(car), lp = listPrice(md, car.used), m = o.offer - car.cost, ctr = Math.round((o.offer + lp) / 2);
     return `<div class="card d-client" id="of-${o.id}">${carVisual(md, 'sm')}
-      <div class="d-cl-body"><h3>Un client veut ta ${md.name}${car.used ? ' d\'occasion' : ''}</h3>${d.mgr ? `<span class="d-thinking"><span class="avatar">${avatarSVG(d.mgr.av)}</span>${AVATARS[d.mgr.av].name} étudie l'offre…</span>` : ''}
+      <div class="d-cl-body"><h3>Un client veut ta ${md.name}${car.used ? ' d\'occasion' : ''}</h3>${d.mgr && !d.mgr.paused ? `<span class="d-thinking"><span class="avatar">${avatarSVG(d.mgr.av)}</span>${AVATARS[d.mgr.av].name} étudie l'offre…</span>` : ''}
         <p class="muted">Il propose <b class="${m >= 0 ? 'up' : 'down'}">${money(o.offer)}</b> au lieu de ${money(lp)} · ${m >= 0 ? 'marge' : 'perte'} ${money(Math.abs(m))}</p>
         <div class="heat d-timer"><span data-until="${o.until}" data-total="${o.total}"></span></div>
         <div class="d-acts"><button class="btn green" data-of="ok" data-id="${o.id}">Accepter</button>
@@ -2137,7 +2237,7 @@ function buildDealer(){
           <button class="btn soft" data-of="no" data-id="${o.id}">Refuser</button></div></div></div>`; }).join('');
   if (d.trade){ const t = d.trade, md = carModel(t);
     cl += `<div class="card d-client trade" id="tr-${t.id}">${carVisual(md, 'sm')}
-      <div class="d-cl-body"><span class="art-brand">${md.brand}</span><h3>Reprise : ${md.model} d'occasion</h3>${d.mgr ? `<span class="d-thinking"><span class="avatar">${avatarSVG(d.mgr.av)}</span>${AVATARS[d.mgr.av].name} étudie la reprise…</span>` : ''}
+      <div class="d-cl-body"><span class="art-brand">${md.brand}</span><h3>Reprise : ${md.model} d'occasion</h3>${d.mgr && !d.mgr.paused ? `<span class="d-thinking"><span class="avatar">${avatarSVG(d.mgr.av)}</span>${AVATARS[d.mgr.av].name} étudie la reprise…</span>` : ''}
         <p class="muted">Rachat ${money(t.price)} + remise en état ${money(t.repair)} (${fmtSec(t.dur)}) · revente ~${money(listPrice(md, true))}</p>
         <div class="heat d-timer"><span data-until="${t.until}" data-total="${t.total}"></span></div>
         <div class="d-acts"><button class="btn green" data-tr="ok">Reprendre<small data-f="trs"></small></button><button class="btn soft" data-tr="no">Refuser</button></div></div></div>`; }
@@ -2192,7 +2292,7 @@ function updateDealer(){
     const lbl = el.closest('.d-ord-info')?.querySelector('[data-wsid]'); if (lbl && left > 0) lbl.textContent = 'Remise en état · ' + fmtSec(left);
   });
   const evEl = document.querySelector('#dEvent [data-ev]'); if (evEl && d.ev) evEl.textContent = fmtLeft(Math.max(0, d.ev.until - now));
-  document.querySelectorAll('[data-order]').forEach(b => { const m = mdl(b.dataset.order); b.disabled = S.cash < m.cost || d.stock.length >= showSlots(); });
+  document.querySelectorAll('[data-order]').forEach(b => { const m = mdl(b.dataset.order); b.disabled = d.closed || S.cash < m.cost || d.stock.length >= showSlots(); });
   const sm = d.lvl >= SHOW_MAX, am = d.atelier >= ATELIER_MAX;
   $('#dUpShowTxt').textContent = sm ? 'Maximum' : `+2 places · ${money(showUpCost())}`; $('#dUpShow').disabled = sm || S.cash < showUpCost();
   $('#dUpAtTxt').textContent = am ? 'Maximum' : `+1 poste · ${money(atelierUpCost())}`; $('#dUpAtelier').disabled = am || S.cash < atelierUpCost();
@@ -2214,11 +2314,29 @@ $('#tab-concession').addEventListener('click', e => {
   const tb = t.closest('[data-tr]');
   if (tb && d.trade){ if (tb.dataset.tr === 'no') d.trade = null; else acceptTrade(false); refresh(); return; }
   const gt = t.closest('[data-gt]'); if (gt){ orderTab = gt.dataset.gt; dealerSig = ''; refresh(); return; }
-  const or = t.closest('[data-order]'); if (or){ orderModel(mdl(or.dataset.order)); refresh(); return; }
+  const or = t.closest('[data-order]'); if (or){ if (!d.closed) orderModel(mdl(or.dataset.order)); refresh(); return; }
   if (t.closest('#bidBtn') && d.auction){ const a = d.auction, nb = a.leader ? Math.round(a.bid * 1.05) : a.bid;
     if (a.leader === 'you' || S.cash < nb) return; a.bid = nb; a.leader = 'you'; if (a.until - Date.now() < 5000) a.until = Date.now() + 6000; refresh(); return; }
   if (t.closest('#dCustom')) return customizeDealer(false);
+  if (t.closest('#dClose')){
+    d.closed = !d.closed;
+    if (d.closed){ d.offers = []; d.trade = null; d.auction = null; d.ev = null; toast(`${d.name} est fermée temporairement.`); }
+    else { const n = Date.now(); d.nextTrade = n + 60000; d.nextAuction = Math.max(d.nextAuction, n + 150000); d.nextEv = Math.max(d.nextEv, n + 120000); toast(`${d.name} rouvre ses portes !`); }
+    dealerSig = ''; refresh(); return;
+  }
+  if (t.closest('#dSell')){
+    const v = dealerSaleValue();
+    modal(`Vendre ${d.name} ?`, `<p>Tu récupères <b style="color:var(--up)">${money(v.total)}</b> :</p>
+      <ul class="sell-detail"><li><span>Licence et agrandissements (60 %)</span><b>${money(v.base)}</b></li><li><span>Stock et atelier rachetés (90 %)</span><b>${money(v.stock)}</b></li></ul>
+      <p style="margin-top:8px">Les frais du chef des ventes ne sont pas remboursés. Tu pourras ouvrir une nouvelle concession plus tard, mais elle repartira de zéro (ventes, réputation, gammes débloquées).</p>`, [
+      {label:'Annuler', cls:'soft'},
+      {label:`Vendre ${money(v.total)}`, cls:'red', action: () => { const val = dealerSaleValue().total, nm = d.name; S.cash += val; S.earned += val; S.dealer = null; dealerSig = ''; refresh(); logEvent(`${nm} vendue pour ${money(val)}.`, true); }},
+    ]);
+    return;
+  }
   const dm = t.closest('[data-dm]');
+  if (dm && dm.dataset.dm === 'pause'){ d.mgr.paused = !d.mgr.paused; d.offers.forEach(o => delete o.mgrAt); if (d.trade) delete d.trade.mgrAt; dealerSig = ''; refresh();
+    toast(`${AVATARS[d.mgr.av].name} ${d.mgr.paused ? 'est en pause : tu réponds toi-même aux clients.' : 'reprend le travail.'}`); return; }
   if (dm){ if (dm.dataset.dm === 'hire') return pickDealerMgr(true); if (dm.dataset.dm === 'look') return pickDealerMgr(false);
     return modal(`Renvoyer ${AVATARS[d.mgr.av].name} ?`, '<p>Tu devras de nouveau répondre toi-même aux offres et aux reprises. Les frais d\'embauche ne sont pas remboursés.</p>', [
       {label:'Annuler', cls:'soft'}, {label:'Renvoyer', cls:'red', action: () => { delete d.mgr; d.offers.forEach(o => delete o.mgrAt); if (d.trade) delete d.trade.mgrAt; dealerSig = ''; refresh(); }}]); }
@@ -2813,6 +2931,39 @@ $('#campBtn').addEventListener('click', () => {
 $('#buzzPill').addEventListener('click', () => document.querySelector('#tabs [data-tab=profil]').click());
 $('#heroFame').addEventListener('click', () => document.querySelector('#tabs [data-tab=profil]').click());
 
+/* ================= MON AVATAR ================= */
+const ME_OPTS = {
+  styles:[['short','Courts'],['slick','Plaqués'],['buzz','Rasés'],['bald','Chauve'],['mohawk','Crête'],['curly','Bouclés'],['afro','Afro'],['long','Longs'],['bob','Carré'],['bangs','Frange'],['bun','Chignon'],['pony','Queue de cheval']],
+  skin:['#f5d6bf','#f1c7a5','#e8b896','#d9a27c','#c48a64','#b97a52','#8d5a3b','#5e3a26'],
+  hair:['#0d0d12','#2a1a12','#5a3a22','#a0623c','#d9b56a','#e8d8a8','#7a2a1a','#c94a2a','#cfc8bd','#6a6a6a','#d97aa8','#3d6a9a'],
+  eyes:['#1b1410','#5a3a22','#8a6a2a','#3d6a9a','#4f6b48','#7a8a9a'],
+  suit:['#2f4a3a','#6e1e26','#1d2b25','#4a2e20','#3d5a8a','#8c2a33','#262a26','#c7c3bb','#a0623c','#5d6b3a'],
+};
+function renderMe(){
+  $('#meBig').innerHTML = drawAvatar(S.me); $('#meMini').innerHTML = drawAvatar(S.me);
+}
+function renderMeEditor(){
+  const m = S.me, seg = (key, opts) => `<div class="seg me-seg">${opts.map(([v, l]) => `<button type="button" data-me="${key}" data-v="${v}" class="${String(m[key]) === String(v) ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  const sw = (key, cols) => `<div class="swatches">${cols.map(c => `<button type="button" class="sw ${m[key] === c ? 'on' : ''}" data-me="${key}" data-v="${c}" style="background:${c}" aria-label="${key} ${c}"></button>`).join('')}</div>`;
+  $('#meEditor').innerHTML = `
+    <div class="me-row"><span class="muted">Je suis</span>${seg('g', [['m','Un garçon'],['f','Une fille']])}</div>
+    <div class="me-row"><span class="muted">Coupe de cheveux</span><div class="me-styles">${ME_OPTS.styles.map(([v, l]) => `<button type="button" data-me="style" data-v="${v}" class="${m.style === v ? 'on' : ''}"><span class="avatar">${drawAvatar(Object.assign({}, m, {style:v}))}</span><small>${l}</small></button>`).join('')}</div></div>
+    <div class="me-row"><span class="muted">Couleur de peau</span>${sw('skin', ME_OPTS.skin)}</div>
+    <div class="me-row"><span class="muted">Couleur des cheveux</span>${sw('hair', ME_OPTS.hair)}</div>
+    <div class="me-row"><span class="muted">Couleur des yeux</span>${sw('eyes', ME_OPTS.eyes)}</div>
+    <div class="me-row"><span class="muted">Lunettes</span>${seg('glasses', [['none','Aucune'],['vue','De vue'],['soleil','De soleil']])}</div>
+    <div class="me-row"><span class="muted">Barbe</span>${seg('facial', [['none','Aucune'],['moustache','Moustache'],['barbe','Barbe']])}</div>
+    <div class="me-row"><span class="muted">Boucles d'oreilles</span>${seg('earring', [['false','Non'],['true','Oui']])}</div>
+    <div class="me-row"><span class="muted">Tenue</span>${sw('suit', ME_OPTS.suit)}</div>`;
+}
+$('#meEditBtn').addEventListener('click', () => { const ed = $('#meEditor'); ed.hidden = !ed.hidden; $('#meEditBtn').textContent = ed.hidden ? 'Personnaliser mon avatar' : 'Fermer'; if (!ed.hidden) renderMeEditor(); });
+$('#meEditor').addEventListener('click', e => {
+  const b = e.target.closest('[data-me]'); if (!b) return;
+  const k = b.dataset.me; let v = b.dataset.v; if (k === 'earring') v = v === 'true';
+  S.me[k] = v; renderMe(); renderMeEditor(); save();
+});
+$('#meMini').addEventListener('click', () => document.querySelector('#tabs [data-tab=profil]').click());
+
 /* ================= PROFIL ================= */
 function updateProfil(){
   const cash = Math.max(S.cash,0), bz = bizValue(), st = stocksValue(), ar = artValue();
@@ -2862,13 +3013,13 @@ $('#importBtn').addEventListener('click', () => {
     if (typeof data.cash !== 'number') throw 0;
     modal('Importer cette partie ?', '<p>Ta partie actuelle sera remplacée par celle du code.</p>', [
       {label:'Annuler', cls:'soft'},
-      {label:'Importer', action: () => { S = normalize(data); save(); noSave = true; location.reload(); }},
+      {label:'Importer', action: () => { S = normalize(data); S.cloudUid = cloud.user ? cloud.user.uid : null; save(); if (cloud.user){ cloud.ready = true; cloudUpload(true).then(() => { noSave = true; location.reload(); }); } else { noSave = true; location.reload(); } }},
     ]);
   } catch(e){ toast("Code invalide. Vérifie que tu l'as copié en entier."); }
 });
-$('#resetBtn').addEventListener('click', () => modal('Tout recommencer ?', '<p>Toute ta progression sera définitivement effacée de ce navigateur.</p>', [
+$('#resetBtn').addEventListener('click', () => modal('Tout recommencer ?', `<p>Toute ta progression sera définitivement effacée de ce navigateur${cloud.user ? ' et de ton compte en ligne' : ''}.</p>`, [
   {label:'Annuler', cls:'soft'},
-  {label:'Effacer', cls:'red', action: () => { noSave = true; try { localStorage.removeItem(SAVE_KEY); } catch(e) {} location.reload(); }},
+  {label:'Effacer', cls:'red', action: () => { noSave = true; try { localStorage.removeItem(SAVE_KEY); if (cloud.user) localStorage.setItem(RESET_FLAG, cloud.user.uid); } catch(e) {} location.reload(); }},
 ]));
 
 /* ================= NAVIGATION & BOUCLE ================= */
@@ -2917,8 +3068,156 @@ window.addEventListener('beforeunload', save);
 /* en-tête compact quand on fait défiler */
 (function(){ let on = false; const f = () => { const y = window.scrollY; if (!on && y > 70){ on = true; document.body.classList.add('scrolled'); } else if (on && y < 20){ on = false; document.body.classList.remove('scrolled'); } };
   window.addEventListener('scroll', f, {passive:true}); f(); })();
+/* ================= COMPTE & SAUVEGARDE EN LIGNE (Firebase) ================= */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCK-FBKpaim01S3GBSwsfcaBrovrRlziwc",
+  authDomain: "dirty-money-62c55.firebaseapp.com",
+  projectId: "dirty-money-62c55",
+  storageBucket: "dirty-money-62c55.firebasestorage.app",
+  messagingSenderId: "942707429079",
+  appId: "1:942707429079:web:bb5d63505b5a84f75a6a92",
+};
+const RESET_FLAG = 'dirtyMoney_resetUid';
+const cloud = {ok:false, auth:null, db:null, user:null, ready:false, busy:false, lastUp:0, lastSig:'', err:'', mode:'login'};
+try {
+  if (typeof firebase !== 'undefined'){
+    firebase.initializeApp(FIREBASE_CONFIG);
+    cloud.auth = firebase.auth(); cloud.db = firebase.firestore(); cloud.ok = true;
+  }
+} catch(e){ cloud.ok = false; }
+const AUTH_ERR = {
+  'auth/invalid-email':'Adresse email invalide.',
+  'auth/missing-email':'Indique ton adresse email.',
+  'auth/missing-password':'Indique ton mot de passe.',
+  'auth/user-not-found':'Aucun compte avec cet email.',
+  'auth/wrong-password':'Mot de passe incorrect.',
+  'auth/invalid-credential':'Email ou mot de passe incorrect.',
+  'auth/invalid-login-credentials':'Email ou mot de passe incorrect.',
+  'auth/email-already-in-use':'Un compte existe déjà avec cet email : connecte-toi.',
+  'auth/weak-password':'Mot de passe trop court : 6 caractères minimum.',
+  'auth/too-many-requests':'Trop de tentatives. Réessaie dans quelques minutes.',
+  'auth/network-request-failed':'Pas de connexion internet.',
+  'auth/operation-not-allowed':'La connexion par email n\'est pas activée dans Firebase.',
+  'auth/unauthorized-domain':'Ce site n\'est pas autorisé dans Firebase (Authentication > Paramètres > Domaines autorisés).',
+  'auth/api-key-not-valid.-please-pass-a-valid-api-key.':'Configuration Firebase invalide (clé API).',
+};
+const authMsg = e => AUTH_ERR[e && e.code] || ('Erreur : ' + ((e && (e.code || e.message)) || 'inconnue'));
+const saveRef = uid => cloud.db.collection('saves').doc(uid);
+async function cloudUpload(force){
+  if (!cloud.user || !cloud.ready || cloud.busy) return;
+  save();
+  const json = JSON.stringify(S);
+  if (!force && json === cloud.lastSig) return;
+  cloud.busy = true;
+  try {
+    await saveRef(cloud.user.uid).set({data:json, name:S.name, last:S.last, updated:firebase.firestore.FieldValue.serverTimestamp()});
+    cloud.lastUp = Date.now(); cloud.lastSig = json; cloud.err = '';
+  } catch(e){ cloud.err = 'Sauvegarde en ligne impossible : ' + (e.code || e.message); }
+  cloud.busy = false; renderAccount();
+}
+const summary = d => `${money(Math.max(d.cash || 0, 0))} en poche · ${(d.companies || []).length} entreprise${(d.companies || []).length > 1 ? 's' : ''} · ${num(Object.keys(d.lux || {}).length, 0)} articles · ${new Date(d.last || 0).toLocaleString('fr-FR', {dateStyle:'short', timeStyle:'short'})}`;
+function useCloudSave(data){
+  const d = normalize(data); d.cloudUid = cloud.user.uid;
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch(e) {}
+  noSave = true; location.reload();
+}
+async function onLogin(user){
+  cloud.user = user; cloud.ready = false; renderAccount();
+  let snap;
+  try { snap = await saveRef(user.uid).get(); }
+  catch(e){ cloud.err = 'Impossible de lire ta sauvegarde en ligne : ' + (e.code || e.message); renderAccount(); return; }
+  let resetUid = null; try { resetUid = localStorage.getItem(RESET_FLAG); localStorage.removeItem(RESET_FLAG); } catch(e) {}
+  const localEmpty = S.earned < 100 && !S.companies.length && !S.dealer;
+  if (!snap.exists || resetUid === user.uid){
+    S.cloudUid = user.uid; cloud.ready = true; await cloudUpload(true);
+    toast(snap.exists ? 'Nouvelle partie enregistrée sur ton compte.' : 'Ta partie est maintenant sauvegardée en ligne !'); return;
+  }
+  let cd; try { cd = JSON.parse(snap.data().data); } catch(e){ cd = null; }
+  if (!cd){ S.cloudUid = user.uid; cloud.ready = true; await cloudUpload(true); return; }
+  if (S.cloudUid === user.uid){   // même compte : on garde la plus récente
+    if ((cd.last || 0) > (S.last || 0) + 2000) return useCloudSave(cd);
+    cloud.ready = true; await cloudUpload(true); return;
+  }
+  if (localEmpty) return useCloudSave(cd);
+  // deux parties différentes : le joueur choisit
+  modal('Deux parties trouvées', `<p>Ton compte a déjà une partie, et cet appareil en a une autre. Laquelle veux-tu garder ?</p>
+    <div class="save-choice"><b>Sur ton compte</b><span class="muted">${summary(cd)}</span></div>
+    <div class="save-choice"><b>Sur cet appareil</b><span class="muted">${summary(S)}</span></div>
+    <p style="margin-top:10px;font-size:.82rem">L'autre partie sera remplacée. Si tu hésites, exporte d'abord celle de cet appareil depuis le Profil.</p>`, [
+    {label:'Garder celle de cet appareil', cls:'soft', action: async () => { S.cloudUid = user.uid; cloud.ready = true; await cloudUpload(true); toast('Partie de cet appareil enregistrée sur ton compte.'); }},
+    {label:'Garder celle du compte', cls:'green', action: () => useCloudSave(cd)},
+  ]);
+}
+function renderAccount(){
+  const box = $('#accountCard'), btn = $('#cloudBtn');
+  if (!cloud.ok){
+    btn.hidden = true;
+    box.innerHTML = `<h3>Sauvegarde en ligne</h3><p class="muted">Indisponible pour le moment (connexion à Firebase impossible). Ta partie reste enregistrée dans ce navigateur.</p>`; return;
+  }
+  btn.hidden = false;
+  if (cloud.user){
+    btn.textContent = cloud.ready ? 'Sauvegardé en ligne' : 'Synchronisation…'; btn.className = 'cloud-btn on';
+    const ago = cloud.lastUp ? fmtSec(Date.now() - cloud.lastUp) : null;
+    box.innerHTML = `<div class="acc-head"><div><span class="kick-sm">Compte</span><h3>${esc(cloud.user.email)}</h3>
+        <span class="muted" id="accStatus">${!cloud.ready ? 'Synchronisation en cours…' : ago ? 'Dernière sauvegarde en ligne il y a ' + ago : 'Connecté'}</span></div>
+        <span class="acc-dot ${cloud.ready ? 'ok' : ''}"></span></div>
+      ${cloud.err ? `<p class="acc-err">${esc(cloud.err)}</p>` : ''}
+      <p class="muted" style="font-size:.8rem">Ta partie est sauvegardée en ligne toutes les 30 secondes et quand tu quittes le jeu. Connecte-toi avec le même compte sur un autre appareil pour la retrouver.</p>
+      <div class="row"><button class="btn soft" id="accSaveNow" ${cloud.ready ? '' : 'disabled'}>Sauvegarder maintenant</button><button class="btn soft" id="accLogout">Se déconnecter</button></div>`;
+    return;
+  }
+  btn.textContent = 'Se connecter'; btn.className = 'cloud-btn';
+  const reg = cloud.mode === 'register';
+  box.innerHTML = `<h3>${reg ? 'Créer un compte' : 'Se connecter'}</h3>
+    <p class="muted" style="font-size:.82rem">Sauvegarde ta partie en ligne et joue dessus depuis n'importe quel appareil. ${reg ? 'Ta partie actuelle sera envoyée sur ton nouveau compte.' : ''}</p>
+    <form id="accForm" class="stack" novalidate>
+      <input type="text" id="accEmail" inputmode="email" autocomplete="email" placeholder="Adresse email">
+      <input type="password" id="accPass" autocomplete="${reg ? 'new-password' : 'current-password'}" placeholder="Mot de passe${reg ? ' (6 caractères minimum)' : ''}">
+      ${cloud.err ? `<p class="acc-err">${esc(cloud.err)}</p>` : ''}
+      <div class="row"><button class="btn" type="submit" id="accSubmit">${reg ? 'Créer mon compte' : 'Se connecter'}</button>
+        <button class="btn soft" type="button" id="accSwitch">${reg ? 'J\'ai déjà un compte' : 'Créer un compte'}</button></div>
+      ${reg ? '' : '<button class="link-btn" type="button" id="accForgot">Mot de passe oublié ?</button>'}
+    </form>`;
+}
+document.addEventListener('submit', async e => {
+  if (e.target.id !== 'accForm') return;
+  e.preventDefault();
+  const email = $('#accEmail').value.trim(), pass = $('#accPass').value, b = $('#accSubmit');
+  b.disabled = true; cloud.err = '';
+  try {
+    if (cloud.mode === 'register') await cloud.auth.createUserWithEmailAndPassword(email, pass);
+    else await cloud.auth.signInWithEmailAndPassword(email, pass);
+  } catch(err){ cloud.err = authMsg(err); renderAccount(); const em = $('#accEmail'); if (em) em.value = email; }
+});
+document.addEventListener('click', async e => {
+  const t = e.target;
+  if (t.id === 'cloudBtn'){ document.querySelector('#tabs [data-tab=profil]').click(); window.scrollTo({top:0}); return; }
+  if (t.id === 'accSwitch'){ const em = $('#accEmail').value; cloud.mode = cloud.mode === 'register' ? 'login' : 'register'; cloud.err = ''; renderAccount(); $('#accEmail').value = em; return; }
+  if (t.id === 'accForgot'){
+    const email = $('#accEmail').value.trim();
+    if (!email){ cloud.err = 'Indique ton email, puis clique à nouveau sur « Mot de passe oublié ? ».'; renderAccount(); return; }
+    try { await cloud.auth.sendPasswordResetEmail(email); cloud.err = ''; renderAccount(); $('#accEmail').value = email; toast('Email de réinitialisation envoyé : regarde ta boîte mail (et les spams).'); }
+    catch(err){ cloud.err = authMsg(err); renderAccount(); $('#accEmail').value = email; }
+    return;
+  }
+  if (t.id === 'accSaveNow'){ await cloudUpload(true); toast('Partie sauvegardée en ligne.'); return; }
+  if (t.id === 'accLogout'){
+    modal('Se déconnecter ?', '<p>Ta partie reste sur ton compte et sur cet appareil. Tu pourras te reconnecter quand tu veux.</p>', [
+      {label:'Annuler', cls:'soft'},
+      {label:'Se déconnecter', action: async () => { await cloudUpload(true); await cloud.auth.signOut(); toast('Déconnecté.'); }},
+    ]);
+  }
+});
+if (cloud.ok){
+  cloud.auth.onAuthStateChanged(u => { if (u) onLogin(u); else { cloud.user = null; cloud.ready = false; renderAccount(); } });
+  setInterval(() => cloudUpload(false), 30000);
+  setInterval(() => { const el = $('#accStatus'); if (el && cloud.ready && cloud.lastUp) el.textContent = 'Dernière sauvegarde en ligne il y a ' + fmtSec(Date.now() - cloud.lastUp); }, 1000);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) cloudUpload(false); });
+}
+
 /* ================= DÉMARRAGE ================= */
 ensureWeek(); recordHist();
+renderAccount(); renderMe();
 buildStocks(); buildCompanies(); buildShady(); buildAch(); buildWeek(); buildArticles(); renderNews(); renderLog(); refresh();
 (function offline(){
   if (S.migrated){
