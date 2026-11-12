@@ -676,6 +676,7 @@ input::placeholder{color:var(--muted);font-weight:600}
         </div>
       </div>
       <div class="lang-row" data-noi18n><span class="muted">Langue · Language</span><div class="seg" id="langSeg"><button type="button" data-l="fr">Français</button><button type="button" data-l="en">English</button></div></div>
+      <div class="lang-row"><span class="muted">Sons</span><div class="seg" id="soundSeg"><button type="button" data-s="on">Activés</button><button type="button" data-s="off">Coupés</button></div></div>
       <div id="meEditor" hidden></div>
     </div>
     <div class="section-head"><h2>Notoriété</h2><span class="muted" id="fameBonusTxt"></span></div>
@@ -1654,6 +1655,9 @@ const EN_DICT = {
 "Pendant ton absence ({}), tes entreprises ont rapporté": "While you were away ({}), your companies earned",
 "Hors-ligne, tes entreprises tournent au ralenti : 50 % des bénéfices, 3 heures maximum.": "Offline, your companies run at half speed: 50% of profits, 3 hours max.",
 "Langue": "Language",
+"Sons": "Sound",
+"Activés": "On",
+"Coupés": "Off",
 "Super-yacht": "Superyacht",
 "Émir du Golfe": "Gulf emir",
 "Collectionneur de Genève": "Geneva collector",
@@ -1670,6 +1674,61 @@ const EN_DICT = {
 "Plus-value": "Gains",
 "Latente": "Unrealized"
 };
+
+/* ================= SONS ================= */
+const SFX = (() => {
+  let on = true; try { on = localStorage.getItem('dirtyMoney_sound') !== 'off'; } catch(e){}
+  let ctx = null, master = null; const last = {};
+  const ac = () => {
+    if (!on) return null;
+    if (!ctx){ const C = window.AudioContext || window.webkitAudioContext; if (!C) return null;
+      ctx = new C(); master = ctx.createGain(); master.gain.value = 0.4; master.connect(ctx.destination); }
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  };
+  let noiseBuf = null;
+  const noise = () => { const c = ctx; if (!noiseBuf){ noiseBuf = c.createBuffer(1, c.sampleRate * 0.5, c.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } return noiseBuf; };
+  // une note douce (attaque rapide, décroissance naturelle)
+  const tone = (f, t0, dur, vol = 1, type = 'sine', f2 = null) => {
+    const c = ac(); if (!c) return; const t = c.currentTime + t0;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
+  };
+  // un souffle filtré (clic, tiroir-caisse, coup sourd)
+  const hiss = (t0, dur, vol, freq, q = 1, type = 'bandpass') => {
+    const c = ac(); if (!c) return; const t = c.currentTime + t0;
+    const n = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    n.buffer = noise(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    n.connect(f); f.connect(g); g.connect(master); n.start(t, Math.random() * 0.3); n.stop(t + dur + 0.02);
+  };
+  // une pièce de métal : partiels inharmoniques qui s'éteignent vite
+  const clink = (t0, base, vol) => { [1, 1.52, 2.43, 3.17, 4.05].forEach((r, i) => tone(base * r, t0, 0.35 / (1 + i * 0.6), vol / (1 + i * 0.8))); hiss(t0, 0.02, vol * 0.5, base * 2, 2); };
+  // une cloche douce (type vibraphone)
+  const bell = (f, t0, dur, vol) => { tone(f, t0, dur, vol); tone(f * 2, t0, dur * 0.5, vol * 0.25); tone(f * 4.01, t0, dur * 0.2, vol * 0.08); };
+  const gate = (k, ms) => { const n = performance.now(); if (last[k] && n - last[k] < ms) return false; last[k] = n; last.any = n; return true; };
+  const P = {
+    tick(){ if (!gate('tick', 30)) return; hiss(0, 0.025, 0.5, 2600 + Math.random() * 600, 3); tone(180, 0, 0.04, 0.25, 'sine', 90); },
+    coin(){ if (!gate('coin', 120)) return; clink(0, 2093, 0.32); clink(0.075, 2637, 0.26); },
+    buy(){ if (!gate('buy', 120)) return; hiss(0, 0.06, 0.35, 1800, 1.2); tone(140, 0, 0.09, 0.35, 'sine', 70); bell(1568, 0.05, 0.4, 0.18); bell(2093, 0.09, 0.5, 0.14); },
+    chime(){ if (!gate('chime', 400)) return; [659, 784, 988, 1319].forEach((f, i) => bell(f, i * 0.09, 0.9, 0.22)); },
+    fanfare(){ if (!gate('fan', 600)) return; hiss(0, 0.08, 0.7, 900, 1.5); tone(160, 0, 0.12, 0.5, 'sine', 80);
+      [523, 659, 784].forEach(f => bell(f, 0.18, 1.4, 0.16)); bell(1047, 0.3, 1.6, 0.2); clink(0.42, 2093, 0.2); clink(0.5, 2637, 0.18); },
+    good(){ if (performance.now() - (last.any || 0) < 200 || !gate('good', 500)) return; bell(1175, 0, 0.7, 0.18); bell(1568, 0.08, 0.8, 0.14); },
+    bad(){ if (!gate('bad', 500)) return; tone(110, 0, 0.35, 0.5, 'sine', 70); hiss(0, 0.15, 0.25, 300, 0.8, 'lowpass'); bell(415, 0.12, 0.7, 0.14); bell(349, 0.3, 0.9, 0.12); },
+  };
+  P.isOn = () => on;
+  P.set = v => { on = v; try { localStorage.setItem('dirtyMoney_sound', v ? 'on' : 'off'); } catch(e){} if (v) P.coin(); };
+  return P;
+})();
+// Son automatique : un bouton qui dépense joue « achat », un bouton qui rapporte joue « pièces »
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.id === 'workBtn' || typeof S === 'undefined') return;
+  const before = S.cash;
+  setTimeout(() => { const d = S.cash - before; if (d < -0.005) SFX.buy(); else if (d > 0.005) SFX.coin(); }, 0);
+}, true);
 /* ================= LANGUE (FR / EN) ================= */
 const LANG = (() => {
   try { const l = localStorage.getItem('dirtyMoney_lang'); if (l === 'fr' || l === 'en') return l; } catch(e){}
@@ -2178,6 +2237,9 @@ function toast(msg){
   while (box.children.length > 3) box.firstElementChild.remove();
 }
 function modal(title, html, buttons=[{label:'Super !'}], wide=false){
+  if (title === 'Adjugé !') SFX.fanfare();
+  else if (['Descente de police !','Descente du fisc !','Contrôle fiscal','Contrôle fiscal surprise','Perquisition de police','Tu es dans la sauce sur Twitter'].includes(title)) SFX.bad();
+  else if (title === 'Bonus du jour' || title === 'Bon retour !') SFX.chime();
   $('#modal .modal-box').classList.toggle('wide', wide);
   $('#modalTitle').textContent = title; $('#modalBody').innerHTML = html;
   const box = $('#modalActions'); box.innerHTML = '';
@@ -2776,7 +2838,7 @@ function checkCities(){
 const rnd = a => a[Math.floor(Math.random() * a.length)];
 function scheduleEvent(){ S.nextEvent = Date.now() + (90 + Math.random()*120) * 1000; }
 function addEffect(scope, target, m, mins, label){ S.effects.push({scope, target, mult:m, until:Date.now() + mins*60000, label}); }
-function logEvent(txt, good){ S.log.unshift({t:Date.now(), txt, good}); S.log = S.log.slice(0, 10); renderLog(); toast(txt); }
+function logEvent(txt, good){ good ? SFX.good() : SFX.bad(); S.log.unshift({t:Date.now(), txt, good}); S.log = S.log.slice(0, 10); renderLog(); toast(txt); }
 function renderLog(){
   $('#eventLog').innerHTML = S.log.length
     ? S.log.map(l => `<li><span>${esc(l.txt)}</span><span class="chg ${l.good ? 'up' : 'down'}">${new Date(l.t).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})}</span></li>`).join('')
@@ -3382,6 +3444,7 @@ function updateGains(){
   $('#clickUpBtn').disabled = S.cash < clickUpCost();
 }
 $('#workBtn').addEventListener('click', e => {
+  SFX.tick();
   const v = clickVal(); S.cash += v; S.earned += v; S.clicks++;
   const f = document.createElement('span'); f.className = 'float'; f.textContent = '+' + money(v);
   const r = e.currentTarget.getBoundingClientRect();
@@ -3619,6 +3682,7 @@ function achTick(){
   const fresh = [];
   ACH.forEach(a => { if (!S.ach[a.id] && achMet(a)){ S.ach[a.id] = 'done'; fresh.push(a); } });
   const changed = fresh.length > 0;
+  if (fresh.length) SFX.chime();
   if (fresh.length === 1) toast(`Objectif atteint : ${fresh[0].name} ! Récupère ta récompense dans l'onglet Objectifs.`);
   else if (fresh.length > 1) toast(`${fresh.length} objectifs atteints ! Récupère tes récompenses dans l'onglet Objectifs.`);
   const pending = ACH.some(a => S.ach[a.id] === 'done') || (S.week && S.week.picks.some(pk => S.week.st[pk.id] === 'done'));
@@ -3773,7 +3837,7 @@ function updateWeek(){
 function weekTick(){
   ensureWeek();
   S.week.picks.forEach(pk => { if (!S.week.st[pk.id] && weekProg(pk) >= pk.target){
-    S.week.st[pk.id] = 'done'; toast(`Défi de la semaine réussi : ${WEEKLY.find(x => x.id === pk.id).name} !`); } });
+    S.week.st[pk.id] = 'done'; SFX.chime(); toast(`Défi de la semaine réussi : ${WEEKLY.find(x => x.id === pk.id).name} !`); } });
 }
 $('#weekList').addEventListener('click', e => {
   const b = e.target.closest('button[data-wk]'); if (!b) return;
@@ -4024,6 +4088,9 @@ function updateProfil(){
   $('#statsBox').innerHTML = items.map(([k,v,c]) => `<div class="kpi ${c}"><small>${k}</small><b>${v}</b></div>`).join('');
   updateFame(); buildShowcase(); updatePrestige(); drawHist();
 }
+const paintSound = () => document.querySelectorAll('#soundSeg button').forEach(b => b.classList.toggle('on', (b.dataset.s === 'on') === SFX.isOn()));
+document.querySelectorAll('#soundSeg button').forEach(b => b.addEventListener('click', () => { SFX.set(b.dataset.s === 'on'); paintSound(); }));
+paintSound();
 document.querySelectorAll('#langSeg button').forEach(b => { b.classList.toggle('on', b.dataset.l === LANG); b.addEventListener('click', () => setLang(b.dataset.l)); });
 $('#nameInput').addEventListener('input', e => { S.name = e.target.value.trim() || 'Mon Empire'; updateHeader(); save(); });
 $('#exportBtn').addEventListener('click', () => {
