@@ -95,6 +95,19 @@ h3{font-size:.98rem;font-weight:800}
 .seg{display:inline-flex;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px;gap:2px}
 .seg button{border:0;background:none;padding:7px 14px;font:inherit;font-weight:700;font-size:.8rem;color:var(--muted);cursor:pointer;border-radius:999px}
 .seg button.on{background:var(--cream);color:#151815}
+.lb-card{padding:8px}
+.lb-row{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:14px}
+.lb-row+.lb-row{margin-top:2px}
+.lb-row.me{background:rgba(160,98,60,.18);box-shadow:inset 0 0 0 1px rgba(160,98,60,.45)}
+.lb-rank{width:30px;text-align:center;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums;flex:none}
+.lb-row:nth-child(1) .lb-rank{color:#e3c27a}.lb-row:nth-child(2) .lb-rank{color:#cfc8bc}.lb-row:nth-child(3) .lb-rank{color:#c98a5a}
+.lb-av{width:38px;height:38px;border-radius:50%;overflow:hidden;flex:none;background:var(--surface-2,#1f241f)}
+.lb-av svg{width:100%;height:100%;display:block}
+.lb-name{flex:1;min-width:0;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lb-name small{display:block;font-weight:600;color:var(--muted);font-size:.74rem}
+.lb-w{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lb-gap{height:1px;background:var(--border);margin:6px 10px}
+.lb-empty{padding:14px 10px}
 .lang-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
 
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
@@ -657,7 +670,9 @@ input::placeholder{color:var(--muted);font-weight:600}
 
   <!-- OBJECTIFS -->
   <section class="tab" id="tab-objectifs">
-    <div class="section-head" style="margin-top:12px"><div><h2>Défis de la semaine</h2><span class="muted" id="weekSum"></span></div><span class="co-state good" id="weekPend"></span></div>
+    <div class="section-head" style="margin-top:12px"><div><h2>Classement</h2><span class="muted">Les plus grosses fortunes des joueurs connectés</span></div><button class="btn soft" id="lbRefresh" style="padding:8px 14px;font-size:.8rem">Actualiser</button></div>
+    <div class="card lb-card" id="lbBox"></div>
+    <div class="section-head"><div><h2>Défis de la semaine</h2><span class="muted" id="weekSum"></span></div><span class="co-state good" id="weekPend"></span></div>
     <div class="grid" id="weekList"></div>
     <div class="section-head"><div><h2>Succès</h2><span class="muted" id="achCount"></span></div><span class="co-state good" id="achPend"></span></div>
     <div class="grid" id="achList"></div>
@@ -1655,6 +1670,15 @@ const EN_DICT = {
 "Pendant ton absence ({}), tes entreprises ont rapporté": "While you were away ({}), your companies earned",
 "Hors-ligne, tes entreprises tournent au ralenti : 50 % des bénéfices, 3 heures maximum.": "Offline, your companies run at half speed: 50% of profits, 3 hours max.",
 "Langue": "Language",
+"Classement": "Leaderboard",
+"Les plus grosses fortunes des joueurs connectés": "The biggest fortunes among signed-in players",
+"Actualiser": "Refresh",
+"Chargement du classement…": "Loading leaderboard…",
+"Classement indisponible pour le moment.": "Leaderboard unavailable right now.",
+"Classement bloqué : les règles Firestore doivent autoriser la collection « leaderboard ».": "Leaderboard blocked: Firestore rules must allow the “leaderboard” collection.",
+"Personne au classement pour l'instant. Sois le premier !": "Nobody on the leaderboard yet. Be the first!",
+"Connecte-toi dans l'onglet Profil pour apparaître dans le classement.": "Log in from the Profile tab to appear on the leaderboard.",
+"Prestige {}": "Prestige {}",
 "Sons": "Sound",
 "Activés": "On",
 "Coupés": "Off",
@@ -4124,7 +4148,7 @@ $('#tabs').addEventListener('click', e => {
   document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b));
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.id === 'tab-' + currentTab));
   if (currentTab === 'profil') $('#nameInput').value = S.name === 'Mon Empire' ? T(S.name) : S.name;
-  if (currentTab === 'objectifs'){ buildWeek(); buildAch(); }
+  if (currentTab === 'objectifs'){ buildWeek(); buildAch(); lbLoad(false); }
   if (currentTab === 'concession') buildDealer();
   window.scrollTo({top:0}); refresh();
 });
@@ -4206,9 +4230,59 @@ async function cloudUpload(force){
   try {
     await saveRef(cloud.user.uid).set({data:json, name:S.name, last:S.last, updated:firebase.firestore.FieldValue.serverTimestamp()});
     cloud.lastUp = Date.now(); cloud.lastSig = json; cloud.err = '';
+    lbPublish();
   } catch(e){ cloud.err = 'Sauvegarde en ligne impossible : ' + (e.code || e.message); }
   cloud.busy = false; renderAccount();
 }
+
+/* ================= CLASSEMENT ================= */
+const LB_SIZE = 30;
+const lbRef = uid => cloud.db.collection('leaderboard').doc(uid);
+const lb = {rows:null, err:'', loading:false, at:0, myRank:null};
+async function lbPublish(){
+  if (!cloud.user || !cloud.ready) return;
+  try {
+    await lbRef(cloud.user.uid).set({
+      name: String(S.name || 'Mon Empire').slice(0, 24), wealth: Math.max(0, Math.floor(wealth())),
+      prestige: S.prestige.count || 0, look: S.me || null, updated: firebase.firestore.FieldValue.serverTimestamp()});
+  } catch(e){}
+}
+async function lbLoad(force){
+  if (!cloud.ok){ lb.err = 'Classement indisponible pour le moment.'; return renderBoard(); }
+  if (lb.loading || (!force && Date.now() - lb.at < 60000 && lb.rows)) return renderBoard();
+  lb.loading = true; renderBoard();
+  try {
+    if (cloud.user && cloud.ready) await lbPublish();
+    const snap = await cloud.db.collection('leaderboard').orderBy('wealth', 'desc').limit(LB_SIZE).get();
+    lb.rows = snap.docs.map(d => ({uid:d.id, ...d.data()})).filter(r => Number.isFinite(r.wealth));
+    lb.myRank = null;
+    if (cloud.user && !lb.rows.some(r => r.uid === cloud.user.uid)){
+      try { const q = cloud.db.collection('leaderboard').where('wealth', '>', Math.floor(wealth()));
+        if (q.count){ const c = await q.count().get(); lb.myRank = c.data().count + 1; } } catch(e){}
+    }
+    lb.err = ''; lb.at = Date.now();
+  } catch(e){ lb.err = (e && e.code === 'permission-denied') ? 'Classement bloqué : les règles Firestore doivent autoriser la collection « leaderboard ».' : 'Classement indisponible pour le moment.'; }
+  lb.loading = false; renderBoard();
+}
+function lbRowHTML(r, rank, me){
+  let av = ''; try { av = drawAvatar(Object.assign({g:'m', skin:'#e8b896', hair:'#2a1a12', style:'short', eyes:'#5a3a22', glasses:'none', facial:'none', earring:false, suit:'#2f4a3a'}, r.look && typeof r.look === 'object' ? r.look : {})); } catch(e){}
+  return `<div class="lb-row${me ? ' me' : ''}"><span class="lb-rank">${rank}</span><span class="lb-av">${av}</span>
+    <span class="lb-name">${esc(r.name || 'Mon Empire')}${me ? ' <small>Toi</small>' : r.prestige ? `<small>Prestige ${r.prestige}</small>` : ''}</span><span class="lb-w">${money(r.wealth)}</span></div>`;
+}
+function renderBoard(){
+  const box = $('#lbBox'); if (!box) return;
+  const me = cloud.user && cloud.user.uid;
+  if (lb.err && !lb.rows){ box.innerHTML = `<p class="muted lb-empty">${lb.err}</p>`; return; }
+  if (!lb.rows){ box.innerHTML = `<p class="muted lb-empty">Chargement du classement…</p>`; return; }
+  let html = lb.rows.length ? lb.rows.map((r, i) => lbRowHTML(r, i + 1, r.uid === me)).join('') : '<p class="muted lb-empty">Personne au classement pour l\'instant. Sois le premier !</p>';
+  if (me && !lb.rows.some(r => r.uid === me))
+    html += `<div class="lb-gap"></div>` + lbRowHTML({name:S.name, wealth:wealth(), look:S.me}, lb.myRank || '–', true);
+  if (!me) html += `<p class="muted lb-empty">Connecte-toi dans l'onglet Profil pour apparaître dans le classement.</p>`;
+  else if (lb.err) html += `<p class="muted lb-empty">${lb.err}</p>`;
+  box.innerHTML = html;
+}
+$('#lbRefresh').addEventListener('click', () => lbLoad(true));
+setInterval(() => { if (currentTab === 'objectifs' && !document.hidden) lbLoad(false); }, 90000);
 const summary = d => `${money(Math.max(d.cash || 0, 0))} en poche · ${(d.companies || []).length} entreprise${(d.companies || []).length > 1 ? 's' : ''} · ${num(Object.keys(d.lux || {}).length, 0)} articles · ${new Date(d.last || 0).toLocaleString('fr-FR', {dateStyle:'short', timeStyle:'short'})}`;
 function useCloudSave(data){
   const d = normalize(data); d.cloudUid = cloud.user.uid;
