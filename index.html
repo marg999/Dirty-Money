@@ -108,6 +108,12 @@ h3{font-size:.98rem;font-weight:800}
 .lb-w{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
 .lb-gap{height:1px;background:var(--border);margin:6px 10px}
 .lb-empty{padding:14px 10px}
+.ref-card{background:linear-gradient(135deg,rgba(160,98,60,.22),rgba(140,42,51,.16));border-color:rgba(160,98,60,.35)}
+.ref-stats{display:flex;gap:8px}
+.ref-stats div{flex:1;background:rgba(17,20,17,.35);border-radius:14px;padding:10px;text-align:center}
+.ref-stats b{display:block;font-size:1.15rem}
+.ref-link{display:flex;gap:8px}
+.ref-link input{flex:1;min-width:0;font-size:.8rem}
 .lb-row.can{cursor:pointer}.lb-row.can:hover{background:var(--surface-2)}
 .lb-msg{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--muted);background:var(--surface-2)}
 .chat-btn{position:relative;appearance:none;border:1px solid var(--border);background:var(--surface-2);color:var(--text);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;cursor:pointer;flex:none}
@@ -713,6 +719,7 @@ input::placeholder{color:var(--muted);font-weight:600}
   <!-- PROFIL -->
   <section class="tab" id="tab-profil">
     <div class="card stack account-card" id="accountCard" style="margin-top:8px"></div>
+    <div class="card stack ref-card" id="refCard" style="margin-top:14px"></div>
     <div class="card me-card" style="margin-top:14px">
       <div class="me-head">
         <span class="avatar me-av" id="meBig"></span>
@@ -1715,6 +1722,31 @@ const EN_DICT = {
 "Pendant ton absence ({}), tes entreprises ont rapporté": "While you were away ({}), your companies earned",
 "Hors-ligne, tes entreprises tournent au ralenti : 50 % des bénéfices, 3 heures maximum.": "Offline, your companies run at half speed: 50% of profits, 3 hours max.",
 "Langue": "Language",
+"Invite tes amis": "Invite your friends",
+"Pour chaque ami qui crée un compte avec ton lien, tu gagnes": "For every friend who creates an account with your link, you get",
+"et": "and",
+"+{} % de revenus pour toujours": "+{}% income forever",
+"(jusqu'à {} amis). Ton ami reçoit {} pour démarrer.": "(up to {} friends). Your friend gets {} to get started.",
+"ami invité": "friend invited",
+"amis invités": "friends invited",
+"de revenus": "income",
+"Parrainage indisponible pour le moment.": "Referrals unavailable right now.",
+"Connecte-toi ci-dessus pour obtenir ton lien d'invitation.": "Log in above to get your invite link.",
+"Copier": "Copy",
+"Partager le jeu": "Share the game",
+"Lien copié ! Envoie-le à tes amis.": "Link copied! Send it to your friends.",
+"Crée un compte dans le Profil pour recevoir ton bonus d'invitation de {}.": "Create an account in the Profile to receive your {} invite bonus.",
+"Bienvenue !": "Welcome!",
+"Tu as rejoint Dirty Money grâce à un ami : voici": "You joined Dirty Money thanks to a friend: here's",
+"pour bien démarrer.": "to get you started.",
+"Invite à ton tour tes amis depuis le Profil pour gagner de gros bonus.": "Invite your own friends from the Profile to earn big bonuses.",
+"Un ami t'a rejoint !": "A friend joined you!",
+"{} amis t'ont rejoint !": "{} friends joined you!",
+"{} amis viennent de créer leur compte grâce à ton lien.": "{} friends just created an account with your link.",
+"Un ami vient de créer son compte grâce à ton lien.": "A friend just created an account with your link.",
+"Tu gagnes": "You earn",
+"de revenus pour toujours": "income forever",
+"de revenus pour toujours.": "income forever.",
 "Messages": "Messages",
 "Général": "General",
 "Privés": "Private",
@@ -2249,6 +2281,7 @@ function normalize(o){
   if (!s.daily || typeof s.daily !== 'object') s.daily = {last:'', streak:0};
   if (!s.prestige || typeof s.prestige !== 'object') s.prestige = {pts:0, count:0};
   if (!Array.isArray(s.blocked)) s.blocked = [];
+  if (!Array.isArray(s.refs)) s.refs = [];
   if (typeof s.mgrPause !== 'number') s.mgrPause = 0;
   if (typeof s.fame !== 'number') s.fame = 20;
   s.me = Object.assign({g:'m', skin:'#e8b896', hair:'#2a1a12', style:'short', eyes:'#5a3a22', glasses:'none', facial:'none', earring:false, suit:'#2f4a3a'}, s.me || {});
@@ -2283,7 +2316,9 @@ const cityById = id => CITIES.find(c => c.id === id);
 const bonus = () => ART.reduce((a,x) => a + (S.lux[x.id] ? x.pr : 0), 0);
 const prestigeMult = () => 1 + PRESTIGE_BONUS * S.prestige.pts;
 const fameMult = () => 1 + Math.max(0, S.fame) / 400;   // notoriété : jusqu'à +25 % de revenus
-const mult = () => (1 + bonus()/100) * prestigeMult() * fameMult();
+const REF_MAX = 10, REF_BONUS = 0.05;
+const refMult = () => 1 + REF_BONUS * Math.min((S.refs || []).length, REF_MAX);
+const mult = () => (1 + bonus()/100) * prestigeMult() * fameMult() * refMult();
 const totalBranches = () => S.companies.reduce((a,c) => a + c.branches.length, 0);
 const cityOpen = c => totalBranches() >= c.need;
 const foundFee = sc => sc.cost * 0.5;
@@ -4220,6 +4255,7 @@ $('#tabs').addEventListener('click', e => {
   currentTab = b.dataset.tab;
   document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b));
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.id === 'tab-' + currentTab));
+  if (currentTab === 'profil') renderRef();
   if (currentTab === 'profil') $('#nameInput').value = S.name === 'Mon Empire' ? T(S.name) : S.name;
   if (currentTab === 'objectifs'){ buildWeek(); buildAch(); lbLoad(false); }
   if (currentTab === 'concession') buildDealer();
@@ -4303,7 +4339,7 @@ async function cloudUpload(force){
   try {
     await saveRef(cloud.user.uid).set({data:json, name:S.name, last:S.last, updated:firebase.firestore.FieldValue.serverTimestamp()});
     cloud.lastUp = Date.now(); cloud.lastSig = json; cloud.err = '';
-    lbPublish();
+    lbPublish(); refTick(false);
   } catch(e){ cloud.err = 'Sauvegarde en ligne impossible : ' + (e.code || e.message); }
   cloud.busy = false; renderAccount();
 }
@@ -4519,6 +4555,67 @@ $('#chatBody').addEventListener('click', e => {
 });
 $('#chatForm').addEventListener('submit', e => { e.preventDefault(); chatSend(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && chat.open && !$('#modal').classList.contains('open')) chatClose(); });
+
+/* ================= PARRAINAGE ================= */
+const REF_KEY = 'dirtyMoney_ref', REF_WELCOME = 25000;
+(() => { try {
+  const u = new URL(location.href), r = u.searchParams.get('ref');
+  if (r && /^[A-Za-z0-9]{10,40}$/.test(r)){ localStorage.setItem(REF_KEY, r); u.searchParams.delete('ref'); history.replaceState(null, '', u.pathname + u.search + u.hash); }
+} catch(e){} })();
+const refReward = () => Math.max(100000, ips() * 3 * 3600);
+const refLink = () => cloud.user ? location.origin + location.pathname + '?ref=' + cloud.user.uid : '';
+let refBusy = false, refLast = 0;
+async function refTick(force){
+  if (!cloud.user || !cloud.ready || refBusy || (!force && Date.now() - refLast < 120000)) return;
+  refBusy = true; refLast = Date.now();
+  const me = cloud.user.uid;
+  try {
+    // 1. le joueur a été invité : on enregistre le parrainage une seule fois
+    let pend = null; try { pend = localStorage.getItem(REF_KEY); } catch(e){}
+    if (pend && !S.referredBy && pend !== me && S.earned < 5e6){
+      try {
+        await cloud.db.collection('referrals').doc(me).set({by:pend, at:firebase.firestore.FieldValue.serverTimestamp()});
+        S.referredBy = pend; S.cash += REF_WELCOME; S.earned += REF_WELCOME; save();
+        modal('Bienvenue !', `<p>Tu as rejoint Dirty Money grâce à un ami : voici <b style="color:var(--up)">${money(REF_WELCOME)}</b> pour bien démarrer.</p><p style="margin-top:8px">Invite à ton tour tes amis depuis le Profil pour gagner de gros bonus.</p>`);
+      } catch(e){ S.referredBy = S.referredBy || 'done'; }
+      try { localStorage.removeItem(REF_KEY); } catch(e){}
+    } else if (pend){ try { localStorage.removeItem(REF_KEY); } catch(e){} }
+    // 2. le joueur a invité des amis : on verse les récompenses des nouveaux filleuls
+    const snap = await cloud.db.collection('referrals').where('by', '==', me).get();
+    const fresh = snap.docs.map(d => d.id).filter(id => id !== me && !S.refs.includes(id));
+    let cash = 0, pct = 0;
+    fresh.forEach(id => { if (S.refs.length < REF_MAX) pct += Math.round(REF_BONUS * 100); cash += refReward(); S.refs.push(id); });
+    if (fresh.length){
+      S.cash += cash; S.earned += cash;
+      modal(fresh.length > 1 ? `${fresh.length} amis t'ont rejoint !` : 'Un ami t\'a rejoint !', `<p>${fresh.length > 1 ? `${fresh.length} amis viennent de créer leur compte grâce à ton lien.` : 'Un ami vient de créer son compte grâce à ton lien.'}</p><p style="margin-top:8px">Tu gagnes <b style="color:var(--up)">${money(cash)}</b>${pct ? ` et <b style="color:var(--up)">+${pct} %</b> de revenus pour toujours` : ''}.</p>`);
+    }
+    if (fresh.length){ save(); refresh(); }
+  } catch(e){}
+  refBusy = false; renderRef();
+}
+function renderRef(){
+  const box = $('#refCard'); if (!box) return;
+  const n = S.refs.length, pct = Math.round(REF_BONUS * 100 * Math.min(n, REF_MAX));
+  const head = `<h3>Invite tes amis</h3><p class="muted">Pour chaque ami qui crée un compte avec ton lien, tu gagnes <b style="color:var(--text)">${money(refReward())}</b> et <b style="color:var(--text)">+${Math.round(REF_BONUS * 100)} % de revenus pour toujours</b> (jusqu'à ${REF_MAX} amis). Ton ami reçoit ${money(REF_WELCOME)} pour démarrer.</p>
+    <div class="ref-stats"><div><b>${n}</b><span class="muted">ami${n > 1 ? 's' : ''} invité${n > 1 ? 's' : ''}</span></div><div><b>+${pct} %</b><span class="muted">de revenus</span></div></div>`;
+  if (!cloud.ok){ box.innerHTML = head + `<p class="muted">Parrainage indisponible pour le moment.</p>`; return; }
+  if (!cloud.user){ box.innerHTML = head + `<p class="muted">Connecte-toi ci-dessus pour obtenir ton lien d'invitation.</p>`; return; }
+  box.innerHTML = head + `<div class="ref-link"><input type="text" id="refInput" readonly value="${esc(refLink())}" data-noi18n><button class="btn soft" id="refCopy">Copier</button></div>
+    <button class="btn" id="refShare">Partager le jeu</button>`;
+}
+async function refShare(){
+  const url = refLink(); if (!url) return;
+  const text = LANG === 'en' ? 'Come play Dirty Money with me: build your empire, legal or not.' : 'Viens jouer à Dirty Money avec moi : bâtis ton empire, légal ou pas.';
+  if (navigator.share){ try { await navigator.share({title:'Dirty Money', text, url}); return; } catch(e){ if (e && e.name === 'AbortError') return; } }
+  refCopy();
+}
+async function refCopy(){
+  const url = refLink(); if (!url) return;
+  try { await navigator.clipboard.writeText(url); } catch(e){ const i = $('#refInput'); if (i){ i.select(); try { document.execCommand('copy'); } catch(_){} } }
+  toast('Lien copié ! Envoie-le à tes amis.');
+}
+$('#refCard').addEventListener('click', e => { if (e.target.id === 'refShare') refShare(); else if (e.target.id === 'refCopy') refCopy(); });
+setTimeout(() => { let p = null; try { p = localStorage.getItem(REF_KEY); } catch(e){} if (p && !cloud.user && !S.referredBy) toast(`Crée un compte dans le Profil pour recevoir ton bonus d'invitation de ${money(REF_WELCOME)}.`); }, 4000);
 const summary = d => `${money(Math.max(d.cash || 0, 0))} en poche · ${(d.companies || []).length} entreprise${(d.companies || []).length > 1 ? 's' : ''} · ${num(Object.keys(d.lux || {}).length, 0)} articles · ${new Date(d.last || 0).toLocaleString('fr-FR', {dateStyle:'short', timeStyle:'short'})}`;
 function useCloudSave(data){
   const d = normalize(data); d.cloudUid = cloud.user.uid;
@@ -4613,7 +4710,7 @@ document.addEventListener('click', async e => {
   }
 });
 if (cloud.ok){
-  cloud.auth.onAuthStateChanged(u => { if (u) onLogin(u); else { cloud.user = null; cloud.ready = false; renderAccount(); } chatOnAuth(u); if (chat.open) chatRender(); renderBoard(); });
+  cloud.auth.onAuthStateChanged(u => { if (u) onLogin(u); else { cloud.user = null; cloud.ready = false; renderAccount(); } chatOnAuth(u); if (chat.open) chatRender(); renderBoard(); renderRef(); setTimeout(() => refTick(true), 4000); });
   setInterval(() => cloudUpload(false), 30000);
   setInterval(() => { const el = $('#accStatus'); if (el && cloud.ready && cloud.lastUp) el.textContent = 'Dernière sauvegarde en ligne il y a ' + fmtSec(Date.now() - cloud.lastUp); }, 1000);
   document.addEventListener('visibilitychange', () => { if (document.hidden) cloudUpload(false); });
@@ -4621,7 +4718,7 @@ if (cloud.ok){
 
 /* ================= DÉMARRAGE ================= */
 ensureWeek(); recordHist();
-renderAccount(); renderMe();
+renderAccount(); renderMe(); renderRef();
 buildStocks(); buildCompanies(); buildShady(); buildAch(); buildWeek(); buildArticles(); renderNews(); renderLog(); refresh();
 (function offline(){
   if (S.migrated){
