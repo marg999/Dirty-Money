@@ -108,6 +108,38 @@ h3{font-size:.98rem;font-weight:800}
 .lb-w{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
 .lb-gap{height:1px;background:var(--border);margin:6px 10px}
 .lb-empty{padding:14px 10px}
+.lb-row.can{cursor:pointer}.lb-row.can:hover{background:var(--surface-2)}
+.lb-msg{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--muted);background:var(--surface-2)}
+.chat-btn{position:relative;appearance:none;border:1px solid var(--border);background:var(--surface-2);color:var(--text);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;cursor:pointer;flex:none}
+.chat-dot{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--burgundy);box-shadow:0 0 0 2px var(--bg)}
+.chat-seg .chat-dot{position:static;display:inline-block;width:7px;height:7px;margin-left:6px;vertical-align:middle;box-shadow:none}
+.chat-sheet{position:fixed;inset:0;z-index:80;background:rgba(5,6,5,.6);backdrop-filter:blur(6px);display:flex;justify-content:center;align-items:flex-end}
+.chat-sheet[hidden]{display:none!important}
+.chat-box{width:min(100%,560px);height:min(88vh,760px);background:var(--surface-solid);border:1px solid var(--border);border-radius:26px 26px 0 0;display:flex;flex-direction:column;padding:14px 14px calc(12px + env(safe-area-inset-bottom));box-shadow:var(--shadow)}
+@media (min-width:700px){.chat-sheet{align-items:center}.chat-box{border-radius:26px}}
+.chat-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.chat-title{flex:1;min-width:0;font-weight:800;font-size:1.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:10px}
+.chat-title .lb-av{width:32px;height:32px}
+.chat-icon{appearance:none;border:0;background:var(--surface-2);color:var(--text);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;cursor:pointer;flex:none}
+.chat-block{padding:7px 12px;font-size:.78rem}
+.chat-seg{align-self:stretch;display:flex;margin-bottom:10px}.chat-seg button{flex:1}
+.chat-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px;overscroll-behavior:contain}
+.chat-msg{max-width:82%;align-self:flex-start;display:flex;gap:8px;align-items:flex-end}
+.chat-msg .lb-av{width:28px;height:28px}
+.chat-msg.mine{align-self:flex-end;flex-direction:row-reverse}
+.chat-bub{background:var(--surface-2);border:1px solid var(--border);border-radius:18px 18px 18px 6px;padding:8px 12px;font-size:.9rem;line-height:1.35;overflow-wrap:anywhere;white-space:pre-wrap}
+.chat-msg.mine .chat-bub{background:var(--cognac);border-color:transparent;border-radius:18px 18px 6px 18px}
+.chat-who{display:block;appearance:none;border:0;background:none;padding:0;font:inherit;font-size:.72rem;font-weight:800;color:var(--cognac);cursor:pointer;margin-bottom:2px}
+.chat-time{display:block;font-size:.66rem;color:var(--muted);margin-top:3px;font-weight:600}
+.chat-msg.mine .chat-time{color:rgba(239,230,216,.7);text-align:right}
+.chat-conv{display:flex;align-items:center;gap:12px;padding:10px;border-radius:16px;cursor:pointer;appearance:none;border:0;background:none;color:inherit;font:inherit;text-align:left;width:100%}
+.chat-conv:hover{background:var(--surface-2)}
+.chat-conv .lb-name small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-conv .chat-dot{position:static;flex:none;box-shadow:none}
+.chat-empty{margin:auto;text-align:center;padding:20px;max-width:320px}
+.chat-form{display:flex;gap:8px;margin-top:10px}
+.chat-form input{flex:1;min-width:0}
+.chat-form .btn{padding:11px 16px}
 .lang-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
 
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
@@ -517,7 +549,7 @@ input::placeholder{color:var(--muted);font-weight:600}
 
 <header class="top">
   <div class="top-inner">
-    <div class="brand-row"><div class="logo">Dirty <span>Money</span></div><div class="brand-right"><button class="cloud-btn" id="cloudBtn" hidden></button><button class="avatar me-mini" id="meMini" aria-label="Mon profil"></button><div id="empireName">Mon Empire</div></div></div>
+    <div class="brand-row"><div class="logo">Dirty <span>Money</span></div><div class="brand-right"><button class="cloud-btn" id="cloudBtn" hidden></button><button class="chat-btn" id="chatBtn" aria-label="Messages" title="Messages"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12z"/></svg><i class="chat-dot" id="chatDot" hidden></i></button><button class="avatar me-mini" id="meMini" aria-label="Mon profil"></button><div id="empireName">Mon Empire</div></div></div>
     <div class="hero">
       <div>
         <small>Solde</small>
@@ -753,6 +785,19 @@ input::placeholder{color:var(--muted);font-weight:600}
 </main>
 
 <div class="modal" id="modal"><div class="modal-box"><h2 id="modalTitle"></h2><div id="modalBody"></div><div class="modal-actions" id="modalActions"></div></div></div>
+<div class="chat-sheet" id="chatSheet" hidden>
+  <div class="chat-box">
+    <div class="chat-head">
+      <button class="chat-icon" id="chatBack" aria-label="Retour" hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="chat-title" id="chatTitle">Messages</div>
+      <button class="btn soft chat-block" id="chatBlock" hidden>Bloquer</button>
+      <button class="chat-icon" id="chatClose" aria-label="Fermer"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="seg chat-seg" id="chatSeg"><button type="button" data-v="general" class="on">Général<i class="chat-dot" id="dotGen" hidden></i></button><button type="button" data-v="dms">Privés<i class="chat-dot" id="dotDm" hidden></i></button></div>
+    <div class="chat-body" id="chatBody"></div>
+    <form class="chat-form" id="chatForm" autocomplete="off" hidden><input type="text" id="chatInput" maxlength="300" placeholder="Écris un message…" data-noi18n-value><button class="btn" type="submit" id="chatSend">Envoyer</button></form>
+  </div>
+</div>
 <div class="toasts" id="toasts"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1670,6 +1715,33 @@ const EN_DICT = {
 "Pendant ton absence ({}), tes entreprises ont rapporté": "While you were away ({}), your companies earned",
 "Hors-ligne, tes entreprises tournent au ralenti : 50 % des bénéfices, 3 heures maximum.": "Offline, your companies run at half speed: 50% of profits, 3 hours max.",
 "Langue": "Language",
+"Messages": "Messages",
+"Général": "General",
+"Privés": "Private",
+"Bloquer": "Block",
+"Débloquer": "Unblock",
+"Envoyer": "Send",
+"Écris un message…": "Write a message…",
+"Retour": "Back",
+"Envoyer un message": "Send a message",
+"Nouveau message de {}": "New message from {}",
+"un joueur": "a player",
+"Joueur": "Player",
+"Messagerie indisponible pour le moment.": "Messaging unavailable right now.",
+"Connecte-toi dans l'onglet Profil pour discuter avec les autres joueurs.": "Log in from the Profile tab to chat with other players.",
+"Tu as bloqué ce joueur. Débloque-le pour voir ses messages et lui écrire.": "You blocked this player. Unblock them to see their messages and write to them.",
+"Aucun message pour l'instant. Écris le premier !": "No messages yet. Write the first one!",
+"Messagerie bloquée : les règles Firestore doivent autoriser les collections « chat » et « dms ».": "Messaging blocked: Firestore rules must allow the “chat” and “dms” collections.",
+"Personne n'a encore écrit. Lance la conversation !": "Nobody has written yet. Start the conversation!",
+"Aucune conversation. Appuie sur un joueur du classement (onglet Objectifs) ou sur un nom dans le chat général pour lui écrire.": "No conversations. Tap a player on the leaderboard (Goals tab) or a name in the general chat to write to them.",
+"Doucement, attends un peu avant le prochain message.": "Easy, wait a moment before your next message.",
+"Message refusé : vérifie les règles Firestore.": "Message rejected: check the Firestore rules.",
+"Message non envoyé : vérifie ta connexion.": "Message not sent: check your connection.",
+"Que veux-tu faire ?": "What do you want to do?",
+"Message privé": "Private message",
+"Joueur débloqué.": "Player unblocked.",
+"{} est bloqué : tu ne verras plus ses messages.": "{} is blocked: you won't see their messages anymore.",
+"Ce joueur": "This player",
 "Classement": "Leaderboard",
 "Les plus grosses fortunes des joueurs connectés": "The biggest fortunes among signed-in players",
 "Actualiser": "Refresh",
@@ -2176,6 +2248,7 @@ function normalize(o){
   ['dirty','heat','cops','lcap','nextDiv'].forEach(k => { if (typeof s[k] !== 'number') s[k] = 0; });
   if (!s.daily || typeof s.daily !== 'object') s.daily = {last:'', streak:0};
   if (!s.prestige || typeof s.prestige !== 'object') s.prestige = {pts:0, count:0};
+  if (!Array.isArray(s.blocked)) s.blocked = [];
   if (typeof s.mgrPause !== 'number') s.mgrPause = 0;
   if (typeof s.fame !== 'number') s.fame = 20;
   s.me = Object.assign({g:'m', skin:'#e8b896', hair:'#2a1a12', style:'short', eyes:'#5a3a22', glasses:'none', facial:'none', earring:false, suit:'#2f4a3a'}, s.me || {});
@@ -4266,8 +4339,9 @@ async function lbLoad(force){
 }
 function lbRowHTML(r, rank, me){
   let av = ''; try { av = drawAvatar(Object.assign({g:'m', skin:'#e8b896', hair:'#2a1a12', style:'short', eyes:'#5a3a22', glasses:'none', facial:'none', earring:false, suit:'#2f4a3a'}, r.look && typeof r.look === 'object' ? r.look : {})); } catch(e){}
-  return `<div class="lb-row${me ? ' me' : ''}"><span class="lb-rank">${rank}</span><span class="lb-av">${av}</span>
-    <span class="lb-name">${esc(r.name || 'Mon Empire')}${me ? ' <small>Toi</small>' : r.prestige ? `<small>Prestige ${r.prestige}</small>` : ''}</span><span class="lb-w">${money(r.wealth)}</span></div>`;
+  const can = !me && r.uid && cloud.user;
+  return `<div class="lb-row${me ? ' me' : ''}${can ? ' can' : ''}"${can ? ` data-dm="${esc(r.uid)}" title="Envoyer un message"` : ''}><span class="lb-rank">${rank}</span><span class="lb-av">${av}</span>
+    <span class="lb-name"><span data-noi18n>${esc(r.name || 'Mon Empire')}</span>${me ? ' <small>Toi</small>' : r.prestige ? `<small>Prestige ${r.prestige}</small>` : ''}</span><span class="lb-w">${money(r.wealth)}</span>${can ? `<span class="lb-msg"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12z"/></svg></span>` : ''}</div>`;
 }
 function renderBoard(){
   const box = $('#lbBox'); if (!box) return;
@@ -4282,7 +4356,169 @@ function renderBoard(){
   box.innerHTML = html;
 }
 $('#lbRefresh').addEventListener('click', () => lbLoad(true));
+$('#lbBox').addEventListener('click', e => { const row = e.target.closest('[data-dm]'); if (!row) return; const r = (lb.rows || []).find(x => x.uid === row.dataset.dm); if (r) chatOpenDM(r.uid, r.name, r.look); });
 setInterval(() => { if (currentTab === 'objectifs' && !document.hidden) lbLoad(false); }, 90000);
+
+/* ================= MESSAGERIE ================= */
+const CHAT_MAX = 300, CHAT_COOLDOWN = 2000;
+const DEF_LOOK = {g:'m', skin:'#e8b896', hair:'#2a1a12', style:'short', eyes:'#5a3a22', glasses:'none', facial:'none', earring:false, suit:'#2f4a3a'};
+const avHTML = look => { try { return drawAvatar(Object.assign({}, DEF_LOOK, look && typeof look === 'object' ? look : {})); } catch(e){ return ''; } };
+const lsGet = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch(e){ return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
+const tsMs = t => t && t.toMillis ? t.toMillis() : Date.now();
+const convId = (a, b) => [a, b].sort().join('_');
+const chat = {open:false, view:'general', conv:null, gen:[], convs:[], msgs:[], unsubGen:null, unsubLast:null, unsubConvs:null, unsubMsgs:null,
+  lastGenAt:0, lastSent:0, read:lsGet('dirtyMoney_dmRead', {}), genRead:lsGet('dirtyMoney_chatRead', 0), notified:{}};
+const myName = () => String(S.name || 'Mon Empire').slice(0, 24);
+const isBlocked = uid => S.blocked.includes(uid);
+function chatClock(ms){
+  const d = new Date(ms), now = new Date();
+  const hm = d.toLocaleTimeString(LANG === 'en' ? 'en-GB' : 'fr-FR', {hour:'2-digit', minute:'2-digit'});
+  return d.toDateString() === now.toDateString() ? hm : d.toLocaleDateString(LANG === 'en' ? 'en-GB' : 'fr-FR', {day:'2-digit', month:'2-digit'}) + ' ' + hm;
+}
+function chatStop(){
+  ['unsubGen','unsubLast','unsubConvs','unsubMsgs'].forEach(k => { if (chat[k]){ chat[k](); chat[k] = null; } });
+  chat.convs = []; chat.gen = []; chat.msgs = []; chat.conv = null; chatBadges();
+}
+function chatOnAuth(u){
+  chatStop();
+  if (!u || !cloud.ok) return;
+  chat.unsubLast = cloud.db.collection('chat').orderBy('at', 'desc').limit(1).onSnapshot(sn => {
+    const d = sn.docs[0]; chat.lastGenAt = d && d.data().uid !== u.uid && !isBlocked(d.data().uid) ? tsMs(d.data().at) : 0; chatBadges();
+  }, () => {});
+  chat.unsubConvs = cloud.db.collection('dms').where('members', 'array-contains', u.uid).onSnapshot(sn => {
+    chat.convs = sn.docs.map(d => ({id:d.id, ...d.data()})).sort((a, b) => tsMs(b.lastAt) - tsMs(a.lastAt));
+    chat.convs.forEach(c => {
+      const t = tsMs(c.lastAt), other = c.members.find(m => m !== u.uid);
+      if (c.lastFrom && c.lastFrom !== u.uid && !isBlocked(other) && t > (chat.read[c.id] || 0) && !(chat.open && chat.conv && chat.conv.id === c.id) && chat.notified[c.id] !== t && Date.now() - t < 60000){
+        chat.notified[c.id] = t; SFX.good(); toast(`Nouveau message de ${(c.names || {})[other] || 'un joueur'}`);
+      }
+    });
+    chatBadges(); if (chat.open && chat.view === 'dms' && !chat.conv) chatRender();
+  }, () => {});
+}
+const convUnread = c => { const me = cloud.user && cloud.user.uid, other = c.members.find(m => m !== me); return c.lastFrom && c.lastFrom !== me && !isBlocked(other) && tsMs(c.lastAt) > (chat.read[c.id] || 0); };
+function chatBadges(){
+  const gen = chat.lastGenAt > chat.genRead && !(chat.open && chat.view === 'general');
+  const dm = chat.convs.some(c => convUnread(c) && !(chat.open && chat.conv && chat.conv.id === c.id));
+  $('#chatDot').hidden = !(gen || dm); $('#dotGen').hidden = !gen; $('#dotDm').hidden = !dm;
+}
+function chatMarkGen(){ if (chat.open && chat.view === 'general'){ chat.genRead = Math.max(Date.now(), chat.lastGenAt); lsSet('dirtyMoney_chatRead', chat.genRead); } }
+function chatMarkConv(){ if (chat.open && chat.conv){ chat.read[chat.conv.id] = Date.now() + 1000; lsSet('dirtyMoney_dmRead', chat.read); } }
+function chatOpen(view){
+  chat.open = true; $('#chatSheet').hidden = false; document.body.style.overflow = 'hidden';
+  chatView(view || chat.view);
+}
+function chatClose(){
+  chat.open = false; $('#chatSheet').hidden = true; document.body.style.overflow = '';
+  if (chat.unsubGen){ chat.unsubGen(); chat.unsubGen = null; }
+  if (chat.unsubMsgs){ chat.unsubMsgs(); chat.unsubMsgs = null; }
+  chat.conv = null; chatBadges();
+}
+function chatView(v){
+  chat.view = v;
+  if (v !== 'conv'){ if (chat.unsubMsgs){ chat.unsubMsgs(); chat.unsubMsgs = null; } chat.conv = null; }
+  document.querySelectorAll('#chatSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === (v === 'conv' ? 'dms' : v)));
+  if (v === 'general' && !chat.unsubGen && cloud.user && cloud.ok){
+    chat.unsubGen = cloud.db.collection('chat').orderBy('at', 'desc').limit(60).onSnapshot(sn => {
+      chat.gen = sn.docs.map(d => ({id:d.id, ...d.data()})).reverse(); chatMarkGen(); chatBadges(); if (chat.view === 'general') chatRender(true);
+    }, e => { chat.err = e && e.code === 'permission-denied' ? 'rules' : 'net'; if (chat.view === 'general') chatRender(); });
+  }
+  chatMarkGen(); chatBadges(); chatRender(true);
+}
+function chatOpenDM(uid, name, look){
+  if (!cloud.user || uid === cloud.user.uid) return;
+  const id = convId(cloud.user.uid, uid), ex = chat.convs.find(c => c.id === id);
+  chat.conv = {id, other:uid, name: (ex && ex.names && ex.names[uid]) || name || 'Joueur', look: (ex && ex.looks && ex.looks[uid]) || look || null, exists: !!ex};
+  if (!chat.open){ chat.open = true; $('#chatSheet').hidden = false; document.body.style.overflow = 'hidden'; }
+  chat.view = 'conv'; chat.msgs = [];
+  document.querySelectorAll('#chatSeg button').forEach(b => b.classList.toggle('on', b.dataset.v === 'dms'));
+  chatListenConv(); chatMarkConv(); chatBadges(); chatRender(true);
+}
+function chatListenConv(){
+  if (chat.unsubMsgs){ chat.unsubMsgs(); chat.unsubMsgs = null; }
+  if (!chat.conv || !chat.conv.exists) return;
+  const c = chat.conv;
+  chat.unsubMsgs = cloud.db.collection('dms').doc(c.id).collection('msgs').orderBy('at').limitToLast(80).onSnapshot(sn => {
+    if (chat.conv !== c) return;
+    chat.msgs = sn.docs.map(d => ({id:d.id, ...d.data()})); chatMarkConv(); chatBadges(); chatRender(true);
+  }, () => {});
+}
+function msgHTML(m, showWho){
+  const mine = cloud.user && m.uid === cloud.user.uid;
+  return `<div class="chat-msg${mine ? ' mine' : ''}">${!mine && showWho ? `<span class="lb-av">${avHTML(m.look)}</span>` : ''}<div class="chat-bub" data-noi18n>${!mine && showWho ? `<button type="button" class="chat-who" data-who="${esc(m.uid)}">${esc(m.name || 'Joueur')}</button>` : ''}${esc(m.text)}<span class="chat-time">${chatClock(tsMs(m.at))}</span></div></div>`;
+}
+function chatRender(scroll){
+  const body = $('#chatBody'), form = $('#chatForm'), me = cloud.user && cloud.user.uid;
+  const inConv = chat.view === 'conv' && chat.conv;
+  $('#chatBack').hidden = !inConv; $('#chatSeg').hidden = !!inConv; $('#chatBlock').hidden = !inConv;
+  if (inConv){
+    $('#chatTitle').innerHTML = `<span class="lb-av">${avHTML(chat.conv.look)}</span><span data-noi18n>${esc(chat.conv.name)}</span>`;
+    $('#chatBlock').textContent = isBlocked(chat.conv.other) ? 'Débloquer' : 'Bloquer';
+  } else $('#chatTitle').textContent = 'Messages';
+  const stick = body.scrollHeight - body.scrollTop - body.clientHeight < 80;
+  let html = '';
+  if (!cloud.ok) html = `<p class="muted chat-empty">Messagerie indisponible pour le moment.</p>`;
+  else if (!me) html = `<p class="muted chat-empty">Connecte-toi dans l'onglet Profil pour discuter avec les autres joueurs.</p>`;
+  else if (inConv){
+    if (isBlocked(chat.conv.other)) html = `<p class="muted chat-empty">Tu as bloqué ce joueur. Débloque-le pour voir ses messages et lui écrire.</p>`;
+    else html = chat.msgs.length ? chat.msgs.map(m => msgHTML(m, false)).join('') : `<p class="muted chat-empty">Aucun message pour l'instant. Écris le premier !</p>`;
+  } else if (chat.view === 'general'){
+    const list = chat.gen.filter(m => !isBlocked(m.uid));
+    html = chat.err === 'rules' ? `<p class="muted chat-empty">Messagerie bloquée : les règles Firestore doivent autoriser les collections « chat » et « dms ».</p>`
+      : list.length ? list.map(m => msgHTML(m, true)).join('') : `<p class="muted chat-empty">Personne n'a encore écrit. Lance la conversation !</p>`;
+  } else {
+    const list = chat.convs.filter(c => !isBlocked(c.members.find(m => m !== me)));
+    html = list.length ? list.map(c => { const o = c.members.find(m => m !== me), un = convUnread(c);
+      return `<button type="button" class="chat-conv" data-conv="${esc(o)}"><span class="lb-av">${avHTML((c.looks || {})[o])}</span><span class="lb-name"><span data-noi18n>${esc((c.names || {})[o] || 'Joueur')}</span><small data-noi18n>${c.lastFrom === me ? (LANG === 'en' ? 'You: ' : 'Toi : ') : ''}${esc(c.last || '')}</small></span><span class="chat-time">${chatClock(tsMs(c.lastAt))}</span>${un ? '<i class="chat-dot"></i>' : ''}</button>`; }).join('')
+      : `<p class="muted chat-empty">Aucune conversation. Appuie sur un joueur du classement (onglet Objectifs) ou sur un nom dans le chat général pour lui écrire.</p>`;
+  }
+  body.innerHTML = html;
+  form.hidden = !(cloud.ok && me && (chat.view === 'general' || (inConv && !isBlocked(chat.conv.other))));
+  if (scroll || stick) body.scrollTop = body.scrollHeight;
+}
+async function chatSend(){
+  const inp = $('#chatInput'), text = inp.value.trim().slice(0, CHAT_MAX);
+  if (!text || !cloud.user) return;
+  if (Date.now() - chat.lastSent < CHAT_COOLDOWN){ toast('Doucement, attends un peu avant le prochain message.'); return; }
+  chat.lastSent = Date.now(); inp.value = '';
+  const me = cloud.user.uid, now = firebase.firestore.FieldValue.serverTimestamp();
+  try {
+    if (chat.view === 'general'){
+      await cloud.db.collection('chat').add({uid:me, name:myName(), look:S.me || null, text, at:now});
+    } else if (chat.conv){
+      const c = chat.conv, ref = cloud.db.collection('dms').doc(c.id);
+      const members = [me, c.other].sort();
+      await ref.set({members, names:{[me]:myName(), [c.other]:c.name}, looks:{[me]:S.me || null, [c.other]:c.look || null}, last:text.slice(0, 80), lastAt:now, lastFrom:me}, {merge:true});
+      if (!c.exists){ c.exists = true; chatListenConv(); }
+      await ref.collection('msgs').add({uid:me, text, at:now});
+    }
+  } catch(e){ inp.value = text; toast(e && e.code === 'permission-denied' ? 'Message refusé : vérifie les règles Firestore.' : 'Message non envoyé : vérifie ta connexion.'); }
+}
+function chatWho(uid){
+  const m = chat.gen.find(x => x.uid === uid); if (!m || !cloud.user || uid === cloud.user.uid) return;
+  modal(m.name || 'Joueur', `<p>Que veux-tu faire ?</p>`, [
+    {label:'Annuler', cls:'soft'},
+    {label:'Bloquer', cls:'soft', action: () => chatBlock(uid, m.name)},
+    {label:'Message privé', action: () => chatOpenDM(uid, m.name, m.look)}]);
+}
+function chatBlock(uid, name){
+  if (isBlocked(uid)){ S.blocked = S.blocked.filter(x => x !== uid); toast('Joueur débloqué.'); }
+  else { S.blocked.push(uid); toast(`${name || 'Ce joueur'} est bloqué : tu ne verras plus ses messages.`); }
+  save(); chatBadges(); chatRender();
+}
+$('#chatBtn').addEventListener('click', () => chatOpen());
+$('#chatClose').addEventListener('click', chatClose);
+$('#chatSheet').addEventListener('click', e => { if (e.target.id === 'chatSheet') chatClose(); });
+$('#chatBack').addEventListener('click', () => chatView('dms'));
+$('#chatSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) chatView(b.dataset.v); });
+$('#chatBlock').addEventListener('click', () => { if (chat.conv) chatBlock(chat.conv.other, chat.conv.name); });
+$('#chatBody').addEventListener('click', e => {
+  const w = e.target.closest('[data-who]'); if (w) return chatWho(w.dataset.who);
+  const c = e.target.closest('[data-conv]'); if (c){ const cv = chat.convs.find(x => x.members.includes(c.dataset.conv)); chatOpenDM(c.dataset.conv, cv && (cv.names || {})[c.dataset.conv], cv && (cv.looks || {})[c.dataset.conv]); }
+});
+$('#chatForm').addEventListener('submit', e => { e.preventDefault(); chatSend(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && chat.open && !$('#modal').classList.contains('open')) chatClose(); });
 const summary = d => `${money(Math.max(d.cash || 0, 0))} en poche · ${(d.companies || []).length} entreprise${(d.companies || []).length > 1 ? 's' : ''} · ${num(Object.keys(d.lux || {}).length, 0)} articles · ${new Date(d.last || 0).toLocaleString('fr-FR', {dateStyle:'short', timeStyle:'short'})}`;
 function useCloudSave(data){
   const d = normalize(data); d.cloudUid = cloud.user.uid;
@@ -4377,7 +4613,7 @@ document.addEventListener('click', async e => {
   }
 });
 if (cloud.ok){
-  cloud.auth.onAuthStateChanged(u => { if (u) onLogin(u); else { cloud.user = null; cloud.ready = false; renderAccount(); } });
+  cloud.auth.onAuthStateChanged(u => { if (u) onLogin(u); else { cloud.user = null; cloud.ready = false; renderAccount(); } chatOnAuth(u); if (chat.open) chatRender(); renderBoard(); });
   setInterval(() => cloudUpload(false), 30000);
   setInterval(() => { const el = $('#accStatus'); if (el && cloud.ready && cloud.lastUp) el.textContent = 'Dernière sauvegarde en ligne il y a ' + fmtSec(Date.now() - cloud.lastUp); }, 1000);
   document.addEventListener('visibilitychange', () => { if (document.hidden) cloudUpload(false); });
