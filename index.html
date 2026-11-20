@@ -108,6 +108,27 @@ h3{font-size:.98rem;font-weight:800}
 .lb-w{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
 .lb-gap{height:1px;background:var(--border);margin:6px 10px}
 .lb-empty{padding:14px 10px}
+.art-cat{appearance:none;border:0;background:none;color:inherit;font:inherit;width:100%;text-align:left;cursor:pointer;padding-left:0;padding-right:0}
+.art-cat-r{display:flex;align-items:center;gap:10px;color:var(--muted)}
+.art-cat svg{transition:transform .2s}.art-cat.folded svg{transform:rotate(-90deg)}
+.trip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:12px}
+.trip{display:flex;flex-direction:column;gap:6px}
+.trip h3{font-size:1rem}
+.trip .row{margin-top:auto;justify-content:space-between;align-items:center;padding-top:8px}
+.vac-list{display:flex;flex-direction:column;gap:6px;margin-top:10px;max-height:46vh;overflow:auto}
+.vac-list div{background:var(--surface-2);border-radius:12px;padding:8px 12px;font-size:.86rem}
+.vac-list .bad{border-left:3px solid var(--down)}.vac-list .ok{border-left:3px solid var(--up)}
+.casino{margin-top:14px}
+.rl-wheel{display:flex;align-items:center;justify-content:center;gap:14px;margin:6px 0 4px}
+.rl-ball{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;font-size:1.8rem;font-weight:800;background:#141714;border:3px solid var(--border);font-variant-numeric:tabular-nums;transition:background .15s}
+.rl-ball.red{background:#8c2a33}.rl-ball.black{background:#151815;border-color:#efe6d8}.rl-ball.green{background:#3d6a45}
+.rl-bets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rl-bets .btn{display:flex;flex-direction:column;align-items:center;gap:2px}
+.rl-bets .btn small{font-weight:600;opacity:.8;font-size:.72rem}
+.rl-amt{display:flex;gap:8px;flex-wrap:wrap}
+.rl-amt input{flex:1;min-width:140px}
+.rl-amt .btn{padding:8px 12px;font-size:.78rem}
+.allin{border:1px solid rgba(210,90,100,.45);background:linear-gradient(135deg,rgba(140,42,51,.28),rgba(17,20,17,.4))}
 .ref-card{background:linear-gradient(135deg,rgba(160,98,60,.22),rgba(140,42,51,.16));border-color:rgba(160,98,60,.35)}
 .ref-stats{display:flex;gap:8px}
 .ref-stats div{flex:1;background:rgba(17,20,17,.35);border-radius:14px;padding:10px;text-align:center}
@@ -303,7 +324,7 @@ select:focus{border-color:var(--cognac)}
 .co-head:hover{background:var(--surface-2)}
 .co-head:focus-visible{outline:2px solid var(--cognac);outline-offset:-2px;border-radius:var(--r-lg)}
 .co-title{min-width:0;flex:1}
-.co-title h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.co-title h3{white-space:normal;overflow-wrap:anywhere;line-height:1.25}
 .co-sum{display:flex;gap:18px;text-align:right}
 .co-sum small{display:block;color:var(--muted);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
 .co-sum b{font-size:.9rem;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -691,6 +712,21 @@ input::placeholder{color:var(--muted);font-weight:600}
         <div class="kpi k-pink"><small>Niveau du clic</small><b id="gLvl">1</b></div>
       </div>
       <button class="btn green" id="clickUpBtn" style="margin-top:16px;padding:13px 26px;font-size:.95rem">Améliorer mes gains<small id="clickUpCost"></small></button>
+    </div>
+    <div class="section-head"><div><h2>Vacances</h2><span class="muted">Pars te détendre : ta notoriété grimpe, mais les entreprises sans gérant risquent de partir en vrille.</span></div></div>
+    <div class="trip-grid" id="tripList"></div>
+    <div class="section-head"><div><h2>Casino</h2><span class="muted">La maison gagne toujours… presque.</span></div></div>
+    <div class="card stack casino">
+      <h3>Roulette</h3>
+      <div class="rl-wheel"><div class="rl-ball" id="rlBall">0</div></div>
+      <div class="rl-amt"><input type="text" inputmode="numeric" id="rlAmt" placeholder="Mise en euros"><button class="btn soft" data-rl="0.1">10 %</button><button class="btn soft" data-rl="0.5">50 %</button><button class="btn soft" data-rl="1">Tapis</button></div>
+      <div class="rl-bets"><button class="btn red" data-bet="red">Rouge<small>×2</small></button><button class="btn soft" data-bet="black">Noir<small>×2</small></button><button class="btn green" data-bet="zero">Zéro<small>×36</small></button></div>
+      <p class="muted" id="rlMsg">Choisis ta mise, puis une couleur.</p>
+    </div>
+    <div class="card stack casino allin">
+      <h3>Quitte ou double : ton empire</h3>
+      <p class="muted">Tu mises absolument tout : argent, entreprises, actions, articles, concession… et ton prestige. Une chance sur deux (presque) de doubler ton patrimoine. Sinon, tu repars de zéro, sans prestige.</p>
+      <button class="btn red" id="allinBtn">Tout miser</button>
     </div>
   </section>
 
@@ -1722,6 +1758,116 @@ const EN_DICT = {
 "Pendant ton absence ({}), tes entreprises ont rapporté": "While you were away ({}), your companies earned",
 "Hors-ligne, tes entreprises tournent au ralenti : 50 % des bénéfices, 3 heures maximum.": "Offline, your companies run at half speed: 50% of profits, 3 hours max.",
 "Langue": "Language",
+"Engins militaires": "Military vehicles",
+"Timbres rares": "Rare stamps",
+"Insolite": "Oddities",
+"Arsenal": "Arsenal",
+"Philatélie": "Philately",
+"Cabinet de curiosités": "Cabinet of curiosities",
+"Jeep MB (1941)": "MB Jeep (1941)",
+"Char FT (1917)": "FT tank (1917)",
+"Sous-marin": "Submarine",
+"Classe Foxtrot": "Foxtrot class",
+"Royaume-Uni, 1840": "United Kingdom, 1840",
+"Suisse, 1845": "Switzerland, 1845",
+"Colombe de Bâle": "Basel Dove",
+"États-Unis, 1918": "United States, 1918",
+"Jenny inversé": "Inverted Jenny",
+"Suède, 1855": "Sweden, 1855",
+"Treskilling jaune": "Treskilling Yellow",
+"Île Maurice, 1847": "Mauritius, 1847",
+"« Post Office » bleu": "Blue “Post Office”",
+"Guyane britannique, 1856": "British Guiana, 1856",
+"Enchère eBay, 2004": "eBay auction, 2004",
+"Le croque-monsieur à l'effigie de la Vierge Marie": "The grilled cheese with the Virgin Mary on it",
+"Internet, 2005": "Internet, 2005",
+"Un pixel de la Million Dollar Homepage": "One pixel of the Million Dollar Homepage",
+"Bail de 99 ans": "99-year lease",
+"Un nuage (cumulus, modèle standard)": "A cloud (cumulus, standard model)",
+"NFT, revendu à perte": "NFT, resold at a loss",
+"Le tout premier tweet": "The very first tweet",
+"Art contemporain": "Contemporary art",
+"Une banane scotchée au mur": "A banana duct-taped to a wall",
+"Joaillerie impériale": "Imperial jewelry",
+"Un œuf de Fabergé": "A Fabergé egg",
+"Paléontologie": "Paleontology",
+"Le squelette de T. rex « Stan »": "“Stan” the T. rex skeleton",
+"Mai 2010": "May 2010",
+"La pizza payée 10 000 bitcoins": "The pizza paid for with 10,000 bitcoins",
+"À démonter soi-même": "Some assembly required",
+"La tour Eiffel": "The Eiffel Tower",
+"Tout déplier": "Expand all",
+"Tout replier": "Collapse all",
+"Vacances": "Vacations",
+"Pars te détendre : ta notoriété grimpe, mais les entreprises sans gérant risquent de partir en vrille.": "Take a break: your fame goes up, but companies without a manager may go off the rails.",
+"Week-end aux Seychelles": "Weekend in the Seychelles",
+"Une semaine à Bali": "A week in Bali",
+"Un mois en yacht à Saint-Tropez": "A month on a yacht in Saint-Tropez",
+"Tour du monde en jet privé": "Round-the-world trip by private jet",
+"{} jours · +{} de notoriété": "{} days · +{} fame",
+"Partir": "Go",
+"{} entreprises n'ont pas de gérant : attention aux mauvaises surprises.": "{} companies have no manager: expect some nasty surprises.",
+"1 entreprise n'a pas de gérant : attention aux mauvaises surprises.": "1 company has no manager: expect some nasty surprises.",
+"{} : rien à signaler, {} a tout géré.": "{}: all quiet, {} handled everything.",
+"{} : par miracle, tout s'est bien passé.": "{}: miraculously, everything went fine.",
+"{} à {} : {} employés ont démissionné.": "{} in {}: {} employees quit.",
+"{} à {} : dégât des eaux, la succursale redescend au niveau {}.": "{} in {}: water damage, the branch drops to level {}.",
+"{} à {} : la caisse a été vidée, −{}.": "{} in {}: the till was emptied, −{}.",
+"{} à {} : un client furieux poste une vidéo, −1 de notoriété.": "{} in {}: an angry customer posts a video, −1 fame.",
+"{} : ton chef des ventes a tenu la boutique.": "{}: your sales manager kept the shop running.",
+"{} : des clients sont repartis sans réponse, −{} étoile.": "{}: customers left unanswered, −{} star.",
+"De retour de vacances": "Back from vacation",
+"{} :": "{}:",
+"+{} de notoriété": "+{} fame",
+". Pendant ton absence, voici ce qui s'est passé :": ". While you were away, here's what happened:",
+"Tu n'as encore aucune entreprise : rien à signaler.": "You don't have any companies yet: nothing to report.",
+"Casino": "Casino",
+"La maison gagne toujours… presque.": "The house always wins… almost.",
+"Roulette": "Roulette",
+"Mise en euros": "Bet in euros",
+"Tapis": "All in",
+"Rouge": "Red",
+"Noir": "Black",
+"Zéro": "Zero",
+"Choisis ta mise, puis une couleur.": "Pick your bet, then a color.",
+"Quitte ou double : ton empire": "Double or nothing: your empire",
+"Tu mises absolument tout : argent, entreprises, actions, articles, concession… et ton prestige. Une chance sur deux (presque) de doubler ton patrimoine. Sinon, tu repars de zéro, sans prestige.": "You bet absolutely everything: money, companies, shares, items, dealership… and your prestige. A (nearly) fifty-fifty chance to double your net worth. Otherwise, you start from scratch, with no prestige.",
+"Tout miser": "Bet it all",
+"Indique une mise.": "Enter a bet.",
+"Tu ne peux pas miser plus que ton solde.": "You can't bet more than your balance.",
+"{} ! Tu gagnes {}.": "{}! You win {}.",
+"{}… perdu, {} partent à la banque.": "{}… lost, {} goes to the house.",
+"Ton empire est encore trop petit pour ce genre de pari.": "Your empire is still too small for this kind of bet.",
+"Tout miser ?": "Bet it all?",
+"Tu mets en jeu tout ton empire :": "You're putting your whole empire on the line:",
+"de patrimoine": "net worth",
+"et tes": "and your",
+"Si tu gagnes (45 % de chances), tu reçois": "If you win (45% chance), you get",
+"en plus. Si tu perds, tu repars de zéro, sans prestige. Seuls tes succès et tes statistiques sont conservés.": "extra. If you lose, you start from scratch, with no prestige. Only your achievements and statistics are kept.",
+"Non, j'ai peur": "No, I'm scared",
+"Je suis sûr": "I'm sure",
+"Dernière chance": "Last chance",
+"Vraiment ? Il n'y aura aucun retour en arrière.": "Really? There's no going back.",
+"Lancer": "Spin",
+"JACKPOT !": "JACKPOT!",
+"La bille s'arrête du bon côté : tu gagnes": "The ball lands on the right side: you win",
+". Ton patrimoine vient de doubler.": ". Your net worth just doubled.",
+"Tout est perdu": "Everything is lost",
+"Le croupier ramasse tout : tes entreprises, ton argent, tes articles et ton prestige. Il ne te reste que tes souvenirs… et tes succès.": "The croupier takes it all: your companies, your money, your items and your prestige. All you have left are memories… and your achievements.",
+"Que faire de {} ?": "What to do with {}?",
+"Tu peux le": "You can",
+"licencier": "fire him",
+"(indemnités : {}), ou le": "(severance: {}), or",
+"muter": "transfer him",
+"dans une autre de tes entreprises sans gérant : c'est moins cher que de le licencier puis d'embaucher quelqu'un d'autre.": "to another of your companies without a manager: it's cheaper than firing him and hiring someone else.",
+"Aucune autre entreprise sans gérant pour une mutation.": "No other company without a manager to transfer him to.",
+"Licencier · {}": "Fire · {}",
+"{} a été licencié.": "{} has been fired.",
+"{} est muté chez {}.": "{} is transferred to {}.",
+"Empire : {}": "Empire: {}",
+"Une société « {} » avec 5 succursales au maximum d'employés.": "A “{}” company with 5 branches at max employees.",
+"Chaîne · étape {} / {}": "Chain · step {} / {}",
+"{} points de prestige": "{} prestige points",
 "Invite tes amis": "Invite your friends",
 "Pour chaque ami qui crée un compte avec ton lien, tu gagnes": "For every friend who creates an account with your link, you get",
 "et": "and",
@@ -1995,6 +2141,9 @@ const ART_CATS = [
   {name:'Bateaux',               color:'#4f6b48'},
   {name:'Prestige',              color:'#77864a'},
   {name:'Cosmos',                color:'#2a3f7a'},
+  {name:'Engins militaires',     color:'#5c6232'},
+  {name:'Timbres rares',         color:'#7a2a3a'},
+  {name:'Insolite',              color:'#6a4a7a'},
 ];
 const ART = [
   // Animaux
@@ -2074,6 +2223,32 @@ const ART = [
   // Cosmos
   {id:'co1', cat:'Cosmos', type:'planet', brand:'Système solaire', model:'Mars',      price:5e13, pr:150, wiki:'Mars'},
   {id:'co2', cat:'Cosmos', type:'sun',    brand:'Système solaire', model:'Le Soleil', price:1e15, pr:300, wiki:'Sun'},
+  // Engins militaires
+  {id:'mi1', cat:'Engins militaires', type:'suv',     brand:'Willys', model:'Jeep MB (1941)',              price:4e4,   pr:1,  paint:'#5c6232', wiki:'Willys_MB'},
+  {id:'mi2', cat:'Engins militaires', type:'tank',    brand:'Renault', model:'Char FT (1917)',             price:8e5,   pr:5,  paint:'#6b6a4a', wiki:'Renault_FT'},
+  {id:'mi3', cat:'Engins militaires', type:'warbird', brand:'Supermarine', model:'Spitfire',               price:3e6,   pr:7,  paint:'#5a6a4a', wiki:'Supermarine_Spitfire'},
+  {id:'mi4', cat:'Engins militaires', type:'tank',    brand:'M4', model:'Sherman',                         price:3.5e6, pr:7,  paint:'#5c6232', wiki:'M4_Sherman'},
+  {id:'mi5', cat:'Engins militaires', type:'warbird', brand:'Messerschmitt', model:'Bf 109',               price:5e6,   pr:8,  paint:'#7a7f6a', wiki:'Messerschmitt_Bf_109'},
+  {id:'mi6', cat:'Engins militaires', type:'warbird', brand:'North American', model:'P-51 Mustang',        price:6e6,   pr:8,  paint:'#a8a8a0', wiki:'North_American_P-51_Mustang'},
+  {id:'mi7', cat:'Engins militaires', type:'tank',    brand:'Panzerkampfwagen VI', model:'Tiger',          price:1.5e7, pr:12, paint:'#8a7a52', wiki:'Tiger_I'},
+  {id:'mi8', cat:'Engins militaires', type:'sub',     brand:'Sous-marin', model:'Classe Foxtrot',          price:4e7,   pr:14, paint:'#3a4a4a', wiki:'Foxtrot-class_submarine'},
+  // Timbres rares
+  {id:'ti1', cat:'Timbres rares', type:'stamp', brand:'Royaume-Uni, 1840', model:'Penny Black',            price:5000,  pr:1,  paint:'#1b1b1b', wiki:'Penny_Black'},
+  {id:'ti2', cat:'Timbres rares', type:'stamp', brand:'Suisse, 1845', model:'Colombe de Bâle',             price:3e4,   pr:2,  paint:'#3d5a8a', wiki:'Basel_Dove'},
+  {id:'ti3', cat:'Timbres rares', type:'stamp', brand:'États-Unis, 1918', model:'Jenny inversé',           price:2e6,   pr:7,  paint:'#8c2a33', wiki:'Inverted_Jenny'},
+  {id:'ti4', cat:'Timbres rares', type:'stamp', brand:'Suède, 1855', model:'Treskilling jaune',            price:2.5e6, pr:7,  paint:'#c9a227', wiki:'Treskilling_Yellow'},
+  {id:'ti5', cat:'Timbres rares', type:'stamp', brand:'Île Maurice, 1847', model:'« Post Office » bleu',  price:4e6,   pr:8,  paint:'#2a4f8a', wiki:'Mauritius_"Post_Office"_stamps'},
+  {id:'ti6', cat:'Timbres rares', type:'stamp', brand:'Guyane britannique, 1856', model:'One-Cent Magenta', price:9e6, pr:10, paint:'#9a2a5a', wiki:'British_Guiana_1c_magenta'},
+  // Insolite
+  {id:'in1', cat:'Insolite', type:'odd', brand:'Enchère eBay, 2004', model:'Le croque-monsieur à l\'effigie de la Vierge Marie', price:2.8e4, pr:1, paint:'#c9a227', wiki:'Virgin_Mary_grilled_cheese'},
+  {id:'in2', cat:'Insolite', type:'odd', brand:'Internet, 2005', model:'Un pixel de la Million Dollar Homepage', price:3.5e4, pr:1, paint:'#3d5a8a', wiki:'The_Million_Dollar_Homepage'},
+  {id:'in3', cat:'Insolite', type:'cloud', brand:'Bail de 99 ans', model:'Un nuage (cumulus, modèle standard)', price:2e5, pr:2, paint:'#efe6d8', wiki:'Cumulus_cloud'},
+  {id:'in4', cat:'Insolite', type:'odd', brand:'NFT, revendu à perte', model:'Le tout premier tweet', price:2.9e6, pr:0, paint:'#4a8ab0', wiki:''},
+  {id:'in5', cat:'Insolite', type:'odd', brand:'Art contemporain', model:'Une banane scotchée au mur', price:6.2e6, pr:8, paint:'#d8b830', wiki:'Comedian_(artwork)'},
+  {id:'in6', cat:'Insolite', type:'odd', brand:'Joaillerie impériale', model:'Un œuf de Fabergé', price:3e7, pr:13, paint:'#2f6a5a', wiki:'Fabergé_egg'},
+  {id:'in7', cat:'Insolite', type:'odd', brand:'Paléontologie', model:'Le squelette de T. rex « Stan »', price:3.2e7, pr:13, paint:'#c7b89a', wiki:'Stan_(dinosaur)'},
+  {id:'in8', cat:'Insolite', type:'odd', brand:'Mai 2010', model:'La pizza payée 10 000 bitcoins', price:9e8, pr:40, paint:'#c0602a', wiki:'Pizza'},
+  {id:'in9', cat:'Insolite', type:'tower', brand:'À démonter soi-même', model:'La tour Eiffel', price:5e11, pr:110, paint:'#7a5a3a', wiki:'Eiffel_Tower'},
 ];
 const WIKI_PAGES = {
   w3:'Omega_Speedmaster', w2:'Rolex_Submariner', w4:'Audemars_Piguet_Royal_Oak',
@@ -2170,6 +2345,18 @@ function illu(x){
     case 'horse': return SH + `<path d="M44 92 L52 50 Q56 34 70 26 L84 10 L88 22 Q104 26 112 44 L120 60 Q122 68 114 70 L106 66 Q98 62 92 56 L86 60 Q84 74 88 92 Z" fill="#6b3a22"/>
       <path d="M84 10 L74 22 Q64 30 60 44 L56 60 Q62 46 70 38 Q80 30 88 22 Z" fill="#2a1a12"/><circle cx="96" cy="34" r="2.6" fill="#1b1410"/>
       <ellipse cx="113" cy="64" rx="3" ry="2" fill="#1b1410"/><path d="M86 12 L82 4 L90 10 Z" fill="#6b3a22"/><path d="M90 40 Q100 44 106 52" stroke="#4a2814" stroke-width="2" fill="none" opacity=".7"/>`;
+    case 'tank': return SH + `<rect x="22" y="58" width="116" height="16" rx="8" fill="#2a2a22"/>${[34,52,70,88,106,124].map(x=>`<circle cx="${x}" cy="66" r="5.5" fill="#4a4a3a"/>`).join('')}
+      <path d="M26 58 L36 44 L126 44 L136 58 Z" fill="${p}"/><rect x="58" y="30" width="44" height="16" rx="5" fill="${p}"/><rect x="100" y="34" width="44" height="5" rx="2" fill="#3a3a2e"/>`;
+    case 'warbird': return `<path d="M24 54 Q30 46 50 46 L118 46 Q136 48 140 52 Q136 56 118 58 L50 58 Q30 58 24 54 Z" fill="${p}"/>
+      <path d="M70 50 L84 18 L94 18 L90 50 Z M70 54 L84 86 L94 86 L90 54 Z" fill="${p}" opacity=".9"/><path d="M28 52 L20 38 L28 38 L36 50 Z" fill="${p}"/>
+      <ellipse cx="104" cy="49" rx="9" ry="4" fill="#9fb7c9" opacity=".8"/><rect x="138" y="40" width="3" height="24" rx="1.5" fill="#2a2a22"/>`;
+    case 'sub': return `<rect x="0" y="62" width="160" height="38" fill="#1e3a4a" opacity=".6"/><path d="M14 60 Q16 48 40 48 L128 48 Q150 50 150 60 Q150 70 128 72 L40 72 Q16 72 14 60 Z" fill="${p}"/>
+      <rect x="70" y="34" width="24" height="16" rx="4" fill="${p}"/><rect x="80" y="22" width="3" height="14" fill="#2a2a22"/>`;
+    case 'stamp': return `<rect x="46" y="12" width="68" height="78" rx="3" fill="#efe6d8"/><rect x="46" y="12" width="68" height="78" fill="none" stroke="#141714" stroke-width="3" stroke-dasharray="3 3"/>
+      <rect x="54" y="20" width="52" height="56" fill="${p}"/><circle cx="80" cy="44" r="13" fill="#efe6d8" opacity=".85"/><rect x="58" y="80" width="44" height="5" rx="2" fill="${p}" opacity=".7"/>`;
+    case 'cloud': return `<g fill="${p}"><circle cx="58" cy="56" r="18"/><circle cx="80" cy="44" r="24"/><circle cx="104" cy="56" r="18"/><rect x="58" y="56" width="46" height="18"/></g>`;
+    case 'odd': return `<rect x="50" y="40" width="60" height="44" rx="6" fill="${p}"/><rect x="44" y="30" width="72" height="14" rx="4" fill="${p}"/><rect x="76" y="30" width="8" height="54" fill="#efe6d8" opacity=".8"/>
+      <path d="M80 30 Q66 12 60 22 Q58 30 80 30 Q102 30 100 22 Q94 12 80 30 Z" fill="none" stroke="#efe6d8" stroke-width="3"/>`;
     case 'station': return `${[[20,18],[140,26],[30,80],[132,84],[100,12],[60,90]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.4" fill="#efe6d8"/>`).join('')}
       <rect x="8" y="42" width="44" height="16" fill="#3d5a8a"/><rect x="108" y="42" width="44" height="16" fill="#3d5a8a"/>
       <g stroke="#1b2a3a" stroke-width="1">${[18,28,38,118,128,138].map(x=>`<line x1="${x}" y1="42" x2="${x}" y2="58"/>`).join('')}</g>
@@ -2882,10 +3069,22 @@ $('#coList').addEventListener('click', e => {
   if (act === 'mgr') return pickAvatar(co, true);
   if (act === 'mgrlook') return pickAvatar(co, false);
   if (act === 'fire'){
-    modal(`Renvoyer ${AVATARS[co.mgr.av].name} ?`, '<p>Tu devras de nouveau tout gérer à la main. Les frais d\'embauche ne sont pas remboursés.</p>', [
+    const nm = AVATARS[co.mgr.av].name, fireFee = Math.round(mgrFee(co) * 0.5);
+    const free = S.companies.filter(c => c !== co && !c.mgr);
+    modal(`Que faire de ${nm} ?`, `<p>Tu peux le <b>licencier</b> (indemnités : ${money(fireFee)}), ou le <b>muter</b> dans une autre de tes entreprises sans gérant : c'est moins cher que de le licencier puis d'embaucher quelqu'un d'autre.</p>
+      ${free.length ? `<div class="stack" style="margin-top:10px;gap:8px">${free.map(c => `<button type="button" class="btn soft" data-mut="${c.id}" style="display:flex;justify-content:space-between;gap:10px"><span data-noi18n>${esc(c.name)}</span><span>${money(Math.round(mgrFee(c) * 0.2))}</span></button>`).join('')}</div>`
+        : `<p class="muted" style="margin-top:8px">Aucune autre entreprise sans gérant pour une mutation.</p>`}`, [
       {label:'Annuler', cls:'soft'},
-      {label:'Renvoyer', cls:'red', action: () => { delete co.mgr; refresh(); }},
+      {label:`Licencier · ${money(fireFee)}`, cls:'red', action: () => {
+        if (S.cash < fireFee) return toast('Pas assez d\'argent.');
+        S.cash -= fireFee; delete co.mgr; coSig = ''; refresh(); toast(`${nm} a été licencié.`); }},
     ]);
+    document.querySelectorAll('#modal [data-mut]').forEach(b => b.addEventListener('click', () => {
+      const t = S.companies.find(c => c.id === b.dataset.mut), fee = Math.round(mgrFee(t) * 0.2);
+      if (!t || t.mgr) return; if (S.cash < fee) return toast('Pas assez d\'argent.');
+      S.cash -= fee; t.mgr = co.mgr; delete co.mgr; coSig = ''; closeModal(); refresh(); SFX.buy();
+      toast(`${nm} est muté chez ${t.name}.`);
+    }));
     return;
   }
   if (act === 'up' || act === 'emp'){
@@ -3664,8 +3863,19 @@ $('#artAuction').addEventListener('click', e => {
   a.bid = nb; a.leader = 'you'; if (a.until - Date.now() < 5000) a.until = Date.now() + 6000; refresh();
 });
 
+const ART_FOLD_KEY = 'dirtyMoney_artFold';
+let artFold = new Set(); try { artFold = new Set(JSON.parse(localStorage.getItem(ART_FOLD_KEY)) || []); } catch(e){}
+const saveFold = () => { try { localStorage.setItem(ART_FOLD_KEY, JSON.stringify([...artFold])); } catch(e){} };
+$('#artList').addEventListener('click', e => {
+  if (e.target.closest('#artFoldAll')){ if (artFold.size) artFold.clear(); else ART_CATS.forEach(c => artFold.add(c.name)); saveFold(); return buildArticles(); }
+  const h = e.target.closest('.art-cat'); if (!h) return;
+  const c = h.dataset.cat; artFold.has(c) ? artFold.delete(c) : artFold.add(c); saveFold();
+  h.classList.toggle('folded', artFold.has(c)); h.nextElementSibling.hidden = artFold.has(c);
+  $('#artFoldAll').textContent = artFold.size ? T('Tout déplier') : T('Tout replier');
+});
 function buildArticles(){
-  $('#artList').innerHTML = ART_CATS.map(cat => `<div class="section-head"><h2 style="display:flex;align-items:center;gap:10px"><span class="cat-dot" style="background:${cat.color}"></span>${cat.name}</h2></div><div class="grid">` +
+  const own = c => ART.filter(x => x.cat === c && S.lux[x.id]).length, tot = c => ART.filter(x => x.cat === c).length;
+  $('#artList').innerHTML = `<div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn soft" id="artFoldAll" style="padding:8px 14px;font-size:.8rem">${artFold.size ? 'Tout déplier' : 'Tout replier'}</button></div>` + ART_CATS.map(cat => `<button type="button" class="section-head art-cat${artFold.has(cat.name) ? ' folded' : ''}" data-cat="${cat.name}"><h2 style="display:flex;align-items:center;gap:10px"><span class="cat-dot" style="background:${cat.color}"></span>${cat.name}</h2><span class="art-cat-r"><span class="muted">${own(cat.name)} / ${tot(cat.name)}</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button><div class="grid art-grid"${artFold.has(cat.name) ? ' hidden' : ''}>` +
     ART.filter(x => x.cat === cat.name).map(x => `<div class="card art" id="art-${x.id}">
       <div class="art-visual${x.type === 'painting' ? ' painting' : ''}" style="background:radial-gradient(120% 90% at 50% 30%, ${cat.color}aa, #141714 80%)">
         <svg viewBox="0 0 160 100" aria-hidden="true">${illu(x)}</svg>
@@ -3809,10 +4019,17 @@ const ACH = [
   {id:'nw1bn',    name:'Légende',               desc:'Atteins 1 Bn € de patrimoine.',                  reward:5e10,  prog:() => [wealth(), 1e12]},
   {id:'allart',   name:'Musée privé',           desc:'Possède tous les articles.',                     reward:1e12,  prog:() => [ART.filter(x => S.lux[x.id]).length, ART.length]},
 ];
+// Objectifs en chaîne : une société de chaque secteur avec 5 succursales au maximum d'employés
+const CHAIN_N = 5;
+const fullBranches = id => Math.max(0, ...S.companies.filter(c => c.sector === id).map(c => c.branches.filter(b => b.e >= empMax(c)).length));
+BIZ.forEach((b, i) => ACH.push({id:'ch_' + b.id, chain:true, req: i ? 'ch_' + BIZ[i - 1].id : null, name:`Empire : ${b.name}`,
+  desc:`Une société « ${b.name} » avec ${CHAIN_N} succursales au maximum d'employés.`, reward: Math.round(b.cost * 40 / 10) * 10,
+  prog:() => [fullBranches(b.id), CHAIN_N]}));
+const achVis = a => !a.req || !!S.ach[a.req];
 const achMet = a => a.check ? a.check() : (p => p[0] >= p[1])(a.prog());
 function achTick(){
   const fresh = [];
-  ACH.forEach(a => { if (!S.ach[a.id] && achMet(a)){ S.ach[a.id] = 'done'; fresh.push(a); } });
+  ACH.forEach(a => { if (!S.ach[a.id] && achVis(a) && achMet(a)){ S.ach[a.id] = 'done'; fresh.push(a); } });
   const changed = fresh.length > 0;
   if (fresh.length) SFX.chime();
   if (fresh.length === 1) toast(`Objectif atteint : ${fresh[0].name} ! Récupère ta récompense dans l'onglet Objectifs.`);
@@ -3826,13 +4043,13 @@ function buildAch(){
   achSig = ACH.map(a => S.ach[a.id] || '-').join('');
   const order = a => S.ach[a.id] === 'done' ? 0 : !S.ach[a.id] ? 1 : 2;
   const pct = a => { if (S.ach[a.id] || !a.prog) return 0; const [c, t] = a.prog(); return Math.max(0, Math.min(1, c / t)); };
-  const list = [...ACH].sort((a,b) => order(a) - order(b) || pct(b) - pct(a) || ACH.indexOf(a) - ACH.indexOf(b));
+  const list = ACH.filter(achVis).sort((a,b) => order(a) - order(b) || (b.chain && !S.ach[b.id] ? 1 : 0) - (a.chain && !S.ach[a.id] ? 1 : 0) || pct(b) - pct(a) || ACH.indexOf(a) - ACH.indexOf(b));
   const n = ACH.filter(a => S.ach[a.id]).length;
   $('#achCount').textContent = `${n} / ${ACH.length} débloqués`;
   const pa = ACH.filter(a => S.ach[a.id] === 'done').length; $('#achPend').textContent = pa ? `${pa} à récupérer` : '';
   $('#achList').innerHTML = list.map(a => { const st = S.ach[a.id];
     return `<div class="card ach ${st ? 'ach-' + st : ''}" id="ach-${a.id}">
-      <div class="ach-top"><div><h3>${a.name}</h3><p class="muted">${a.desc}</p></div>
+      <div class="ach-top"><div>${a.chain ? `<span class="tag" style="background:rgba(160,98,60,.25);margin-bottom:6px;display:inline-block">Chaîne · étape ${BIZ.findIndex(b => 'ch_' + b.id === a.id) + 1} / ${BIZ.length}</span>` : ''}<h3>${a.name}</h3><p class="muted">${a.desc}</p></div>
         <span class="tag" style="background:rgba(169,187,108,.16);color:var(--up);white-space:nowrap">+${money(a.reward)}</span></div>
       ${st === 'done' ? `<button class="btn green" data-ach="${a.id}" style="width:100%;margin-top:12px">Récupérer ${money(a.reward)}</button>`
         : st === 'claimed' ? `<div class="ach-ok">Obtenu</div>`
@@ -3842,7 +4059,7 @@ function buildAch(){
 }
 function updateAch(){
   if (ACH.map(a => S.ach[a.id] || '-').join('') !== achSig) return buildAch();
-  ACH.forEach(a => { if (S.ach[a.id] || !a.prog) return;
+  ACH.forEach(a => { if (S.ach[a.id] || !a.prog || !achVis(a)) return;
     const card = document.getElementById('ach-' + a.id); if (!card) return;
     const [c, t] = a.prog(), pct = Math.max(0, Math.min(1, c / t));
     card.querySelector('[data-f=bar]').style.width = (pct*100).toFixed(1) + '%';
@@ -3867,6 +4084,9 @@ const SHOWCASE = [
   {name:'Prestige',   cats:['Prestige']},
   {name:'Animaux',    cats:['Animaux']},
   {name:'Cosmos',     cats:['Cosmos']},
+  {name:'Arsenal',    cats:['Engins militaires']},
+  {name:'Philatélie', cats:['Timbres rares']},
+  {name:'Cabinet de curiosités', cats:['Insolite']},
 ];
 let showSig = null;
 function buildShowcase(){
@@ -4258,6 +4478,7 @@ $('#tabs').addEventListener('click', e => {
   if (currentTab === 'profil') renderRef();
   if (currentTab === 'profil') $('#nameInput').value = S.name === 'Mon Empire' ? T(S.name) : S.name;
   if (currentTab === 'objectifs'){ buildWeek(); buildAch(); lbLoad(false); }
+  if (currentTab === 'gains') buildTrips();
   if (currentTab === 'concession') buildDealer();
   window.scrollTo({top:0}); refresh();
 });
@@ -4716,9 +4937,105 @@ if (cloud.ok){
   document.addEventListener('visibilitychange', () => { if (document.hidden) cloudUpload(false); });
 }
 
+
+/* ================= VACANCES ================= */
+const TRIPS = [
+  {id:'sey',  name:'Week-end aux Seychelles',      days:2,  fame:3,  min:5000,  hrs:0.5},
+  {id:'bali', name:'Une semaine à Bali',            days:7,  fame:6,  min:3e4,   hrs:1.5},
+  {id:'st',   name:'Un mois en yacht à Saint-Tropez', days:30, fame:12, min:3e5,  hrs:5},
+  {id:'tour', name:'Tour du monde en jet privé',    days:90, fame:20, min:5e6,   hrs:12},
+];
+const tripCost = t => Math.max(t.min, ips() * t.hrs * 3600);
+function buildTrips(){
+  const box = $('#tripList'); if (!box) return;
+  const noMgr = S.companies.filter(c => !c.mgr).length;
+  box.innerHTML = TRIPS.map(t => `<div class="card trip"><h3>${t.name}</h3><span class="muted">${t.days} jours · +${t.fame} de notoriété</span>
+    <div class="row"><b>${money(tripCost(t))}</b><button class="btn" data-trip="${t.id}" ${S.cash < tripCost(t) ? 'disabled' : ''}>Partir</button></div></div>`).join('')
+    + (noMgr ? `<p class="muted" style="grid-column:1/-1">${noMgr > 1 ? `${noMgr} entreprises n'ont pas de gérant` : '1 entreprise n\'a pas de gérant'} : attention aux mauvaises surprises.</p>` : '');
+}
+function goTrip(t){
+  const cost = tripCost(t); if (S.cash < cost) return toast('Pas assez d\'argent.');
+  S.cash -= cost; fameAdd(t.fame);
+  const out = [], pick = a => a[Math.floor(Math.random() * a.length)];
+  S.companies.forEach(co => {
+    if (co.mgr && !co.mgr.paused){ out.push({ok:true, t:`${co.name} : rien à signaler, ${AVATARS[co.mgr.av].name} a tout géré.`}); return; }
+    let n = 0; for (let d = 0; d < t.days && n < 5; d++) if (Math.random() < 0.3) n++;
+    if (!n){ out.push({ok:true, t:`${co.name} : par miracle, tout s'est bien passé.`}); return; }
+    for (let k = 0; k < n; k++){
+      const br = pick(co.branches), city = cityById(br.city).name, r = Math.random();
+      if (r < 0.35 && br.e > 0){ const lost = Math.max(1, Math.round(br.e * (0.2 + Math.random() * 0.3))); br.e -= lost; out.push({t:`${co.name} à ${city} : ${lost} employés ont démissionné.`}); }
+      else if (r < 0.6 && br.l > 0){ br.l--; out.push({t:`${co.name} à ${city} : dégât des eaux, la succursale redescend au niveau ${br.l}.`}); }
+      else if (r < 0.85){ const loss = Math.min(Math.max(0, S.cash) * 0.1, Math.max(50, coProfit(co) * 1800)); S.cash -= loss; out.push({t:`${co.name} à ${city} : la caisse a été vidée, −${money(loss)}.`}); }
+      else { fameAdd(-1); out.push({t:`${co.name} à ${city} : un client furieux poste une vidéo, −1 de notoriété.`}); }
+    }
+  });
+  if (S.dealer && !S.dealer.closed){
+    if (S.dealer.mgr && !S.dealer.mgr.paused) out.push({ok:true, t:`${S.dealer.name} : ton chef des ventes a tenu la boutique.`});
+    else { const l = Math.min(1.5, 0.05 * t.days); repAdd(-l); out.push({t:`${S.dealer.name} : des clients sont repartis sans réponse, −${num(l, 1)} étoile.`}); }
+  }
+  coSig = ''; save(); refresh(); buildTrips();
+  modal('De retour de vacances', `<p>${t.name} : <b style="color:var(--up)">+${t.fame} de notoriété</b>. Pendant ton absence, voici ce qui s'est passé :</p>
+    <div class="vac-list">${out.length ? out.map(o => `<div class="${o.ok ? 'ok' : 'bad'}">${esc(o.t)}</div>`).join('') : '<div class="ok">Tu n\'as encore aucune entreprise : rien à signaler.</div>'}</div>`);
+  if (out.some(o => !o.ok)) SFX.bad(); else SFX.chime();
+}
+$('#tripList').addEventListener('click', e => { const b = e.target.closest('[data-trip]'); if (b) goTrip(TRIPS.find(t => t.id === b.dataset.trip)); });
+setInterval(() => { if (currentTab === 'gains') buildTrips(); }, 2000);
+
+/* ================= CASINO ================= */
+const RED = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+let rlBusy = false;
+const rlParse = () => { const v = ($('#rlAmt').value || '').replace(/[^\d]/g, ''); return v ? Math.floor(+v) : 0; };
+document.querySelectorAll('[data-rl]').forEach(b => b.addEventListener('click', () => { $('#rlAmt').value = Math.floor(Math.max(0, S.cash) * +b.dataset.rl); }));
+document.querySelectorAll('[data-bet]').forEach(b => b.addEventListener('click', () => {
+  if (rlBusy) return;
+  const amt = rlParse(), bet = b.dataset.bet;
+  if (amt < 1) return toast('Indique une mise.');
+  if (amt > S.cash) return toast('Tu ne peux pas miser plus que ton solde.');
+  rlBusy = true; S.cash -= amt; refresh(); SFX.buy();
+  const ball = $('#rlBall'), res = Math.floor(Math.random() * 37); let k = 0;
+  const color = n => n === 0 ? 'green' : RED.has(n) ? 'red' : 'black';
+  const spin = setInterval(() => { const n = Math.floor(Math.random() * 37); ball.textContent = n; ball.className = 'rl-ball ' + color(n); SFX.tick(); if (++k > 16){ clearInterval(spin); finish(); } }, 80);
+  function finish(){
+    ball.textContent = res; ball.className = 'rl-ball ' + color(res);
+    const win = (bet === 'zero' && res === 0) || (bet === color(res) && res !== 0);
+    const gain = win ? amt * (bet === 'zero' ? 36 : 2) : 0;
+    S.cash += gain; if (win) S.earned += gain - amt;
+    S.stats.casino = (S.stats.casino || 0) + gain - amt;
+    $('#rlMsg').textContent = win ? `${res} ! Tu gagnes ${money(gain)}.` : `${res}… perdu, ${money(amt)} partent à la banque.`;
+    win ? SFX.coin() : SFX.bad(); rlBusy = false; save(); refresh();
+  }
+}));
+$('#allinBtn').addEventListener('click', () => {
+  const w = wealth();
+  if (w < 1000) return toast('Ton empire est encore trop petit pour ce genre de pari.');
+  modal('Tout miser ?', `<p>Tu mets en jeu tout ton empire : <b>${money(w)}</b> de patrimoine${S.prestige.pts ? ` et tes <b>${S.prestige.pts} points de prestige</b>` : ''}.</p>
+    <p style="margin-top:8px">Si tu gagnes (45 % de chances), tu reçois <b style="color:var(--up)">${money(w)}</b> en plus. Si tu perds, tu repars de zéro, sans prestige. Seuls tes succès et tes statistiques sont conservés.</p>`, [
+    {label:'Non, j\'ai peur', cls:'soft'},
+    {label:'Je suis sûr', cls:'red', action: () => setTimeout(() => modal('Dernière chance', '<p>Vraiment ? Il n\'y aura aucun retour en arrière.</p>', [
+      {label:'Annuler', cls:'soft'},
+      {label:'Lancer', cls:'red', action: () => setTimeout(allIn, 50)}]), 50)},
+  ]);
+});
+function allIn(){
+  const w = wealth(), win = Math.random() < 0.45;
+  SFX.tick();
+  if (win){
+    S.cash += w; S.earned += w; save(); refresh(); SFX.fanfare();
+    modal('JACKPOT !', `<p>La bille s'arrête du bon côté : tu gagnes <b style="color:var(--up)">${money(w)}</b>. Ton patrimoine vient de doubler.</p>`);
+  } else {
+    SFX.bad();
+    modal('Tout est perdu', `<p>Le croupier ramasse tout : tes entreprises, ton argent, tes articles et ton prestige. Il ne te reste que tes souvenirs… et tes succès.</p>`, [
+      {label:'Recommencer', cls:'red', action: () => {
+        Object.assign(S, {dealer:null, cash:0, clickLvl:0, companies:[], effects:[], stk:{}, lux:{}, shady:{}, dirty:0, heat:0, cops:0, lcap:0, nextEvent:0, hist:[], artAuc:null});
+        S.prestige = {pts:0, count:0};
+        save(); noSave = true; location.reload();
+      }}]);
+  }
+}
+
 /* ================= DÉMARRAGE ================= */
 ensureWeek(); recordHist();
-renderAccount(); renderMe(); renderRef();
+renderAccount(); renderMe(); renderRef(); buildTrips();
 buildStocks(); buildCompanies(); buildShady(); buildAch(); buildWeek(); buildArticles(); renderNews(); renderLog(); refresh();
 (function offline(){
   if (S.migrated){
