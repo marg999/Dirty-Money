@@ -108,6 +108,29 @@ h3{font-size:.98rem;font-weight:800}
 .lb-w{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
 .lb-gap{height:1px;background:var(--border);margin:6px 10px}
 .lb-empty{padding:14px 10px}
+.mentor{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:85;width:min(94vw,460px);display:flex;gap:12px;align-items:flex-start;
+  background:var(--surface-solid);border:1px solid rgba(160,98,60,.5);border-radius:22px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.55);animation:tin .3s}
+.mentor[hidden]{display:none!important}
+.mentor-av{width:52px;height:52px;flex:none;border-radius:50%;overflow:hidden;background:var(--surface-2);box-shadow:0 0 0 2px var(--cognac)}
+.mentor-av svg{width:100%;height:100%;display:block}
+.mentor-main{flex:1;min-width:0}
+.mentor-name{font-weight:800;font-size:.78rem;color:var(--cognac);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.mentor-text{font-size:.9rem;line-height:1.4}
+.mentor-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.mentor-btns .btn{padding:8px 14px;font-size:.8rem}
+body.mentor-on .toasts{bottom:240px}
+.tut-hl{outline:3px solid var(--cognac);outline-offset:3px;animation:tutPulse 1.2s infinite}
+@keyframes tutPulse{0%,100%{outline-color:rgba(160,98,60,1)}50%{outline-color:rgba(239,230,216,.9)}}
+.starter{margin-top:8px;margin-bottom:6px;border-color:rgba(160,98,60,.45);background:linear-gradient(135deg,rgba(160,98,60,.18),rgba(61,90,69,.16))}
+.starter-head{display:flex;align-items:center;gap:12px}
+.starter-head .mentor-av{width:40px;height:40px}
+.starter-list{display:flex;flex-direction:column;gap:6px}
+.starter-item{display:flex;align-items:center;gap:10px;background:rgba(17,20,17,.35);border-radius:14px;padding:9px 12px;font-size:.88rem}
+.starter-item .chk{width:20px;height:20px;border-radius:50%;border:2px solid var(--muted);flex:none;display:grid;place-items:center}
+.starter-item.ok .chk{background:var(--up);border-color:var(--up)}
+.starter-item.claimed{opacity:.5}
+.starter-item span.t{flex:1}
+.starter-item .btn{padding:6px 12px;font-size:.76rem}
 .art-cat{appearance:none;border:0;background:none;color:inherit;font:inherit;width:100%;text-align:left;cursor:pointer;padding-left:0;padding-right:0}
 .art-cat-r{display:flex;align-items:center;gap:10px;color:var(--muted)}
 .art-cat svg{transition:transform .2s}.art-cat.folded svg{transform:rotate(-90deg)}
@@ -702,6 +725,7 @@ input::placeholder{color:var(--muted);font-weight:600}
 
   <!-- GAINS -->
   <section class="tab on" id="tab-gains">
+    <div class="card stack starter" id="starterCard" hidden></div>
     <div class="card gain-wrap" style="margin-top:8px">
       <h2>Travaille pour gagner de l'argent</h2>
       <p class="muted">Clique sur le bouton. Plus ton empire rapporte, plus chaque clic vaut cher.</p>
@@ -766,6 +790,8 @@ input::placeholder{color:var(--muted);font-weight:600}
         </div>
       </div>
       <div class="lang-row" data-noi18n><span class="muted">Langue · Language</span><div class="seg" id="langSeg"><button type="button" data-l="fr">Français</button><button type="button" data-l="en">English</button></div></div>
+      <div class="lang-row"><span class="muted">Conseils du Parrain</span><div class="seg" id="tipSeg"><button type="button" data-t="on">Activés</button><button type="button" data-t="off">Coupés</button></div></div>
+      <div class="lang-row"><span class="muted">Revoir le tutoriel</span><button class="btn soft" id="tutReplay" style="padding:8px 14px;font-size:.8rem">Recommencer le tutoriel</button></div>
       <div class="lang-row"><span class="muted">Sons</span><div class="seg" id="soundSeg"><button type="button" data-s="on">Activés</button><button type="button" data-s="off">Coupés</button></div></div>
       <div id="meEditor" hidden></div>
     </div>
@@ -840,6 +866,10 @@ input::placeholder{color:var(--muted);font-weight:600}
     <div class="chat-body" id="chatBody"></div>
     <form class="chat-form" id="chatForm" autocomplete="off" hidden><input type="text" id="chatInput" maxlength="300" placeholder="Écris un message…" data-noi18n-value><button class="btn" type="submit" id="chatSend">Envoyer</button></form>
   </div>
+</div>
+<div class="mentor" id="mentor" hidden data-noi18n-skip>
+  <span class="avatar mentor-av" id="mentorAv"></span>
+  <div class="mentor-main"><div class="mentor-name">Le Parrain <span class="muted" id="mentorStep"></span></div><div class="mentor-text" id="mentorText"></div><div class="mentor-btns" id="mentorBtns"></div></div>
 </div>
 <div class="toasts" id="toasts"></div>
 
@@ -1758,6 +1788,14 @@ const EN_DICT = {
 "Pendant ton absence ({}), tes entreprises ont rapporté": "While you were away ({}), your companies earned",
 "Hors-ligne, tes entreprises tournent au ralenti : 50 % des bénéfices, 3 heures maximum.": "Offline, your companies run at half speed: 50% of profits, 3 hours max.",
 "Langue": "Language",
+"Le Parrain": "The Godfather",
+"Les missions du Parrain · {} / {}": "The Godfather's missions · {} / {}",
+"Masquer": "Hide",
+"Compris": "Got it",
+"Conseils du Parrain": "Godfather's tips",
+"Revoir le tutoriel": "Replay the tutorial",
+"Recommencer le tutoriel": "Restart the tutorial",
+"Tu peux réafficher les premiers pas depuis le Profil (Recommencer le tutoriel).": "You can bring the first steps back from the Profile (Restart the tutorial).",
 "Engins militaires": "Military vehicles",
 "Timbres rares": "Rare stamps",
 "Insolite": "Oddities",
@@ -4479,6 +4517,7 @@ $('#tabs').addEventListener('click', e => {
   if (currentTab === 'profil') $('#nameInput').value = S.name === 'Mon Empire' ? T(S.name) : S.name;
   if (currentTab === 'objectifs'){ buildWeek(); buildAch(); lbLoad(false); }
   if (currentTab === 'gains') buildTrips();
+  if (typeof guideTab === 'function') guideTab(currentTab);
   if (currentTab === 'concession') buildDealer();
   window.scrollTo({top:0}); refresh();
 });
@@ -5032,6 +5071,129 @@ function allIn(){
       }}]);
   }
 }
+
+
+/* ================= GUIDE : LE PARRAIN ================= */
+const L = (fr, en) => LANG === 'en' ? en : fr;
+const PARRAIN = {g:'m', skin:'#e2b38f', hair:'#9a9590', style:'slick', eyes:'#3a2a1a', glasses:'soleil', facial:'moustache', earring:false, suit:'#1b1b1b'};
+(() => {
+  if (S.guide && typeof S.guide === 'object') return;
+  const fresh = S.earned < 50 && !S.companies.length;
+  S.guide = {tut: fresh ? 0 : -1, seen: fresh ? {} : {bourse:1, biz:1, concession:1, gains:1, articles:1, objectifs:1, profil:1}, st:{}, stOff: !fresh && wealth() > 1e6, tipsOff:false, tips:{}};
+})();
+const G = S.guide;
+if (!G.st) G.st = {}; if (!G.tips) G.tips = {}; if (!G.seen) G.seen = {};
+let mentorKind = null, mentorLastTip = Date.now(), mentorIdleSince = Date.now();
+document.addEventListener('click', () => { mentorIdleSince = Date.now(); }, true);
+function mentorShow(kind, html, buttons, step){
+  mentorKind = kind;
+  $('#mentorAv').innerHTML = drawAvatar(PARRAIN);
+  $('#mentorText').innerHTML = html; $('#mentorStep').textContent = step || '';
+  const box = $('#mentorBtns'); box.innerHTML = '';
+  (buttons || [{label:'Compris'}]).forEach(b => { const el = document.createElement('button'); el.className = 'btn ' + (b.cls || ''); el.textContent = b.label;
+    el.addEventListener('click', () => { if (!b.keep) mentorHide(); b.action && b.action(); }); box.appendChild(el); });
+  $('#mentor').hidden = false; document.body.classList.add('mentor-on');
+}
+function mentorHide(){ mentorKind = null; $('#mentor').hidden = true; document.body.classList.remove('mentor-on'); document.querySelectorAll('.tut-hl').forEach(e => e.classList.remove('tut-hl')); }
+const goTab = t => { const b = document.querySelector(`#tabs [data-tab="${t}"]`); if (b && currentTab !== t) b.click(); };
+
+/* --- 1. Tutoriel pas à pas --- */
+const TUT = [
+  {tab:'gains', sel:'#workBtn', text:L('Bienvenue dans le business, petit. Ici, tout commence à la sueur du front : <b>clique sur le bouton</b> pour gagner tes premiers euros. Il t\'en faut 50 pour ouvrir ton premier stand.', 'Welcome to the business, kid. Everything starts with hard work: <b>tap the button</b> to earn your first euros. You need 50 to open your first stand.'), done:() => S.cash >= 50 || S.companies.length},
+  {tab:'biz', sel:'#foundBtn', text:L('Voilà de quoi démarrer. Va dans <b>Entreprises</b> et appuie sur <b>Créer une entreprise</b> : un stand de limonade à Lyon, c\'est parfait pour commencer.', 'That\'s enough to get going. Go to <b>Companies</b> and tap <b>Start a company</b>: a lemonade stand in Lyon is perfect to begin with.'), done:() => S.companies.length > 0},
+  {tab:'biz', sel:'[data-act="emp"]', text:L('Un stand sans personnel, ça ne rapporte rien. Appuie sur <b>Embaucher</b> pour recruter tes premiers employés : chacun augmente tes bénéfices.', 'A stand with no staff earns nothing. Tap <b>Hire</b> to recruit your first employees: each one boosts your profits.'), done:() => S.stats.hireActs > 0},
+  {tab:'biz', sel:'[data-act="up"]', text:L('Maintenant, <b>Rénove</b> ta succursale : chaque niveau augmente fortement ce qu\'elle rapporte. Si tu n\'as pas encore assez, clique un peu dans Gains ou attends que l\'argent rentre.', 'Now <b>Renovate</b> your branch: every level greatly increases what it earns. If you can\'t afford it yet, tap a bit in Earn or wait for the money to come in.'), done:() => S.stats.renos > 0},
+  {tab:'biz', sel:'[data-act="open"]', text:L('Dernière leçon : ouvre une <b>succursale dans une autre ville</b>. Plus tu as de succursales, plus de villes se débloquent, et plus tu gagnes.', 'Last lesson: open a <b>branch in another city</b>. The more branches you have, the more cities unlock, and the more you earn.'), done:() => totalBranches() >= 2},
+];
+function tutTick(){
+  if (G.tut < 0) return;
+  if (G.tut >= TUT.length){ G.tut = -1; save(); mentorShow('tut', L('Bien joué, tu as compris les bases. Je t\'ai préparé une liste de <b>premiers pas</b> dans l\'onglet Gains, avec des récompenses. Et si tu es perdu, je passerai te donner des conseils.', 'Well done, you\'ve got the basics. I\'ve set up a list of <b>first steps</b> in the Earn tab, with rewards. And if you get lost, I\'ll drop by with some advice.'), [{label:L('Merci, Parrain', 'Thanks, Godfather'), action:() => { goTab('gains'); buildStarter(); }}]); return; }
+  const st = TUT[G.tut];
+  if (st.done()){ G.tut++; save(); SFX.chime(); return tutTick(); }
+  if (mentorKind !== 'tut' || $('#mentor').dataset.step != G.tut){
+    mentorShow('tut', st.text, [{label:L('Passer le tutoriel', 'Skip the tutorial'), cls:'soft', action:() => { G.tut = -1; save(); buildStarter(); }}], `${G.tut + 1} / ${TUT.length}`);
+    $('#mentor').dataset.step = G.tut;
+    if (currentTab !== st.tab) goTab(st.tab);
+  }
+  document.querySelectorAll('.tut-hl').forEach(e => { if (!e.matches(st.sel)) e.classList.remove('tut-hl'); });
+  const el = document.querySelector(`#tab-${st.tab} ${st.sel}`) || document.querySelector(st.sel);
+  if (el && currentTab === st.tab && !el.classList.contains('tut-hl')){ el.classList.add('tut-hl'); el.scrollIntoView({block:'center', behavior:'smooth'}); }
+}
+
+/* --- 3. Premiers pas (checklist) --- */
+const STARTER = [
+  {id:'co',    text:L('Crée ta première entreprise', 'Start your first company'),            reward:100,   done:() => S.companies.length > 0},
+  {id:'br2',   text:L('Ouvre une 2e succursale', 'Open a 2nd branch'),                 reward:500,   done:() => totalBranches() >= 2},
+  {id:'lvl3',  text:L('Rénove une succursale au niveau 3', 'Renovate a branch to level 3'),       reward:1500,  done:() => S.companies.some(c => c.branches.some(b => b.l >= 3))},
+  {id:'stk',   text:L('Achète ta première action en bourse', 'Buy your first share'),     reward:2000,  done:() => Object.values(S.stk).some(x => x && x.q > 0)},
+  {id:'art',   text:L('Achète ton premier article', 'Buy your first item'),              reward:3000,  done:() => Object.keys(S.lux).length > 0},
+  {id:'mgr',   text:L('Embauche ton premier gérant', 'Hire your first manager'),             reward:5000,  done:() => S.companies.some(c => c.mgr)},
+  {id:'acc',   text:L('Crée un compte pour sauvegarder en ligne', 'Create an account to save online'), reward:5000, done:() => !!(cloud.user)},
+  {id:'nw',    text:L('Atteins 100 000 € de patrimoine', 'Reach €100,000 net worth'),         reward:10000, done:() => wealth() >= 1e5},
+];
+let starterSig = '';
+function buildStarter(){
+  const box = $('#starterCard'); if (!box) return;
+  const all = STARTER.every(x => G.st[x.id] === 'claimed');
+  if (G.tut >= 0 || G.stOff || all){ box.hidden = true; return; }
+  const sig = STARTER.map(x => G.st[x.id] || (x.done() ? 'ok' : '-')).join('');
+  if (sig === starterSig && !box.hidden) return; starterSig = sig;
+  const n = STARTER.filter(x => G.st[x.id] === 'claimed').length;
+  box.hidden = false;
+  box.innerHTML = `<div class="starter-head"><span class="avatar mentor-av">${drawAvatar(PARRAIN)}</span><div style="flex:1"><h3>Premiers pas</h3><span class="muted">Les missions du Parrain · ${n} / ${STARTER.length}</span></div><button class="btn soft" id="starterHide" style="padding:6px 12px;font-size:.74rem">Masquer</button></div>
+    <div class="starter-list">${STARTER.map(x => { const c = G.st[x.id] === 'claimed', ok = c || x.done();
+      return `<div class="starter-item${ok ? ' ok' : ''}${c ? ' claimed' : ''}"><span class="chk">${ok ? '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#151815" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>' : ''}</span><span class="t">${x.text}</span>${c ? '' : ok ? `<button class="btn green" data-st="${x.id}">+${money(x.reward)}</button>` : `<span class="muted">+${money(x.reward)}</span>`}</div>`; }).join('')}</div>`;
+}
+$('#starterCard').addEventListener('click', e => {
+  if (e.target.id === 'starterHide'){ G.stOff = true; save(); buildStarter(); toast('Tu peux réafficher les premiers pas depuis le Profil (Recommencer le tutoriel).'); return; }
+  const b = e.target.closest('[data-st]'); if (!b) return;
+  const x = STARTER.find(y => y.id === b.dataset.st); if (!x || G.st[x.id] === 'claimed' || !x.done()) return;
+  G.st[x.id] = 'claimed'; S.cash += x.reward; S.earned += x.reward; save(); refresh(); SFX.coin(); starterSig = ''; buildStarter();
+  if (STARTER.every(y => G.st[y.id] === 'claimed')) mentorShow('tip', L('Toutes mes missions sont faites. Tu n\'as plus besoin de moi pour marcher… mais je garde un œil sur toi.', 'All my missions are done. You don\'t need me to walk anymore… but I\'m keeping an eye on you.'));
+});
+
+/* --- 4. Présentation des onglets --- */
+const TAB_INTRO = {
+  biz:L('Ici, ce sont <b>tes entreprises</b>. Ouvre des succursales dans de nouvelles villes, rénove-les, embauche, puis prends un <b>gérant</b> pour qu\'il fasse tout ça à ta place. En bas, les <b>affaires louches</b> rapportent gros… si le fisc ne regarde pas.', 'These are <b>your companies</b>. Open branches in new cities, renovate them, hire, then get a <b>manager</b> to do it all for you. Further down, <b>shady business</b> pays big… if the taxman isn\'t looking.'),
+  bourse:L('La <b>Bourse</b> : achète des actions quand elles sont basses, revends-les plus haut, et touche des <b>dividendes</b> chaque minute. Les fonds sont moins risqués. Tu pourras même faire entrer tes propres entreprises en bourse.', 'The <b>Stock market</b>: buy shares when they\'re low, sell them higher, and collect <b>dividends</b> every minute. Funds are less risky. You can even take your own companies public.'),
+  concession:L('Ta <b>concession automobile</b>, un mini-jeu à part : commande des voitures, réponds aux offres des clients, reprends des occasions et rafle des voitures de collection aux enchères. Ta réputation fait venir les clients.', 'Your <b>car dealership</b>, a mini-game of its own: order cars, answer customer offers, take in trade-ins and snap up collector cars at auction. Your reputation brings in customers.'),
+  articles:L('Les <b>articles</b> : montres, voitures, tableaux, et quelques bizarreries. Chaque achat augmente les revenus de <b>toutes</b> tes entreprises, pour toujours. Surveille aussi les <b>ventes aux enchères</b>.', '<b>Items</b>: watches, cars, paintings, and a few oddities. Every purchase boosts the income of <b>all</b> your companies, forever. Keep an eye on the <b>auctions</b> too.'),
+  objectifs:L('Tes <b>objectifs</b> : le classement des joueurs, les défis de la semaine et les succès. Chaque objectif atteint se récupère ici contre de l\'argent.', 'Your <b>goals</b>: the player leaderboard, weekly challenges and achievements. Every goal you reach is claimed here for cash.'),
+  profil:L('Ton <b>profil</b> : ton avatar, ta notoriété, ton patrimoine, le <b>prestige</b> pour recommencer plus fort, et ton compte pour sauvegarder en ligne et inviter tes amis.', 'Your <b>profile</b>: your avatar, fame, net worth, <b>prestige</b> to start over stronger, and your account to save online and invite friends.'),
+};
+function guideTab(t){
+  if (G.tut >= 0 || G.seen[t] || !TAB_INTRO[t]) return;
+  G.seen[t] = 1; save();
+  setTimeout(() => mentorShow('intro', TAB_INTRO[t]), 250);
+}
+
+/* --- 2. Conseils du Parrain --- */
+const cheapestBranch = () => { let best = null;
+  S.companies.forEach(co => CITIES.filter(c => cityOpen(c) && !co.branches.some(b => b.city === c.id)).forEach(c => { const k = branchCost(co, c.id); if (!best || k < best) best = k; }));
+  return best; };
+const TIPS = [
+  {id:'branch', tab:'biz', max:3, when:() => { const k = cheapestBranch(); return k && S.cash >= k * 1.2 && totalBranches() < 12; }, text:L('T\'as de quoi ouvrir une nouvelle <b>succursale</b>. L\'argent qui dort ne rapporte rien, petit.', 'You can afford a new <b>branch</b>. Money that sleeps earns nothing, kid.')},
+  {id:'mgr', tab:'biz', max:2, when:() => S.companies.some(c => !c.mgr && S.cash >= mgrFee(c) * 1.5), text:L('Tu vas pas tout faire toi-même. Embauche un <b>gérant</b> : il rénove et embauche à ta place, même quand tu n\'es pas là.', 'You can\'t do everything yourself. Hire a <b>manager</b>: he renovates and hires for you, even when you\'re away.')},
+  {id:'dirty', tab:'biz', max:2, when:() => S.dirty > 1000, text:L('Tu as de l\'<b>argent sale</b> qui traîne. Il ne sert à rien tant qu\'il n\'est pas <b>blanchi</b> : fais-le passer par tes entreprises.', 'You\'ve got <b>dirty money</b> lying around. It\'s useless until it\'s <b>laundered</b>: run it through your companies.')},
+  {id:'heat', tab:'biz', max:3, when:() => S.heat > 70 || S.cops > 70, text:L('Ça sent le roussi. Le fisc ou la police s\'approche : paie un <b>avocat</b> ou un <b>indic</b>, ou mets tes affaires louches en pause.', 'Things are heating up. The taxman or the police are closing in: pay a <b>lawyer</b> or an <b>informant</b>, or pause your shady business.')},
+  {id:'idle', tab:'bourse', max:2, when:() => S.cash > 2e5 && S.cash > ips() * 3600 * 3, text:L('Ton solde dort depuis un moment. Place-le en <b>bourse</b>, achète des <b>articles</b> pour booster tes revenus, ou ouvre une nouvelle entreprise.', 'Your balance has been sleeping for a while. Put it in <b>stocks</b>, buy <b>items</b> to boost your income, or start a new company.')},
+  {id:'dealer', tab:'concession', max:1, when:() => !S.dealer && S.cash >= DEALER_COST * 2, text:L('Avec ce que tu as, tu peux ouvrir une <b>concession automobile</b>. Un vrai petit business à part.', 'With what you\'ve got, you can open a <b>car dealership</b>. A real little business of its own.')},
+  {id:'fame', tab:'profil', max:1, when:() => S.fame < 15 && S.companies.length >= 2, text:L('Personne ne te connaît encore. <b>Poste sur les réseaux</b> depuis ton profil : plus tu es connu, plus tes entreprises rapportent.', 'Nobody knows you yet. <b>Post on social media</b> from your profile: the more famous you are, the more your companies earn.')},
+  {id:'prestige', tab:'profil', max:1, when:() => typeof prestigeGain === 'function' && prestigeGain() >= 5, text:L('Tu peux faire un <b>prestige</b> : tout recommencer avec un bonus de revenus permanent. Réfléchis-y.', 'You can do a <b>prestige</b>: start over with a permanent income bonus. Think about it.')},
+];
+function tipTick(){
+  if (G.tipsOff || G.tut >= 0 || mentorKind || $('#modal').classList.contains('open') || (chat && chat.open)) return;
+  if (Date.now() - mentorLastTip < 4 * 60000 || Date.now() - mentorIdleSince < 20000) return;
+  const t = TIPS.find(x => (G.tips[x.id] || 0) < x.max && x.when());
+  if (!t) return;
+  G.tips[t.id] = (G.tips[t.id] || 0) + 1; mentorLastTip = Date.now(); save();
+  mentorShow('tip', t.text, [{label:L('Montre-moi', 'Show me'), action:() => goTab(t.tab)}, {label:'Compris', cls:'soft'}, {label:L('Plus de conseils', 'No more tips'), cls:'soft', action:() => { G.tipsOff = true; save(); paintTips(); }}]);
+}
+const paintTips = () => document.querySelectorAll('#tipSeg button').forEach(b => b.classList.toggle('on', (b.dataset.t === 'on') === !G.tipsOff));
+document.querySelectorAll('#tipSeg button').forEach(b => b.addEventListener('click', () => { G.tipsOff = b.dataset.t === 'off'; save(); paintTips(); }));
+$('#tutReplay').addEventListener('click', () => { G.tut = 0; G.stOff = false; G.seen = {}; starterSig = ''; save(); goTab('gains'); tutTick(); });
+paintTips();
+setInterval(() => { tutTick(); buildStarter(); tipTick(); }, 700);
 
 /* ================= DÉMARRAGE ================= */
 ensureWeek(); recordHist();
